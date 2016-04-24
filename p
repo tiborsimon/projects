@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 M_NO_PROJECT='You have %sno projects%s in your project directory!'
 M_ONLY_ONE_PROJECT='You only have %sone project%s. Entering that one..'
@@ -55,7 +55,14 @@ handle_project_root () {
 }
 
 handle_in_project_dir () {
-  echo 'In project'
+  if [ -f Projectfile ]; then
+    source Projectfile
+    for c in "${!commands[@]}"; do 
+      echo $c
+    done
+  else
+    echo 'No project file..'
+  fi
 }
 
 if [ "$(pwd)" = "$PROJECTS" ]; then
@@ -66,4 +73,8 @@ else
   cd $PROJECTS
   handle_project_root
 fi
+
+unset -f create_new_project
+unset -f handle_project_root
+unset -f handle_in_project_dir
 
