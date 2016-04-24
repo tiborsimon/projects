@@ -17,9 +17,8 @@ create_new_project () {
   echo 'new project'
 }
 
-handle_project_root () {
-  projects=($(ls))
-
+print_projects () {
+  projects=$1
   case ${#projects[*]} in
     0 )
       printf "\n$M_NO_PROJECT\n" ${BOLD} ${RESET}
@@ -38,20 +37,40 @@ handle_project_root () {
   done
 
   printf "\n  [%sn%s]:\tNew project\n" "${OTHER_COLOR}${BOLD}" ${RESET}
+}
 
+handle_project_selection () {
+  projects=$1
+  register=''
   printf "\n\n" && tput cuu1
   while true; do
-    echo -en "$M_PROJECT_CHOOSER_PROMPT "
-    read input
-    if [ $input -le ${#projects[*]} ] 2>/dev/null && [ $input -gt 0 ] 2>/dev/null; then
-      cd "$PROJECTS/${projects[$[input - 1]]}"
-      break
-    elif [ "$input" == "n" ]; then
+    printf  "%s %s" "$M_PROJECT_CHOOSER_PROMPT" "$register"
+    read -n 1 input
+
+    if [ "$input" == "n" ]; then
       create_new_project
       break
     fi
-    tput cuu1; tput dch1; tput el
+
+    if [ $input -le ${#projects[*]} ] 2>/dev/null && [ $input -gt 0 ] 2>/dev/null; then
+      if [ ${#projects[*]} -lt 10 ]; then
+        cd "$PROJECTS/${projects[$[input - 1]]}"
+        break
+      else
+        cd "$PROJECTS/${projects[$[input - 1]]}"
+        break
+      fi
+    fi
+    tput el1
+    printf "\r"
   done
+  printf "\n"
+}
+
+handle_project_root () {
+  projects=($(ls))
+  print_projects $projects
+  handle_project_selection $projects
 }
 
 handle_in_project_dir () {
@@ -77,4 +96,5 @@ fi
 unset -f create_new_project
 unset -f handle_project_root
 unset -f handle_in_project_dir
-
+unset -f print_projects
+unset -f handle_project_selection
