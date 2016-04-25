@@ -1,6 +1,9 @@
 import os
 import sys
 
+def load_config():
+    pass
+
 
 def main(args):
     print(args)
