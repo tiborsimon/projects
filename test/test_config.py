@@ -1,3 +1,3 @@
 import unittest
-from p import main
+from projects import main
 
