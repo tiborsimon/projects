@@ -21,4 +21,6 @@ if RED=$(tput setaf 1); then
     RESET=$(tput sgr0)
 fi
 
-python ../p.py ${RED} ${GREEN} ${YELLOW} ${BLUE} ${MAGENTA} ${CYAN} ${WHITE} ${BOLD} ${RESET} $(pwd) $@
+python -m projects ${RED} ${GREEN} ${YELLOW} ${BLUE} ${MAGENTA} ${CYAN} ${WHITE} ${BOLD} ${RESET} $(pwd) $@
+
+cd ~
