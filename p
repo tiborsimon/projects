@@ -45,20 +45,44 @@ handle_project_selection () {
   printf "\n\n" && tput cuu1
   while true; do
     printf  "%s %s" "$M_PROJECT_CHOOSER_PROMPT" "$register"
-    read -n 1 input
+    IFS='' read -s -r -n 1 -d '' input
 
-    if [ "$input" == "n" ]; then
+    if [ ${#register} -eq 0 ] && [ "$input" == "n" ]; then
       create_new_project
       break
     fi
 
-    if [ $input -le ${#projects[*]} ] 2>/dev/null && [ $input -gt 0 ] 2>/dev/null; then
-      if [ ${#projects[*]} -lt 10 ]; then
+    if [ $input -le ${#projects[*]} ] 2>/dev/null; then
+      if [ ${#projects[*]} -lt 10 ] && [ $input -gt 0 ] 2>/dev/null; then
         cd "$PROJECTS/${projects[$[input - 1]]}"
         break
       else
-        cd "$PROJECTS/${projects[$[input - 1]]}"
-        break
+
+        if [ ${#register} -eq 1 ]; then
+          echo -en 'most'
+          if [ "$input" == "\n" ]; then
+            echo 'enter'
+            cd "$PROJECTS/${projects[$[register - 1]]}"
+            break
+          elif [ "$input" == $'\x7f' ]; then
+            echo 'backspace'
+            register=''
+          else
+            register="$register$input"
+            if [ $register -gt ${#projects[*]} ]; then
+              register=''
+            else
+              echo -en $input
+              cd "$PROJECTS/${projects[$[register - 1]]}"
+              break
+            fi
+          fi
+        fi
+
+        if [ ${#register} -eq 0 ] && [ $input -gt 0 ] 2>/dev/null; then
+          register=$input
+        fi
+
       fi
     fi
     tput el1
@@ -98,3 +122,4 @@ unset -f handle_project_root
 unset -f handle_in_project_dir
 unset -f print_projects
 unset -f handle_project_selection
+
