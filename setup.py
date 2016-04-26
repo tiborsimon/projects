@@ -6,7 +6,7 @@ def readme():
         return f.read()
 
 setup(name='projects',
-      version='0.1.0',
+      version='0.1.1',
       description='The extensible project manager',
       long_description=readme(),
       classifiers=[
@@ -28,6 +28,6 @@ setup(name='projects',
       license='MIT',
       packages=['projects'],
       test_suite='test',
-      scripts=['bin/p'],
+      scripts=['bin/p', 'bin/pw'],
       include_package_data=True,
       zip_safe=False)
