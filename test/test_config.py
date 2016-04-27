@@ -8,7 +8,7 @@ import os
 from projects import config
 
 
-class ConfigTestCases(TestCase):
+class ConfigLoadingTestCases(TestCase):
 
     @mock.patch('projects.config.json')
     @mock.patch('projects.config.os')
@@ -50,3 +50,9 @@ class ConfigTestCases(TestCase):
         mock_json.load.side_effect = SyntaxError('json invalid')
         with self.assertRaises(SyntaxError):
             config.get_config()
+
+
+class ConfigValidationtEstCases(TestCase):
+
+    def test__mandatory_keys_present__no_exception_raised(self):
+        pass
