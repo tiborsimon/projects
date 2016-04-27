@@ -2,7 +2,10 @@
 # -*- coding: utf-8 -*-
 
 from unittest import TestCase
-import mock
+try:
+    import mock
+except ImportError:
+    from unittest import mock
 
 from projects import paths
 
