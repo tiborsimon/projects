@@ -159,7 +159,7 @@ class Getter(TestCase):
         mock_load.side_effect = IOError()
         mock_load.return_value = {}
         config.get()
-        mock_create.assert_called()
+        mock_create.assert_called_with()
 
     @mock.patch('projects.config.load_config')
     @mock.patch('projects.config.validate')
