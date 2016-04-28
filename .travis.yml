@@ -8,5 +8,5 @@ python:
   - "3.5"
   - "3.5-dev"
   - "nightly"
-install: "pip install ."
+# mock is already installed on travis
 script: "python -m unittest discover"
