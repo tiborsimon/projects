@@ -6,7 +6,7 @@
  
  
  ```
-from v1.1
+from v1.1.0
 
 deploy_url = 'hello_imre'
 
