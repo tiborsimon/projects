@@ -1,6 +1,8 @@
-#p - the extensible project manager
+#PROJECTS - the extensible project manager
 
- __p__ is a project management tool. You can list all of your projects and access
+[![Build Status](https://travis-ci.org/tiborsimon/projects.svg?branch=master)](https://travis-ci.org/tiborsimon/projects)
+
+ __PROJECTS__ is a project management tool. You can list all of your projects and access
  them with ease. Custom, project specific commands can be defined also. The built
  in plugin system provides maximal flexibility.
  
