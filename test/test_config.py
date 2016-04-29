@@ -26,7 +26,7 @@ class Path(TestCase):
 
 class Loading(TestCase):
 
-    open_patcher = mock.patch(open_mock_string, autospec=True)
+    open_patcher = mock.patch(open_mock_string)
 
     def setUp(self):
         self.mock_open = self.open_patcher.start()
@@ -132,7 +132,7 @@ class Getter(TestCase):
         result = config.get()
         self.assertEqual(dummy_config, result)
 
-    @mock.patch.object(config, 'load_config')
+    @mock.patch.object(config, 'load_config', autospec=True)
     @mock.patch.object(config, 'create_default_config', autospec=True)
     def test__config_file_not_exits__creates_new_one(self, mock_create, mock_load):
         mock_load.return_value = config.default_config
