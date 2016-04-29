@@ -4,10 +4,14 @@
 from unittest import TestCase
 try:
     import mock
-    open_mock_string = '__builtin__.open'
 except ImportError:
     from unittest import mock
+
+try:
+    import builtins
     open_mock_string = 'builtins.open'
+except ImportError:
+    open_mock_string = '__builtin__.open'
 
 from projects import config
 
