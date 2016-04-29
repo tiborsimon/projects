@@ -85,7 +85,7 @@ def get():
     try:
         config = load_config()
         validate(config)
-    except IOError:
+    except Exception as e:
         # TODO: add call to error display
         try:
             create_default_config()
