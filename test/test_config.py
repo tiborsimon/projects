@@ -4,16 +4,17 @@
 from unittest import TestCase
 try:
     import mock
+    open_mock_string = '__builtin__.open'
 except ImportError:
     from unittest import mock
-import os
+    open_mock_string = 'builtins.open'
 
 from projects import config
 
 
 class Path(TestCase):
 
-    @mock.patch('projects.config.os')
+    @mock.patch.object(config, 'os', autospec=True)
     def test__path_expanded_correctly(self, mock_os):
         config.get_config_path()
         mock_os.path.expanduser.assert_called_with('~/.prc')
@@ -21,67 +22,48 @@ class Path(TestCase):
 
 class Loading(TestCase):
 
-    @mock.patch('projects.config.json')
+    open_patcher = mock.patch(open_mock_string, autospec=True)
+
+    def setUp(self):
+        self.mock_open = self.open_patcher.start()
+
+    def tearDown(self):
+        self.open_patcher.stop()
+
+    @mock.patch.object(config, 'json', autospec=True)
     def test__config_path_required_correctly(self, mock_json):
         mock_open = mock.MagicMock()
-        try:
-            with mock.patch('__builtin__.open', mock_open):
-                config.load_config()
-        except ImportError:
-            with mock.patch('builtins.open', mock_open):
-                config.load_config()
+        with mock.patch(open_mock_string, mock_open):
+            config.load_config()
 
-    @mock.patch('projects.config.json')
-    @mock.patch('projects.config.get_config_path')
+    @mock.patch.object(config, 'json', autospec=True)
+    @mock.patch.object(config, 'get_config_path', autospec=True)
     def test__config_file_is_opened_from_the_right_path(self, mock_path, mock_json):
         dummy_config_path = '/config/path'
         mock_path.return_value = dummy_config_path
-        mock_open = mock.MagicMock()
-        try:
-            with mock.patch('__builtin__.open', mock_open):
-                config.load_config()
-        except ImportError:
-            with mock.patch('builtins.open', mock_open):
-                config.load_config()
-        mock_open.assert_called_with(dummy_config_path, 'r')
+        config.load_config()
+        self.mock_open.assert_called_with(dummy_config_path, 'r')
 
-    @mock.patch('projects.config.json')
+    @mock.patch.object(config, 'json', autospec=True)
     def test__file_not_found__raises_error(self, mock_json):
-        mock_open = mock.MagicMock(side_effect = IOError())
+        self.mock_open.side_effect = IOError()
         with self.assertRaises(IOError):
-            try:
-                with mock.patch('__builtin__.open', mock_open):
-                    config.load_config()
-            except ImportError:
-                with mock.patch('builtins.open', mock_open):
-                    config.load_config()
+            config.load_config()
 
-    @mock.patch('projects.config.json')
+    @mock.patch.object(config, 'json', autospec=True)
     def test__parsed_config_file_is_returned(self, mock_json):
         dummy_config = {
             'dummy': 'config'
         }
         mock_json.load.return_value = dummy_config
-        mock_open = mock.MagicMock()
-        try:
-            with mock.patch('__builtin__.open', mock_open):
-                result = config.load_config()
-        except ImportError:
-            with mock.patch('builtins.open', mock_open):
-                result = config.load_config()
+        result = config.load_config()
         self.assertEqual(dummy_config, result)
 
-    @mock.patch('projects.config.json')
+    @mock.patch.object(config, 'json', autospec=True)
     def test__invalid_json_syntax__raises_error(self, mock_json):
         mock_json.load.side_effect = SyntaxError('json invalid')
-        mock_open = mock.MagicMock()
         with self.assertRaises(SyntaxError):
-            try:
-                with mock.patch('__builtin__.open', mock_open):
-                    config.load_config()
-            except ImportError:
-                with mock.patch('builtins.open', mock_open):
-                    config.load_config()
+            config.load_config()
 
 
 class Validation(TestCase):
@@ -116,37 +98,30 @@ class Validation(TestCase):
 
 class Creation(TestCase):
 
-    @mock.patch('projects.config.get_config_path')
-    @mock.patch('projects.config.json')
+
+    @mock.patch.object(config, 'get_config_path', autospec=True)
+    @mock.patch.object(config, 'json', autospec=True)
     def test__config_is_written_to_the_right_place(self, mock_json, mock_path):
         dummy_path = '/config/path'
         mock_path.return_value = dummy_path
         mock_open = mock.MagicMock()
-        try:
-            with mock.patch('__builtin__.open', mock_open):
-                config.create_default_config()
-        except ImportError:
-            with mock.patch('builtins.open', mock_open):
-                config.create_default_config()
+        with mock.patch(open_mock_string, mock_open):
+            config.create_default_config()
         mock_open.assert_called_with(dummy_path, 'w+')
 
-    @mock.patch('projects.config.json')
+    @mock.patch.object(config, 'json', autospec=True)
     def test__json_file_is_written_with_the_full_configuration(self, mock_json):
         full_config = config.default_config.copy()
         full_config.update(config.optional_config)
         mock_open = mock.mock_open()
-        try:
-            with mock.patch('__builtin__.open', mock_open, create=True):
-                config.create_default_config()
-        except ImportError:
-            with mock.patch('builtins.open', mock_open, create=True):
-                config.create_default_config()
+        with mock.patch(open_mock_string, mock_open, create=True):
+            config.create_default_config()
         mock_json.dump.assert_called_with(mock_open.return_value, full_config)
 
 
 class Getter(TestCase):
 
-    @mock.patch('projects.config.load_config')
+    @mock.patch.object(config, 'load_config', autospec=True)
     def test__loaded_config_saved_as_a_global_variable(self, mock_load):
         dummy_config = config.default_config
         mock_load.return_value = dummy_config
@@ -154,29 +129,17 @@ class Getter(TestCase):
         self.assertEqual(dummy_config, result)
 
     @mock.patch('projects.config.load_config')
-    @mock.patch('projects.config.create_default_config')
+    @mock.patch.object(config, 'create_default_config', autospec=True)
     def test__config_file_not_exits__creates_new_one(self, mock_create, mock_load):
-        mock_load.side_effect = IOError()
-        mock_load.return_value = {}
+        # mock_load.return_value = config.default_config
+        # mock_load.side_effect = IOError()
         config.get()
         mock_create.assert_called_with()
 
-    @mock.patch('projects.config.load_config')
-    @mock.patch('projects.config.validate')
+    @mock.patch.object(config, 'load_config', autospec=True)
+    @mock.patch.object(config, 'validate', autospec=True)
     def test__loaded_config_gets_validated(self, mock_validate, mock_load):
         dummy_config = config.default_config
         mock_load.return_value = dummy_config
         config.get()
         mock_validate.assert_called_with(dummy_config)
-
-
-
-
-
-
-
-
-
-
-
-
