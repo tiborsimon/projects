@@ -102,7 +102,7 @@ class Creation(TestCase):
     def test__config_is_written_to_the_right_place(self, mock_json, mock_path):
         dummy_path = '/config/path'
         mock_path.return_value = dummy_path
-        with mock.patch(open_mock_string, autospec=True) as mock_open:
+        with mock.patch(open_mock_string) as mock_open:
             config.create_default_config()
             mock_open.assert_called_with(dummy_path, 'w+')
 
