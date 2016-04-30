@@ -8,10 +8,10 @@ except ImportError:
     from unittest import mock
 
 try:
-    import builtins
-    open_mock_string = 'builtins.open'
-except ImportError:
+    import __builtin__
     open_mock_string = '__builtin__.open'
+except ImportError:
+    open_mock_string = 'builtins.open'
 
 from projects import config
 
@@ -35,10 +35,10 @@ class Loading(TestCase):
         self.open_patcher.stop()
 
     @mock.patch.object(config, 'json', autospec=True)
-    def test__config_path_required_correctly(self, mock_json):
-        mock_open = mock.MagicMock()
-        with mock.patch(open_mock_string, mock_open):
-            config.load_config()
+    @mock.patch.object(config, 'os', autospec=True)
+    def test__config_path_required_correctly(self, mock_os, mock_json):
+        config.load_config()
+        mock_os.path.expanduser.assert_called_with('~/.prc')
 
     @mock.patch.object(config, 'json', autospec=True)
     @mock.patch.object(config, 'get_config_path', autospec=True)
