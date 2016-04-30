@@ -55,14 +55,16 @@ class Loading(TestCase):
             'dummy': 'config'
         }
         mock_json.load.return_value = dummy_config
-        result = config.load_config()
+        with mock.patch(open_mock_string):
+            result = config.load_config()
         self.assertEqual(dummy_config, result)
 
     @mock.patch.object(config, 'json', autospec=True)
     def test__invalid_json_syntax__raises_error(self, mock_json):
         mock_json.load.side_effect = SyntaxError('json invalid')
         with self.assertRaises(SyntaxError):
-            config.load_config()
+            with mock.patch(open_mock_string):
+                config.load_config()
 
 
 class Validation(TestCase):
