@@ -32,7 +32,7 @@ class Loading(TestCase):
     def test__config_path_required_correctly(self, mock_os, mock_json):
         with mock.patch(open_mock_string):
             config._load_config()
-        mock_os.path.expanduser.assert_called_with('~/.prc')
+        mock_os.path.expanduser.assert_called_with(config._config_file)
 
     @mock.patch.object(config, 'json', autospec=True)
     @mock.patch.object(config, '_get_config_path', autospec=True)
