@@ -53,22 +53,22 @@ def get():
             config = _load_config()
         except IOError as e:
             raise ConfigError('Config file ({}) cannot be created. '
-                              'IOError: {}'.format(_config_file, e.message))
+                              'IOError: {}'.format(_config_file, e.args[0]))
     except SyntaxError as e:
         raise ConfigError('Invalid JSON format in config file ({}). '
-                          'SyntaxError: {}'.format(_config_file, e.message))
+                          'SyntaxError: {}'.format(_config_file, e.args[0]))
 
     try:
         _validate(config)
     except KeyError as e:
         raise ConfigError('Missing mandatory key "{}" '
-                          'in config file ({}).'.format(e.message, _config_file))
+                          'in config file ({}).'.format(e.args[0], _config_file))
     except SyntaxError as e:
         raise ConfigError('Invalid key "{}" '
-                          'in config file ({}).'.format(e.message, _config_file))
+                          'in config file ({}).'.format(e.args[0], _config_file))
     except ValueError as e:
         raise ConfigError('Invalid value for key "{}" '
-                          'in config file ({}).'.format(e.message, _config_file))
+                          'in config file ({}).'.format(e.args[0], _config_file))
     return config
 
 

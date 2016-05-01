@@ -154,7 +154,7 @@ class Getter(TestCase):
             config.get()
         self.assertEqual(cm.exception.__class__, config.ConfigError)
         self.assertTrue('Config file ({}) cannot be created. '
-                        'IOError: Some error..'.format(config._config_file) in cm.exception)
+                        'IOError: Some error..'.format(config._config_file) == cm.exception.args[0])
 
     @mock.patch.object(config, '_load_config', autospec=True)
     def test__invalid_json_syntax__raises_config_error(self, mock_load):
@@ -163,7 +163,7 @@ class Getter(TestCase):
             config.get()
         self.assertEqual(cm.exception.__class__, config.ConfigError)
         self.assertTrue('Invalid JSON format in config file ({}). '
-                        'SyntaxError: Some syntax error..'.format(config._config_file) in cm.exception)
+                        'SyntaxError: Some syntax error..'.format(config._config_file) == cm.exception.args[0])
 
     @mock.patch.object(config, '_load_config', autospec=True)
     @mock.patch.object(config, '_validate', autospec=True)
@@ -181,7 +181,7 @@ class Getter(TestCase):
             config.get()
         self.assertEqual(cm.exception.__class__, config.ConfigError)
         self.assertTrue('Missing mandatory key "projects-path" '
-                        'in config file ({}).'.format(config._config_file) in cm.exception)
+                        'in config file ({}).'.format(config._config_file) == cm.exception.args[0])
 
     @mock.patch.object(config, '_load_config', autospec=True)
     @mock.patch.object(config, '_validate', autospec=True)
@@ -191,7 +191,7 @@ class Getter(TestCase):
             config.get()
         self.assertEqual(cm.exception.__class__, config.ConfigError)
         self.assertTrue('Invalid key "invalid-key" '
-                        'in config file ({}).'.format(config._config_file) in cm.exception)
+                        'in config file ({}).'.format(config._config_file) == cm.exception.args[0])
 
     @mock.patch.object(config, '_load_config', autospec=True)
     @mock.patch.object(config, '_validate', autospec=True)
@@ -201,4 +201,4 @@ class Getter(TestCase):
             config.get()
         self.assertEqual(cm.exception.__class__, config.ConfigError)
         self.assertTrue('Invalid value for key "key" '
-                        'in config file ({}).'.format(config._config_file) in cm.exception)
+                        'in config file ({}).'.format(config._config_file) == cm.exception.args[0])
