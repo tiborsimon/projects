@@ -2,10 +2,15 @@
 # -*- coding: utf-8 -*-
 
 from projects import paths
+from projects import config
 
 
 def main(args):
-    if paths.inside_project(projects_path):
+    try:
+        conf = config.get()
+    except:
+        pass
+    if paths.inside_project(conf['projects-path']):
         print('Inside')
     else:
         print('Outside')
