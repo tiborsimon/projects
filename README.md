@@ -29,3 +29,29 @@ publish|p: [bootstrap, build]
   Publishing the project means that you will upload this project to the deployment server
   """
  ```
+ 
+ ```
+ {
+    'min-version': 'v1.1.0',
+    'commands': {
+        'bootstrap': {
+            'description': 'This is the initialization command that you should run on a clean project.',
+            'dependency': [],
+            'pre': ['mkdir build', 'cd build', 'cmake ..', 'make'],
+            'post': ['cd ..', 'git status']
+        },
+        'b': {
+            'alias': 'bootstrap'
+        },
+        'publish': {
+            'description': 'Publishing the project means that you will upload this project to the deployment server',
+            'dependency': ['bootstrap', 'build'],
+            'pre': [],
+            'post': []
+        },
+        'p': {
+            'alias': 'publish'
+        }
+    }
+}
+```
