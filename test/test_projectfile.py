@@ -33,60 +33,120 @@ class FileLoading(TestCase):
             self.assertEqual(expected, result)
 
 
-class VersionParsing(TestCase):
+class VersionParser(TestCase):
 
-    def test__mandatory_version_can_be_parsed_1(self):
-        raw_file = ['from v1.2.3', '']
-        expected = {
-            'min-version': (1, 2, 3)
-        }
-        result = projectfile._parse(raw_file)
+    def test__valid_version_can_be_parsed_1(self):
+        line = 'from v1.2.3'
+        expected = (1, 2, 3)
+        result = projectfile._valid_version(line)
         self.assertEqual(expected, result)
 
-    def test__mandatory_version_can_be_parsed_2(self):
-        raw_file = ['from 1.2.3', '']
-        expected = {
-            'min-version': (1, 2, 3)
-        }
-        result = projectfile._parse(raw_file)
+    def test__valid_version_can_be_parsed_2(self):
+        line = 'from 1.2.3'
+        expected = (1, 2, 3)
+        result = projectfile._valid_version(line)
         self.assertEqual(expected, result)
 
-    def test__mandatory_version_can_be_parsed_3(self):
-        raw_file = ['from           v1.2.3    ', '']
-        expected = {
-            'min-version': (1, 2, 3)
-        }
-        result = projectfile._parse(raw_file)
+    def test__valid_version_can_be_parsed_3(self):
+        line = 'from           v1.2.3    '
+        expected = (1, 2, 3)
+        result = projectfile._valid_version(line)
         self.assertEqual(expected, result)
 
-    def test__mandatory_version_can_be_parsed_4(self):
-        raw_file = ['', 'from v1.2.3', '']
-        expected = {
-            'min-version': (1, 2, 3)
-        }
-        result = projectfile._parse(raw_file)
+    def test__valid_version_parser_for_invalid_version__returns_none_1(self):
+        line = 'fromv1.2.3'
+        expected = None
+        result = projectfile._valid_version(line)
         self.assertEqual(expected, result)
 
-    def test__invalid_mandatory_version__raise_exception(self):
-        raw_file = [' from v1.2.3', '']
+    def test__valid_version_parser_for_invalid_version__returns_none_2(self):
+        line = ' from v1.2.3'
+        expected = None
+        result = projectfile._valid_version(line)
+        self.assertEqual(expected, result)
+
+    def test__valid_version_parser_for_invalid_version__returns_none_3(self):
+        line = 'from v1.2'
+        expected = None
+        result = projectfile._valid_version(line)
+        self.assertEqual(expected, result)
+
+    def test__invalid_version__raise_exception_1(self):
+        line = ' from v1.2.3'
         with self.assertRaises(Exception) as cm:
-            projectfile._parse(raw_file)
-        self.assertEqual(cm.exception.__class__, projectfile.ProjectfileError)
-        self.assertTrue('Syntax error in line 1: '
-                        'Whitespaces are not allowed before the "from" keyword!' == cm.exception.args[0])
+            projectfile._invalid_version(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue('Whitespaces are not allowed before the "from" keyword!' == cm.exception.args[0])
 
-    def test__invalid_mandatory_version__raise_exception_2(self):
-        raw_file = ['', ' from v1.2.3', '']
+    def test__invalid_version__raise_exception_2(self):
+        line = 'from v1.2'
         with self.assertRaises(Exception) as cm:
-            projectfile._parse(raw_file)
-        self.assertEqual(cm.exception.__class__, projectfile.ProjectfileError)
-        self.assertTrue('Syntax error in line 2: '
-                        'Whitespaces are not allowed before the "from" keyword!' == cm.exception.args[0])
+            projectfile._invalid_version(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue('Invalid version format. The valid one looks like "v1.2.3".' == cm.exception.args[0])
 
-    def test__mandatory_version_missing__raise_exception(self):
-        raw_file = ['', '']
-        with self.assertRaises(Exception) as cm:
-            projectfile._parse(raw_file)
-        self.assertEqual(cm.exception.__class__, projectfile.ProjectfileError)
-        self.assertTrue('Syntax error: Mandatory minimum version (from vx.x.x) is missing! '
-                        'That should be the first thing you define in your Projectfile.' == cm.exception.args[0])
+    def test__double_check_invalid_version_with_valid_string(self):
+        line = 'from v1.2.3'
+        expected = None
+        result = projectfile._invalid_version(line)
+        self.assertEqual(expected, result)
+
+
+class EmptyLineParser(TestCase):
+
+    def test__parse_empty_line_1(self):
+        line = ''
+        expected = True
+        result = projectfile._empty_line(line)
+        self.assertEqual(expected, result)
+
+    def test__parse_empty_line_2(self):
+        line = ' '
+        expected = True
+        result = projectfile._empty_line(line)
+        self.assertEqual(expected, result)
+
+    def test__parse_empty_line_3(self):
+        line = '\t'
+        expected = True
+        result = projectfile._empty_line(line)
+        self.assertEqual(expected, result)
+
+    def test__parse_empty_line_4(self):
+        line = 'valami'
+        expected = False
+        result = projectfile._empty_line(line)
+        self.assertEqual(expected, result)
+
+    def test__parse_empty_line_5(self):
+        line = '  valami'
+        expected = False
+        result = projectfile._empty_line(line)
+        self.assertEqual(expected, result)
+
+
+class IndentedLineParser(TestCase):
+
+    def test__parse_indented_line_1(self):
+        line = ' valami'
+        expected = 'valami'
+        result = projectfile._indented_line(line)
+        self.assertEqual(expected, result)
+
+    def test__parse_indented_line_2(self):
+        line = '           valami'
+        expected = 'valami'
+        result = projectfile._indented_line(line)
+        self.assertEqual(expected, result)
+
+    def test__parse_indented_line_3(self):
+        line = ' valami valamik    '
+        expected = 'valami valamik'
+        result = projectfile._indented_line(line)
+        self.assertEqual(expected, result)
+
+    def test__parse_indented_line_4(self):
+        line = 'valami'
+        expected = None
+        result = projectfile._indented_line(line)
+        self.assertEqual(expected, result)

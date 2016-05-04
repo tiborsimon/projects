@@ -21,28 +21,32 @@ def _load(path):
     return raw.split('\n')
 
 
-def _parse(lines):
-    ret = {}
-
-    version_found = 0
-    p_version = re.compile('^from\s+v?(\d+).(\d+).(\d+)\s*$')
-    p_invalid_version = re.compile('^\s+from')
-
-    for index in range(len(lines)):
-        m = p_version.match(lines[index])
-        if m:
-            ret['min-version'] = (int(m.group(1)), int(m.group(2)), int(m.group(3)))
-            version_found = 1
-        m = p_invalid_version.match(lines[index])
-        if m:
-            raise ProjectfileError('Syntax error in line {}: '
-                                   'Whitespaces are not allowed before the "from" keyword!'.format(index+1))
+def _valid_version(line):
+    m = re.match('^from\s+v?(\d+).(\d+).(\d+)\s*$', line)
+    if m:
+        return int(m.group(1)), int(m.group(2)), int(m.group(3))
     else:
-        if not version_found:
-            raise ProjectfileError('Syntax error: Mandatory minimum version (from vx.x.x) is missing! '
-                                   'That should be the first thing you define in your Projectfile.')
-
-    return ret
+        return None
 
 
+def _invalid_version(line):
+    if re.match('^\s+from/*', line):
+        raise SyntaxError('Whitespaces are not allowed before the "from" keyword!')
+    if not re.match('.*v?\d+.\d+.\d+.*', line):
+        raise SyntaxError('Invalid version format. The valid one looks like "v1.2.3".')
+    return None
 
+
+def _empty_line(line):
+    if re.match('^\s*$', line):
+        return True
+    else:
+        return False
+
+
+def _indented_line(line):
+    m = re.match('^\s+(.*)$', line)
+    if m:
+        return m.group(1).strip()
+    else:
+        return None
