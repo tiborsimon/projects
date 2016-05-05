@@ -12,6 +12,12 @@ _VERSION_FORMAT_ERROR = 'Invalid version format. The valid one looks like "v1.2.
 _VARIABLE_INDENTATION_ERROR = 'Variables cannot be indented!'
 _VARIABLE_QUOTE_BEFORE_ERROR = 'No matching quote found at the beginning of value!'
 _VARIABLE_QUOTE_AFTER_ERROR = 'No matching quote found at the end of value!'
+_COMMAND_HEADER_INDENTATION_ERROR = 'Command header cannot be indented!'
+_COMMAND_HEADER_MISSING_COLON_ERROR = 'Missing colon after command name!'
+_COMMAND_HEADER_COLON_ERROR = 'Invalid colon placement! It should be "command:".'
+_COMMAND_HEADER_INVALID_ALTERNATIVE = 'Invalid command alternative syntax! It should be "command|c:".'
+_COMMAND_HEADER_EMPTY_DEPENDENCY_LIST = 'Empty dependency list!'
+_COMMAND_HEADER_INVALID_DEPENDENCY_LIST = 'Invalid dependency list syntax! It should be: "[dep1, dep2]".'
 
 
 def _get_projectfile_list_for_project_root(project_root):
@@ -122,3 +128,44 @@ def _command_divisor(line):
         return True
     else:
         return False
+
+
+def _valid_command_header(line):
+    m = re.match('^([\w\|\.\s-]+):\s*(?:\[([\w\.\s,-]+)\])?\s*$', line)
+    if m:
+        keys = m.group(1).split('|')
+        keys = map(lambda k: k.strip(), keys)
+        for key in keys:
+            if not key:
+                return None
+        if m.group(2):
+            deps = m.group(2).split(',')
+            deps = map(lambda d: d.strip(), deps)
+            for dep in deps:
+                if not dep:
+                    return None
+        else:
+            deps = []
+        return {
+            'keywords': keys,
+            'dependencies': deps
+        }
+    else:
+        return None
+
+
+def _invalid_command_header(line):
+    if re.match('^\s+.*', line):
+        raise SyntaxError(_COMMAND_HEADER_INDENTATION_ERROR)
+    if not re.search(':', line):
+        raise SyntaxError(_COMMAND_HEADER_MISSING_COLON_ERROR)
+    if re.search('(^\||\|:)', line):
+        raise SyntaxError(_COMMAND_HEADER_INVALID_ALTERNATIVE)
+    if re.search('(\w:\w|^:)', line):
+        raise SyntaxError(_COMMAND_HEADER_COLON_ERROR)
+    if re.search('\[\]', line):
+        raise SyntaxError(_COMMAND_HEADER_EMPTY_DEPENDENCY_LIST)
+    if re.search('[\[\]]', line):
+        if not re.search('\[[^\[\]]*\]', line) or re.search('\[(\s*,\s*|[^,]*,\s*,[^,]*)\]', line):
+            raise SyntaxError(_COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
+    return None

@@ -491,3 +491,370 @@ class CommandDivisorParser(TestCase):
         expected = False
         result = projectfile._command_divisor(line)
         self.assertEqual(expected, result)
+
+
+class CommandHeaderParser(TestCase):
+
+    def test__valid_command_header__basic_case(self):
+        line = 'command:'
+        expected = {
+            'keywords': ['command'],
+            'dependencies': []
+        }
+        result = projectfile._valid_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__valid_command_header__command_name_full_range(self):
+        line = 'command_COMMAND_1234567890.abc-abc:'
+        expected = {
+            'keywords': ['command_COMMAND_1234567890.abc-abc'],
+            'dependencies': []
+        }
+        result = projectfile._valid_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__valid_command_header__extra_space_after_colon(self):
+        line = 'command:   '
+        expected = {
+            'keywords': ['command'],
+            'dependencies': []
+        }
+        result = projectfile._valid_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__valid_command_header__extra_space_before_colon(self):
+        line = 'command  :'
+        expected = {
+            'keywords': ['command'],
+            'dependencies': []
+        }
+        result = projectfile._valid_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__valid_command_header__two_alternative_commands(self):
+        line = 'command|com:'
+        expected = {
+            'keywords': ['command', 'com'],
+            'dependencies': []
+        }
+        result = projectfile._valid_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__valid_command_header__three_alternative_commands(self):
+        line = 'command|com|c:'
+        expected = {
+            'keywords': ['command', 'com', 'c'],
+            'dependencies': []
+        }
+        result = projectfile._valid_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__valid_command_header__alternatives_with_space(self):
+        line = 'command |  com    | c    :'
+        expected = {
+            'keywords': ['command', 'com', 'c'],
+            'dependencies': []
+        }
+        result = projectfile._valid_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__valid_command_header__dependencies(self):
+        line = 'command|com|c: [dep]'
+        expected = {
+            'keywords': ['command', 'com', 'c'],
+            'dependencies': ['dep']
+        }
+        result = projectfile._valid_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__valid_command_header__multiple_dependencies(self):
+        line = 'command|com|c: [dep, dep2, dep3]'
+        expected = {
+            'keywords': ['command', 'com', 'c'],
+            'dependencies': ['dep', 'dep2', 'dep3']
+        }
+        result = projectfile._valid_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__valid_command_header__full_range_dependencies(self):
+        line = 'command|com|c: [command_COMMAND_1234567890.abc-abc]'
+        expected = {
+            'keywords': ['command', 'com', 'c'],
+            'dependencies': ['command_COMMAND_1234567890.abc-abc']
+        }
+        result = projectfile._valid_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__valid_command_header__dependencies_with_no_whitespaces(self):
+        line = 'command|com|c:[dep]'
+        expected = {
+            'keywords': ['command', 'com', 'c'],
+            'dependencies': ['dep']
+        }
+        result = projectfile._valid_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__valid_command_header__dependencies_with_more_outside_whitespaces(self):
+        line = 'command|com|c:    [dep]          '
+        expected = {
+            'keywords': ['command', 'com', 'c'],
+            'dependencies': ['dep']
+        }
+        result = projectfile._valid_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__valid_command_header__dependencies_with_more_inside_whitespaces(self):
+        line = 'command|com|c: [ dep    ]'
+        expected = {
+            'keywords': ['command', 'com', 'c'],
+            'dependencies': ['dep']
+        }
+        result = projectfile._valid_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__valid_command_header__multiple_dependencies_with_more_inside_whitespaces(self):
+        line = 'command|com|c: [ dep  ,               dep1  ]'
+        expected = {
+            'keywords': ['command', 'com', 'c'],
+            'dependencies': ['dep', 'dep1']
+        }
+        result = projectfile._valid_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__valid_command_header__returns_none__no_colon(self):
+        line = 'command'
+        expected = None
+        result = projectfile._valid_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__valid_command_header__returns_none__two_colons_1(self):
+        line = ':command:'
+        expected = None
+        result = projectfile._valid_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__valid_command_header__returns_none__two_colons_2(self):
+        line = 'command::'
+        expected = None
+        result = projectfile._valid_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__valid_command_header__returns_none__wrong_alternative_list_1(self):
+        line = 'command|:'
+        expected = None
+        result = projectfile._valid_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__valid_command_header__returns_none__wrong_alternative_list_2(self):
+        line = '|command:'
+        expected = None
+        result = projectfile._valid_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__valid_command_header__returns_none__wrong_dependency_list_1(self):
+        line = 'command: [dep'
+        expected = None
+        result = projectfile._valid_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__valid_command_header__returns_none__wrong_dependency_list_2(self):
+        line = 'command: dep'
+        expected = None
+        result = projectfile._valid_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__valid_command_header__returns_none__wrong_dependency_list_3(self):
+        line = 'command: dep]'
+        expected = None
+        result = projectfile._valid_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__valid_command_header__returns_none__wrong_dependency_list_4(self):
+        line = 'command: [dep,]'
+        expected = None
+        result = projectfile._valid_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__valid_command_header__returns_none__wrong_dependency_list_5(self):
+        line = 'command: [,,dep]'
+        expected = None
+        result = projectfile._valid_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__invalid_command_header__raises_exception__indentation_1(self):
+        line = ' command'
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_command_header(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._COMMAND_HEADER_INDENTATION_ERROR == cm.exception.args[0])
+
+    def test__invalid_command_header__raises_exception__indentation_2(self):
+        line = '     command'
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_command_header(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._COMMAND_HEADER_INDENTATION_ERROR == cm.exception.args[0])
+
+    def test__invalid_command_header__raises_exception__indentation_3(self):
+        line = '\tcommand'
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_command_header(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._COMMAND_HEADER_INDENTATION_ERROR == cm.exception.args[0])
+
+    def test__invalid_command_header__raises_exception__no_colon_1(self):
+        line = 'command'
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_command_header(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._COMMAND_HEADER_MISSING_COLON_ERROR == cm.exception.args[0])
+
+    def test__invalid_command_header__raises_exception__no_colon_2(self):
+        line = 'command|'
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_command_header(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._COMMAND_HEADER_MISSING_COLON_ERROR == cm.exception.args[0])
+
+    def test__invalid_command_header__raises_exception__no_colon_3(self):
+        line = 'command   [deb]'
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_command_header(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._COMMAND_HEADER_MISSING_COLON_ERROR == cm.exception.args[0])
+
+    def test__invalid_command_header__raises_exception__wrong_colon_syntax_1(self):
+        line = 'command:c'
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_command_header(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._COMMAND_HEADER_COLON_ERROR == cm.exception.args[0])
+
+    def test__invalid_command_header__raises_exception__wrong_colon_syntax_2(self):
+        line = ':command'
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_command_header(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._COMMAND_HEADER_COLON_ERROR == cm.exception.args[0])
+
+    def test__invalid_command_header__raises_exception__wrong_alternative_list_1(self):
+        line = 'command|:'
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_command_header(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._COMMAND_HEADER_INVALID_ALTERNATIVE == cm.exception.args[0])
+
+    def test__invalid_command_header__raises_exception__wrong_alternative_list_2(self):
+        line = '|command:'
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_command_header(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._COMMAND_HEADER_INVALID_ALTERNATIVE == cm.exception.args[0])
+
+    def test__invalid_command_header__raises_exception__wrong_alternative_list_3(self):
+        line = '|command|:'
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_command_header(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._COMMAND_HEADER_INVALID_ALTERNATIVE == cm.exception.args[0])
+
+    def test__invalid_command_header__raises_exception__wrong_alternative_list_4(self):
+        line = 'command||:'
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_command_header(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._COMMAND_HEADER_INVALID_ALTERNATIVE == cm.exception.args[0])
+
+    def test__invalid_command_header__raises_exception__wrong_dependency_list_1(self):
+        line = 'command: []'
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_command_header(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._COMMAND_HEADER_EMPTY_DEPENDENCY_LIST == cm.exception.args[0])
+
+    def test__invalid_command_header__raises_exception__wrong_dependency_list_2(self):
+        line = 'command: ['
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_command_header(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._COMMAND_HEADER_INVALID_DEPENDENCY_LIST == cm.exception.args[0])
+
+    def test__invalid_command_header__raises_exception__wrong_dependency_list_3(self):
+        line = 'command: ]'
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_command_header(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._COMMAND_HEADER_INVALID_DEPENDENCY_LIST == cm.exception.args[0])
+
+    def test__invalid_command_header__raises_exception__wrong_dependency_list_4(self):
+        line = 'command: [,]'
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_command_header(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._COMMAND_HEADER_INVALID_DEPENDENCY_LIST == cm.exception.args[0])
+
+    def test__invalid_command_header__raises_exception__wrong_dependency_list_5(self):
+        line = 'command: [ ,]'
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_command_header(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._COMMAND_HEADER_INVALID_DEPENDENCY_LIST == cm.exception.args[0])
+
+    def test__invalid_command_header__raises_exception__wrong_dependency_list_6(self):
+        line = 'command: [ ,  ]'
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_command_header(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._COMMAND_HEADER_INVALID_DEPENDENCY_LIST == cm.exception.args[0])
+
+    def test__invalid_command_header__raises_exception__wrong_dependency_list_7(self):
+        line = 'command: [dep1, , dep2]'
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_command_header(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._COMMAND_HEADER_INVALID_DEPENDENCY_LIST == cm.exception.args[0])
+
+    def test__invalid_command_header__raises_exception__wrong_dependency_list_8(self):
+        line = 'command: [dep1,,dep2]'
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_command_header(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._COMMAND_HEADER_INVALID_DEPENDENCY_LIST == cm.exception.args[0])
+
+    def test__double_check_invalid_command_header_1(self):
+        line = 'command:'
+        expected = None
+        result = projectfile._invalid_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__double_check_invalid_command_header_2(self):
+        line = 'command|com:'
+        expected = None
+        result = projectfile._invalid_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__double_check_invalid_command_header_3(self):
+        line = 'command|com|c:'
+        expected = None
+        result = projectfile._invalid_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__double_check_invalid_command_header_4(self):
+        line = 'command|com|c: [d1]'
+        expected = None
+        result = projectfile._invalid_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__double_check_invalid_command_header_5(self):
+        line = 'command|com|c: [d1, d2]'
+        expected = None
+        result = projectfile._invalid_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__double_check_invalid_command_header_6(self):
+        line = 'command | com | c  : [ d1        , d2 ]    '
+        expected = None
+        result = projectfile._invalid_command_header(line)
+        self.assertEqual(expected, result)
+
+
