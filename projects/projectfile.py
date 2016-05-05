@@ -37,6 +37,14 @@ def _invalid_version(line):
     return None
 
 
+def _line(line):
+    m = re.match('^(.*)$', line)
+    if m:
+        return m.group(1).strip()
+    else:
+        return None
+
+
 def _empty_line(line):
     if re.match('^\s*$', line):
         return True
@@ -50,3 +58,26 @@ def _indented_line(line):
         return m.group(1).strip()
     else:
         return None
+
+
+def _comment_delimiter(line):
+    if re.match('\s*""".*$', line):
+        return True
+    else:
+        return False
+
+
+def _valid_variable(line):
+    m = re.match('^(\w+)\s*=\s*(.*)$', line)
+    if m:
+        value = m.group(2).strip()
+        if value.startswith('"') or value.startswith("'"):
+            value = value[1:]
+        if value.endswith('"') or value.endswith("'"):
+            value = value[:-1]
+        value = value.replace('\\"', '"')
+        value = value.replace("\\'", "'")
+        return {m.group(1): value}
+    else:
+        return None
+        
