@@ -6,11 +6,19 @@ class ProjectfileError(Exception):
     pass
 
 
+_PROJECTFILE = 'Projectfile'
+_VERSION_INDENTATION_ERROR = 'Whitespaces are not allowed before the "from" keyword!'
+_VERSION_FORMAT_ERROR = 'Invalid version format. The valid one looks like "v1.2.3".'
+_VARIABLE_INDENTATION_ERROR = 'Variables cannot be indented!'
+_VARIABLE_QUOTE_BEFORE_ERROR = 'No matching quote found at the beginning of value!'
+_VARIABLE_QUOTE_AFTER_ERROR = 'No matching quote found at the end of value!'
+
+
 def _get_projectfile_list_for_project_root(project_root):
     result = []
     for root, dirs, files in os.walk(project_root):
         for name in files:
-            if name == 'Projectfile':
+            if name == _PROJECTFILE:
                 result.append(os.path.join(root, name))
     return result
 
@@ -31,9 +39,9 @@ def _valid_version(line):
 
 def _invalid_version(line):
     if re.match('^\s+from/*', line):
-        raise SyntaxError('Whitespaces are not allowed before the "from" keyword!')
+        raise SyntaxError(_VERSION_INDENTATION_ERROR)
     if not re.match('.*v?\d+.\d+.\d+.*', line):
-        raise SyntaxError('Invalid version format. The valid one looks like "v1.2.3".')
+        raise SyntaxError(_VERSION_FORMAT_ERROR)
     return None
 
 
@@ -71,13 +79,46 @@ def _valid_variable(line):
     m = re.match('^(\w+)\s*=\s*(.*)$', line)
     if m:
         value = m.group(2).strip()
+        temp_value = value
         if value.startswith('"') or value.startswith("'"):
-            value = value[1:]
+            if value.endswith('"') or value.endswith("'"):
+                temp_value = value[1:]
+            else:
+                return None
         if value.endswith('"') or value.endswith("'"):
-            value = value[:-1]
+            if value.startswith('"') or value.startswith("'"):
+                value = temp_value[:-1]
+            else:
+                return None
         value = value.replace('\\"', '"')
         value = value.replace("\\'", "'")
         return {m.group(1): value}
     else:
         return None
-        
+
+
+def _invalid_variable(line):
+    if re.match('^\s+\w+\s*=\s*.*$', line):
+        raise SyntaxError(_VARIABLE_INDENTATION_ERROR)
+    m = re.match('^(\w+)\s*=\s*(.*)$', line)
+    if m:
+        value = m.group(2).strip()
+        temp_value = value
+        if value.startswith('"') or value.startswith("'"):
+            if value.endswith('"') or value.endswith("'"):
+                pass
+            else:
+                raise SyntaxError(_VARIABLE_QUOTE_AFTER_ERROR)
+        if value.endswith('"') or value.endswith("'"):
+            if value.startswith('"') or value.startswith("'"):
+                pass
+            else:
+                raise SyntaxError(_VARIABLE_QUOTE_BEFORE_ERROR)
+    return None
+
+
+def _command_divisor(line):
+    if re.match('\s*===.*$', line):
+        return True
+    else:
+        return False
