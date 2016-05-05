@@ -32,7 +32,7 @@ class Loading(TestCase):
     def test__config_path_required_correctly(self, mock_os, mock_json):
         with mock.patch(open_mock_string):
             config._load_config()
-        mock_os.path.expanduser.assert_called_with(config._config_file)
+        mock_os.path.expanduser.assert_called_with(config._CONFIG_FILE)
 
     @mock.patch.object(config, 'json', autospec=True)
     @mock.patch.object(config, '_get_config_path', autospec=True)
@@ -149,21 +149,21 @@ class Getter(TestCase):
     @mock.patch.object(config, '_create_default_config', autospec=True)
     def test__config_file_cannot_be_written__raises_config_error(self, mock_create, mock_load):
         mock_load.side_effect = IOError()
-        mock_create.side_effect = IOError('Some error..')
+        error_message = 'Some error..'
+        mock_create.side_effect = IOError(error_message)
         with self.assertRaises(Exception) as cm:
             config.get()
         self.assertEqual(cm.exception.__class__, config.ConfigError)
-        self.assertTrue('Config file ({}) cannot be created. '
-                        'IOError: Some error..'.format(config._config_file) == cm.exception.args[0])
+        self.assertTrue(config._FILE_CREATION_ERROR.format(error_message) == cm.exception.args[0])
 
     @mock.patch.object(config, '_load_config', autospec=True)
     def test__invalid_json_syntax__raises_config_error(self, mock_load):
-        mock_load.side_effect = SyntaxError('Some syntax error..')
+        error_message = 'Some syntax error..'
+        mock_load.side_effect = SyntaxError(error_message)
         with self.assertRaises(Exception) as cm:
             config.get()
         self.assertEqual(cm.exception.__class__, config.ConfigError)
-        self.assertTrue('Invalid JSON format in config file ({}). '
-                        'SyntaxError: Some syntax error..'.format(config._config_file) == cm.exception.args[0])
+        self.assertTrue(config._JSON_SYNTAX_ERROR.format(error_message) == cm.exception.args[0])
 
     @mock.patch.object(config, '_load_config', autospec=True)
     @mock.patch.object(config, '_validate', autospec=True)
@@ -176,29 +176,29 @@ class Getter(TestCase):
     @mock.patch.object(config, '_load_config', autospec=True)
     @mock.patch.object(config, '_validate', autospec=True)
     def test__missing_mandatory_key__raises_config_error(self, mock_validate, mock_load):
-        mock_validate.side_effect = KeyError('projects-path')
+        error_message = 'projects-path'
+        mock_validate.side_effect = KeyError(error_message)
         with self.assertRaises(Exception) as cm:
             config.get()
         self.assertEqual(cm.exception.__class__, config.ConfigError)
-        self.assertTrue('Missing mandatory key "projects-path" '
-                        'in config file ({}).'.format(config._config_file) == cm.exception.args[0])
+        self.assertTrue(config._MANDATORY_KEY_ERROR.format(error_message) == cm.exception.args[0])
 
     @mock.patch.object(config, '_load_config', autospec=True)
     @mock.patch.object(config, '_validate', autospec=True)
     def test__invalid_key__raises_config_error(self, mock_validate, mock_load):
-        mock_validate.side_effect = SyntaxError('invalid-key')
+        error_message = 'invalid-key'
+        mock_validate.side_effect = SyntaxError(error_message)
         with self.assertRaises(Exception) as cm:
             config.get()
         self.assertEqual(cm.exception.__class__, config.ConfigError)
-        self.assertTrue('Invalid key "invalid-key" '
-                        'in config file ({}).'.format(config._config_file) == cm.exception.args[0])
+        self.assertTrue(config._INVALID_KEY_ERROR.format(error_message) == cm.exception.args[0])
 
     @mock.patch.object(config, '_load_config', autospec=True)
     @mock.patch.object(config, '_validate', autospec=True)
     def test__invalid_value_for_key__raises_config_error(self, mock_validate, mock_load):
-        mock_validate.side_effect = ValueError('key')
+        error_message = 'key'
+        mock_validate.side_effect = ValueError(error_message)
         with self.assertRaises(Exception) as cm:
             config.get()
         self.assertEqual(cm.exception.__class__, config.ConfigError)
-        self.assertTrue('Invalid value for key "key" '
-                        'in config file ({}).'.format(config._config_file) == cm.exception.args[0])
+        self.assertTrue(config._INVALID_VALUE_ERROR.format(error_message) == cm.exception.args[0])
