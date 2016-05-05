@@ -91,6 +91,38 @@ class VersionParser(TestCase):
         result = projectfile._invalid_version(line)
         self.assertEqual(expected, result)
 
+class LineParser(TestCase):
+
+    def test__line_can_be_parsed_1(self):
+        line = 'valami'
+        expected = 'valami'
+        result = projectfile._line(line)
+        self.assertEqual(expected, result)
+
+    def test__line_can_be_parsed_2(self):
+        line = ' valami'
+        expected = 'valami'
+        result = projectfile._line(line)
+        self.assertEqual(expected, result)
+
+    def test__line_can_be_parsed_3(self):
+        line = '   valami    '
+        expected = 'valami'
+        result = projectfile._line(line)
+        self.assertEqual(expected, result)
+
+    def test__line_can_be_parsed_4(self):
+        line = '\t\tvalami    '
+        expected = 'valami'
+        result = projectfile._line(line)
+        self.assertEqual(expected, result)
+
+    def test__line_can_be_parsed_5(self):
+        line = ' valami valami    '
+        expected = 'valami valami'
+        result = projectfile._line(line)
+        self.assertEqual(expected, result)
+
 
 class EmptyLineParser(TestCase):
 
@@ -149,4 +181,106 @@ class IndentedLineParser(TestCase):
         line = 'valami'
         expected = None
         result = projectfile._indented_line(line)
+        self.assertEqual(expected, result)
+
+
+class CommentDelimiterParser(TestCase):
+
+    def test__comment_delimiter_can_be_parsed_1(self):
+        line = '"""'
+        expected = True
+        result = projectfile._comment_delimiter(line)
+        self.assertEqual(expected, result)
+
+    def test__comment_delimiter_can_be_parsed_2(self):
+        line = '  """'
+        expected = True
+        result = projectfile._comment_delimiter(line)
+        self.assertEqual(expected, result)
+
+    def test__comment_delimiter_can_be_parsed_3(self):
+        line = '\t"""'
+        expected = True
+        result = projectfile._comment_delimiter(line)
+        self.assertEqual(expected, result)
+
+    def test__comment_delimiter_can_be_parsed_4(self):
+        line = '   """     '
+        expected = True
+        result = projectfile._comment_delimiter(line)
+        self.assertEqual(expected, result)
+
+    def test__comment_delimiter_can_be_parsed_5(self):
+        line = '""'
+        expected = False
+        result = projectfile._comment_delimiter(line)
+        self.assertEqual(expected, result)
+
+    def test__comment_delimiter_can_be_parsed_6(self):
+        line = '" ""'
+        expected = False
+        result = projectfile._comment_delimiter(line)
+        self.assertEqual(expected, result)
+
+
+class VariableParser(TestCase):
+
+    def test__variable_can_be_parsed_1(self):
+        line = 'my_variable = valami'
+        expected = {'my_variable': 'valami'}
+        result = projectfile._valid_variable(line)
+        self.assertEqual(expected, result)
+
+    def test__variable_can_be_parsed_2(self):
+        line = 'my_variable   =   valami'
+        expected = {'my_variable': 'valami'}
+        result = projectfile._valid_variable(line)
+        self.assertEqual(expected, result)
+
+    def test__variable_can_be_parsed_3(self):
+        line = 'my_variable=valami'
+        expected = {'my_variable': 'valami'}
+        result = projectfile._valid_variable(line)
+        self.assertEqual(expected, result)
+
+    def test__variable_can_be_parsed_4(self):
+        line = 'my_variable = valami vmi'
+        expected = {'my_variable': 'valami vmi'}
+        result = projectfile._valid_variable(line)
+        self.assertEqual(expected, result)
+
+    def test__variable_can_be_parsed_5(self):
+        line = 'my_variable = valami vmi     '
+        expected = {'my_variable': 'valami vmi'}
+        result = projectfile._valid_variable(line)
+        self.assertEqual(expected, result)
+
+    def test__variable_can_be_parsed_6(self):
+        line = 'my_variable = "valami vmi"'
+        expected = {'my_variable': 'valami vmi'}
+        result = projectfile._valid_variable(line)
+        self.assertEqual(expected, result)
+
+    def test__variable_can_be_parsed_7(self):
+        line = 'my_variable = "valami vmi"     '
+        expected = {'my_variable': 'valami vmi'}
+        result = projectfile._valid_variable(line)
+        self.assertEqual(expected, result)
+
+    def test__variable_can_be_parsed_8(self):
+        line = 'my_variable = \'valami vmi\''
+        expected = {'my_variable': 'valami vmi'}
+        result = projectfile._valid_variable(line)
+        self.assertEqual(expected, result)
+
+    def test__variable_can_be_parsed_9(self):
+        line = 'my_variable = "valami\\"vmi"'
+        expected = {'my_variable': 'valami"vmi'}
+        result = projectfile._valid_variable(line)
+        self.assertEqual(expected, result)
+
+    def test__variable_can_be_parsed_10(self):
+        line = 'my_variable = "valami\\\'vmi"'
+        expected = {'my_variable': 'valami\'vmi'}
+        result = projectfile._valid_variable(line)
         self.assertEqual(expected, result)
