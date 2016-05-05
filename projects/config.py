@@ -52,27 +52,27 @@ def get():
             _create_default_config()
             config = _load_config()
         except IOError as e:
-            raise ConfigError('Config file ({}) cannot be created. '
-                              'IOError: {}'.format(_config_file, e.args[0]))
+            raise ConfigError(_FILE_CREATION_ERROR.format(e.args[0]))
     except SyntaxError as e:
-        raise ConfigError('Invalid JSON format in config file ({}). '
-                          'SyntaxError: {}'.format(_config_file, e.args[0]))
+        raise ConfigError(_JSON_SYNTAX_ERROR.format(e.args[0]))
 
     try:
         _validate(config)
     except KeyError as e:
-        raise ConfigError('Missing mandatory key "{}" '
-                          'in config file ({}).'.format(e.args[0], _config_file))
+        raise ConfigError(_MANDATORY_KEY_ERROR.format(e.args[0]))
     except SyntaxError as e:
-        raise ConfigError('Invalid key "{}" '
-                          'in config file ({}).'.format(e.args[0], _config_file))
+        raise ConfigError(_INVALID_KEY_ERROR.format(e.args[0]))
     except ValueError as e:
-        raise ConfigError('Invalid value for key "{}" '
-                          'in config file ({}).'.format(e.args[0], _config_file))
+        raise ConfigError(_INVALID_VALUE_ERROR.format(e.args[0]))
     return config
 
 
-_config_file = '~/.prc'
+_CONFIG_FILE = '~/.prc'
+_FILE_CREATION_ERROR = 'Config file ({}) cannot be created. IOError: {{}}'.format(_CONFIG_FILE)
+_JSON_SYNTAX_ERROR = 'Invalid JSON format in config file ({}). SyntaxError: {{}}'.format(_CONFIG_FILE)
+_MANDATORY_KEY_ERROR = 'Missing mandatory key "{{}}" in config file ({}).'.format(_CONFIG_FILE)
+_INVALID_KEY_ERROR = 'Invalid key "{{}}" in config file ({}).'.format(_CONFIG_FILE)
+_INVALID_VALUE_ERROR = 'Invalid value for key "{{}}" in config file ({}).'.format(_CONFIG_FILE)
 
 _default_config = {
     'projects-path': '~/projects'
@@ -86,7 +86,7 @@ _optional_config = {
 
 
 def _get_config_path():
-    return os.path.expanduser(_config_file)
+    return os.path.expanduser(_CONFIG_FILE)
 
 
 def _load_config():
