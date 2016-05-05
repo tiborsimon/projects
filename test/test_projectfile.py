@@ -76,14 +76,14 @@ class VersionParser(TestCase):
         with self.assertRaises(Exception) as cm:
             projectfile._invalid_version(line)
         self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue('Whitespaces are not allowed before the "from" keyword!' == cm.exception.args[0])
+        self.assertTrue(projectfile._VERSION_INDENTATION_ERROR == cm.exception.args[0])
 
     def test__invalid_version__raise_exception_2(self):
         line = 'from v1.2'
         with self.assertRaises(Exception) as cm:
             projectfile._invalid_version(line)
         self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue('Invalid version format. The valid one looks like "v1.2.3".' == cm.exception.args[0])
+        self.assertTrue(projectfile._VERSION_FORMAT_ERROR == cm.exception.args[0])
 
     def test__double_check_invalid_version_with_valid_string(self):
         line = 'from v1.2.3'
@@ -225,62 +225,269 @@ class CommentDelimiterParser(TestCase):
 
 class VariableParser(TestCase):
 
-    def test__variable_can_be_parsed_1(self):
+    def test__variable_can_be_parsed__basic_case(self):
         line = 'my_variable = valami'
         expected = {'my_variable': 'valami'}
         result = projectfile._valid_variable(line)
         self.assertEqual(expected, result)
 
-    def test__variable_can_be_parsed_2(self):
+    def test__variable_can_be_parsed__more_whitespaces(self):
         line = 'my_variable   =   valami'
         expected = {'my_variable': 'valami'}
         result = projectfile._valid_variable(line)
         self.assertEqual(expected, result)
 
-    def test__variable_can_be_parsed_3(self):
+    def test__variable_can_be_parsed__no_whitespace(self):
         line = 'my_variable=valami'
         expected = {'my_variable': 'valami'}
         result = projectfile._valid_variable(line)
         self.assertEqual(expected, result)
 
-    def test__variable_can_be_parsed_4(self):
+    def test__variable_can_be_parsed__whitespace_inside_value(self):
         line = 'my_variable = valami vmi'
         expected = {'my_variable': 'valami vmi'}
         result = projectfile._valid_variable(line)
         self.assertEqual(expected, result)
 
-    def test__variable_can_be_parsed_5(self):
+    def test__variable_can_be_parsed__whitespace_inside_value_and_after_value(self):
         line = 'my_variable = valami vmi     '
         expected = {'my_variable': 'valami vmi'}
         result = projectfile._valid_variable(line)
         self.assertEqual(expected, result)
 
-    def test__variable_can_be_parsed_6(self):
+    def test__variable_can_be_parsed__double_quoted_value(self):
         line = 'my_variable = "valami vmi"'
         expected = {'my_variable': 'valami vmi'}
         result = projectfile._valid_variable(line)
         self.assertEqual(expected, result)
 
-    def test__variable_can_be_parsed_7(self):
+    def test__variable_can_be_parsed__double_quoted_value_tailing_whitespace(self):
         line = 'my_variable = "valami vmi"     '
         expected = {'my_variable': 'valami vmi'}
         result = projectfile._valid_variable(line)
         self.assertEqual(expected, result)
 
-    def test__variable_can_be_parsed_8(self):
-        line = 'my_variable = \'valami vmi\''
-        expected = {'my_variable': 'valami vmi'}
-        result = projectfile._valid_variable(line)
-        self.assertEqual(expected, result)
-
-    def test__variable_can_be_parsed_9(self):
+    def test__variable_can_be_parsed__double_quoted_value_with_escaped_double_quote(self):
         line = 'my_variable = "valami\\"vmi"'
         expected = {'my_variable': 'valami"vmi'}
         result = projectfile._valid_variable(line)
         self.assertEqual(expected, result)
 
-    def test__variable_can_be_parsed_10(self):
+    def test__variable_can_be_parsed__double_quoted_value_with_escaped_quote(self):
         line = 'my_variable = "valami\\\'vmi"'
         expected = {'my_variable': 'valami\'vmi'}
         result = projectfile._valid_variable(line)
+        self.assertEqual(expected, result)
+
+    def test__variable_can_be_parsed__quoted_value(self):
+        line = 'my_variable = \'valami vmi\''
+        expected = {'my_variable': 'valami vmi'}
+        result = projectfile._valid_variable(line)
+        self.assertEqual(expected, result)
+
+    def test__variable_can_be_parsed__quoted_value_tailing_whitespace(self):
+        line = 'my_variable = \'valami vmi\'     '
+        expected = {'my_variable': 'valami vmi'}
+        result = projectfile._valid_variable(line)
+        self.assertEqual(expected, result)
+
+    def test__variable_can_be_parsed__quoted_value_with_escaped_double_quote(self):
+        line = 'my_variable = \'valami\\"vmi\''
+        expected = {'my_variable': 'valami"vmi'}
+        result = projectfile._valid_variable(line)
+        self.assertEqual(expected, result)
+
+    def test__variable_can_be_parsed__quoted_value_with_escaped_quote(self):
+        line = 'my_variable = \'valami\\\'vmi\''
+        expected = {'my_variable': 'valami\'vmi'}
+        result = projectfile._valid_variable(line)
+        self.assertEqual(expected, result)
+
+    def test__variable_can_be_parsed__leading_whitespace__returns_none(self):
+        line = ' my_variable = valami'
+        expected = None
+        result = projectfile._valid_variable(line)
+        self.assertEqual(expected, result)
+
+    def test__variable_can_be_parsed__no_matching_quote__returns_none_1(self):
+        line = 'my_variable = "valami'
+        expected = None
+        result = projectfile._valid_variable(line)
+        self.assertEqual(expected, result)
+
+    def test__variable_can_be_parsed__no_matching_quote__returns_none_2(self):
+        line = 'my_variable = \'valami'
+        expected = None
+        result = projectfile._valid_variable(line)
+        self.assertEqual(expected, result)
+
+    def test__variable_can_be_parsed__no_matching_quote__returns_none_3(self):
+        line = 'my_variable = valami"'
+        expected = None
+        result = projectfile._valid_variable(line)
+        self.assertEqual(expected, result)
+
+    def test__variable_can_be_parsed__no_matching_quote__returns_none_4(self):
+        line = 'my_variable = valami\''
+        expected = None
+        result = projectfile._valid_variable(line)
+        self.assertEqual(expected, result)
+
+    def test__invalid_variable__indentation_should_raise_exception__basic_case(self):
+        line = ' my_variable = valami'
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_variable(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._VARIABLE_INDENTATION_ERROR == cm.exception.args[0])
+
+    def test__invalid_variable__indentation_should_raise_exception__more_whitespaces(self):
+        line = '         my_variable = valami'
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_variable(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._VARIABLE_INDENTATION_ERROR == cm.exception.args[0])
+
+    def test__invalid_variable__indentation_should_raise_exception__quoted_value(self):
+        line = ' my_variable = \'valami\''
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_variable(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._VARIABLE_INDENTATION_ERROR == cm.exception.args[0])
+
+    def test__invalid_variable__indentation_should_raise_exception__double_quoted_value(self):
+        line = '  my_variable = "valami"'
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_variable(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._VARIABLE_INDENTATION_ERROR == cm.exception.args[0])
+
+    def test__invalid_variable__indentation_should_raise_exception__quoted_value_with_escaped_quote(self):
+        line = ' my_variable = \'valami\\\'vmi\''
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_variable(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._VARIABLE_INDENTATION_ERROR == cm.exception.args[0])
+
+    def test__invalid_variable__indentation_should_raise_exception__quoted_value_with_escaped_double_quote(self):
+        line = ' my_variable = \'valami\"vmi\''
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_variable(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._VARIABLE_INDENTATION_ERROR == cm.exception.args[0])
+
+    def test__invalid_variable__indentation_should_raise_exception__double_quoted_value_with_escaped_quote(self):
+        line = ' my_variable = "valami\\\'vmi"'
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_variable(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._VARIABLE_INDENTATION_ERROR == cm.exception.args[0])
+
+    def test__invalid_variable__indentation_should_raise_exception__double_quoted_value_with_escaped_double_quote(self):
+        line = ' my_variable = "valami\"vmi"'
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_variable(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._VARIABLE_INDENTATION_ERROR == cm.exception.args[0])
+
+    def test__invalid_variable__indentation_should_raise_exception__unmatched_quote_1(self):
+        line = 'my_variable = \'valami'
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_variable(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._VARIABLE_QUOTE_AFTER_ERROR == cm.exception.args[0])
+
+    def test__invalid_variable__indentation_should_raise_exception__unmatched_quote_2(self):
+        line = 'my_variable = valami\''
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_variable(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._VARIABLE_QUOTE_BEFORE_ERROR == cm.exception.args[0])
+
+    def test__invalid_variable__indentation_should_raise_exception__unmatched_double_quote_1(self):
+        line = 'my_variable = "valami'
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_variable(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._VARIABLE_QUOTE_AFTER_ERROR == cm.exception.args[0])
+
+    def test__invalid_variable__indentation_should_raise_exception__unmatched_double_quote_2(self):
+        line = 'my_variable = valami"'
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_variable(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._VARIABLE_QUOTE_BEFORE_ERROR == cm.exception.args[0])
+
+    def test__double_check_invalid_variable_1(self):
+        line = 'my_variable = valami'
+        expected = None
+        result = projectfile._invalid_variable(line)
+        self.assertEqual(expected, result)
+
+    def test__double_check_invalid_variable_2(self):
+        line = 'my_variable = "valami"'
+        expected = None
+        result = projectfile._invalid_variable(line)
+        self.assertEqual(expected, result)
+
+    def test__double_check_invalid_variable_3(self):
+        line = 'my_variable = \'valami\''
+        expected = None
+        result = projectfile._invalid_variable(line)
+        self.assertEqual(expected, result)
+
+    def test__double_check_invalid_variable_4(self):
+        line = 'my_variable = valami vmi'
+        expected = None
+        result = projectfile._invalid_variable(line)
+        self.assertEqual(expected, result)
+
+    def test__double_check_invalid_variable_5(self):
+        line = 'my_variable = valami vmi     '
+        expected = None
+        result = projectfile._invalid_variable(line)
+        self.assertEqual(expected, result)
+
+
+class CommandDivisorParser(TestCase):
+
+    def test__command_divisor_can_be_parsed_1(self):
+        line = '==='
+        expected = True
+        result = projectfile._command_divisor(line)
+        self.assertEqual(expected, result)
+
+    def test__command_divisor_can_be_parsed_2(self):
+        line = ' ==='
+        expected = True
+        result = projectfile._command_divisor(line)
+        self.assertEqual(expected, result)
+
+    def test__command_divisor_can_be_parsed_3(self):
+        line = ' ===      '
+        expected = True
+        result = projectfile._command_divisor(line)
+        self.assertEqual(expected, result)
+
+    def test__command_divisor_can_be_parsed_4(self):
+        line = '\t==='
+        expected = True
+        result = projectfile._command_divisor(line)
+        self.assertEqual(expected, result)
+
+    def test__command_divisor_can_be_parsed_5(self):
+        line = '=='
+        expected = False
+        result = projectfile._command_divisor(line)
+        self.assertEqual(expected, result)
+
+    def test__command_divisor_can_be_parsed_6(self):
+        line = '='
+        expected = False
+        result = projectfile._command_divisor(line)
+        self.assertEqual(expected, result)
+
+    def test__command_divisor_can_be_parsed_7(self):
+        line = '= =='
+        expected = False
+        result = projectfile._command_divisor(line)
         self.assertEqual(expected, result)
