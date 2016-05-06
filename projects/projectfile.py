@@ -36,7 +36,7 @@ def _load(path):
 
 
 def _valid_version(line):
-    m = re.match('^from\s+v?(\d+).(\d+).(\d+)\s*$', line)
+    m = re.match('^from\s+v?(\d+)\.(\d+)\.(\d+)\s*$', line)
     if m:
         return int(m.group(1)), int(m.group(2)), int(m.group(3))
     else:
@@ -46,7 +46,7 @@ def _valid_version(line):
 def _invalid_version(line):
     if re.match('^\s+from/*', line):
         raise SyntaxError(_VERSION_INDENTATION_ERROR)
-    if not re.match('.*v?\d+.\d+.\d+.*', line):
+    if not re.match('from\s+v?\d+\.\d+\.\d+.*', line):
         raise SyntaxError(_VERSION_FORMAT_ERROR)
     return None
 

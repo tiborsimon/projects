@@ -53,6 +53,12 @@ class VersionParser(TestCase):
         result = projectfile._valid_version(line)
         self.assertEqual(expected, result)
 
+    def test__valid_version_can_be_parsed_4(self):
+        line = 'from v123456789.23456789.3456789'
+        expected = (123456789, 23456789, 3456789)
+        result = projectfile._valid_version(line)
+        self.assertEqual(expected, result)
+
     def test__valid_version_parser_for_invalid_version__returns_none_1(self):
         line = 'fromv1.2.3'
         expected = None
@@ -67,6 +73,12 @@ class VersionParser(TestCase):
 
     def test__valid_version_parser_for_invalid_version__returns_none_3(self):
         line = 'from v1.2'
+        expected = None
+        result = projectfile._valid_version(line)
+        self.assertEqual(expected, result)
+        
+    def test__valid_version_parser_for_invalid_version__returns_none_4(self):
+        line = 'from v12_43_56'
         expected = None
         result = projectfile._valid_version(line)
         self.assertEqual(expected, result)
@@ -99,9 +111,21 @@ class VersionParser(TestCase):
         self.assertEqual(cm.exception.__class__, SyntaxError)
         self.assertTrue(projectfile._VERSION_FORMAT_ERROR == cm.exception.args[0])
 
+    def test__invalid_version__raise_exception_5(self):
+        line = 'from v1.2_4'
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_version(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._VERSION_FORMAT_ERROR == cm.exception.args[0])
 
     def test__double_check_invalid_version_with_valid_string(self):
         line = 'from v1.2.3'
+        expected = None
+        result = projectfile._invalid_version(line)
+        self.assertEqual(expected, result)
+
+    def test__double_check_invalid_version_with_valid_string_2(self):
+        line = 'from v123456789.23456789.3456789'
         expected = None
         result = projectfile._invalid_version(line)
         self.assertEqual(expected, result)
