@@ -134,13 +134,13 @@ def _valid_command_header(line):
     m = re.match('^([\w\|\.\s-]+):\s*(?:\[([\w\.\s,-]+)\])?\s*$', line)
     if m:
         keys = m.group(1).split('|')
-        keys = map(lambda k: k.strip(), keys)
+        keys = [k.strip() for k in keys]
         for key in keys:
             if not key:
                 return None
         if m.group(2):
             deps = m.group(2).split(',')
-            deps = map(lambda d: d.strip(), deps)
+            deps = [d.strip() for d in deps]
             for dep in deps:
                 if not dep:
                     return None
