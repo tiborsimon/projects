@@ -79,11 +79,26 @@ class VersionParser(TestCase):
         self.assertTrue(projectfile._VERSION_INDENTATION_ERROR == cm.exception.args[0])
 
     def test__invalid_version__raise_exception_2(self):
+        line = '       from v1.2.3'
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_version(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._VERSION_INDENTATION_ERROR == cm.exception.args[0])
+
+    def test__invalid_version__raise_exception_3(self):
+        line = '\t\tfrom v1.2.3'
+        with self.assertRaises(Exception) as cm:
+            projectfile._invalid_version(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._VERSION_INDENTATION_ERROR == cm.exception.args[0])
+
+    def test__invalid_version__raise_exception_4(self):
         line = 'from v1.2'
         with self.assertRaises(Exception) as cm:
             projectfile._invalid_version(line)
         self.assertEqual(cm.exception.__class__, SyntaxError)
         self.assertTrue(projectfile._VERSION_FORMAT_ERROR == cm.exception.args[0])
+
 
     def test__double_check_invalid_version_with_valid_string(self):
         line = 'from v1.2.3'

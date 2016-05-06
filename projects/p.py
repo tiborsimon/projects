@@ -11,6 +11,8 @@ def main(args):
     except:
         pass
     if paths.inside_project(conf['projects-path']):
-        print('Inside')
+        # print('Inside')
+        pass
     else:
-        print('Outside')
+        # print('Outside')
+        pass
