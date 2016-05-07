@@ -35,23 +35,20 @@ def _load(path):
     return raw.split('\n')
 
 
-def _valid_version(line):
+def _parse_version(line):
     m = re.match('^from\s+v?(\d+)\.(\d+)\.(\d+)\s*$', line)
     if m:
         return int(m.group(1)), int(m.group(2)), int(m.group(3))
     else:
-        return None
+        if re.match('^\s+from.*$', line):
+            raise SyntaxError(_VERSION_INDENTATION_ERROR)
+        elif re.match('^from.*$', line) and not re.match('^from\s+v?(\d+)\.(\d+)\.(\d+)\s*$', line):
+            raise SyntaxError(_VERSION_FORMAT_ERROR)
+        else:
+            return None
 
 
-def _invalid_version(line):
-    if re.match('^\s+from/*', line):
-        raise SyntaxError(_VERSION_INDENTATION_ERROR)
-    if not re.match('from\s+v?\d+\.\d+\.\d+.*', line):
-        raise SyntaxError(_VERSION_FORMAT_ERROR)
-    return None
-
-
-def _line(line):
+def _parse_line(line):
     m = re.match('^(.*)$', line)
     if m:
         return m.group(1).strip()
@@ -59,14 +56,14 @@ def _line(line):
         return None
 
 
-def _empty_line(line):
+def _parse_empty_line(line):
     if re.match('^\s*$', line):
         return True
     else:
         return False
 
 
-def _indented_line(line):
+def _parse_indented_line(line):
     m = re.match('^\s+(.*)$', line)
     if m:
         return m.group(1).strip()
@@ -74,14 +71,14 @@ def _indented_line(line):
         return None
 
 
-def _comment_delimiter(line):
+def _parse_comment_delimiter(line):
     if re.match('\s*""".*$', line):
         return True
     else:
         return False
 
 
-def _valid_variable(line):
+def _parse_variable(line):
     m = re.match('^(\w+)\s*=\s*(.*)$', line)
     if m:
         value = m.group(2).strip()
@@ -90,60 +87,42 @@ def _valid_variable(line):
             if value.endswith('"') or value.endswith("'"):
                 temp_value = value[1:]
             else:
-                return None
+                raise SyntaxError(_VARIABLE_QUOTE_AFTER_ERROR)
         if value.endswith('"') or value.endswith("'"):
             if value.startswith('"') or value.startswith("'"):
                 value = temp_value[:-1]
             else:
-                return None
+                raise SyntaxError(_VARIABLE_QUOTE_BEFORE_ERROR)
         value = value.replace('\\"', '"')
         value = value.replace("\\'", "'")
         return {m.group(1): value}
     else:
+        if re.match('^\s+\w+\s*=\s*.*$', line):
+            raise SyntaxError(_VARIABLE_INDENTATION_ERROR)
         return None
 
 
-def _invalid_variable(line):
-    if re.match('^\s+\w+\s*=\s*.*$', line):
-        raise SyntaxError(_VARIABLE_INDENTATION_ERROR)
-    m = re.match('^(\w+)\s*=\s*(.*)$', line)
-    if m:
-        value = m.group(2).strip()
-        temp_value = value
-        if value.startswith('"') or value.startswith("'"):
-            if value.endswith('"') or value.endswith("'"):
-                pass
-            else:
-                raise SyntaxError(_VARIABLE_QUOTE_AFTER_ERROR)
-        if value.endswith('"') or value.endswith("'"):
-            if value.startswith('"') or value.startswith("'"):
-                pass
-            else:
-                raise SyntaxError(_VARIABLE_QUOTE_BEFORE_ERROR)
-    return None
-
-
-def _command_divisor(line):
+def _parse_command_divisor(line):
     if re.match('\s*===.*$', line):
         return True
     else:
         return False
 
 
-def _valid_command_header(line):
+def _parse_command_header(line):
     m = re.match('^([\w\|\.\s-]+):\s*(?:\[([\w\.\s,-]+)\])?\s*$', line)
     if m:
         keys = m.group(1).split('|')
         keys = [k.strip() for k in keys]
         for key in keys:
             if not key:
-                return None
+                raise SyntaxError(_COMMAND_HEADER_INVALID_ALTERNATIVE)
         if m.group(2):
             deps = m.group(2).split(',')
             deps = [d.strip() for d in deps]
             for dep in deps:
                 if not dep:
-                    return None
+                    raise SyntaxError(_COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
         else:
             deps = []
         return {
@@ -151,21 +130,34 @@ def _valid_command_header(line):
             'dependencies': deps
         }
     else:
-        return None
+        if re.match('^\s+.*', line):
+            raise SyntaxError(_COMMAND_HEADER_INDENTATION_ERROR)
+        elif not re.search(':', line):
+            raise SyntaxError(_COMMAND_HEADER_MISSING_COLON_ERROR)
+        elif re.search('(\w:\w|^:)', line):
+            raise SyntaxError(_COMMAND_HEADER_COLON_ERROR)
+        elif re.search('\[\]', line):
+            raise SyntaxError(_COMMAND_HEADER_EMPTY_DEPENDENCY_LIST)
+        elif re.search('[\[\]]', line):
+            if not re.search('\[[^\[\]]*\]', line) or re.search('\[(\s*,\s*|[^,]*,\s*,[^,]*)\]', line):
+                raise SyntaxError(_COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
+        else:
+            return None
 
 
-def _invalid_command_header(line):
-    if re.match('^\s+.*', line):
-        raise SyntaxError(_COMMAND_HEADER_INDENTATION_ERROR)
-    if not re.search(':', line):
-        raise SyntaxError(_COMMAND_HEADER_MISSING_COLON_ERROR)
-    if re.search('(^\||\|:)', line):
-        raise SyntaxError(_COMMAND_HEADER_INVALID_ALTERNATIVE)
-    if re.search('(\w:\w|^:)', line):
-        raise SyntaxError(_COMMAND_HEADER_COLON_ERROR)
-    if re.search('\[\]', line):
-        raise SyntaxError(_COMMAND_HEADER_EMPTY_DEPENDENCY_LIST)
-    if re.search('[\[\]]', line):
-        if not re.search('\[[^\[\]]*\]', line) or re.search('\[(\s*,\s*|[^,]*,\s*,[^,]*)\]', line):
-            raise SyntaxError(_COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
+
+def _start_state(data, line):
+    v = _parse_version(line)
+    if v:
+        data.update({'version': v})
+        return _before_commands_state
+    elif _invalid_version(line):
+        pass
+    elif _parse_empty_line(line):
+        return _start_state
+    else:
+        raise SyntaxError('You have to start your projectfile with the minimum supported p version!')
+
+
+def _before_commands_state():
     return None
