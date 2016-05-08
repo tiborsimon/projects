@@ -413,8 +413,10 @@ class CommandHeaderParser(TestCase):
     def test__valid_command_header__basic_case(self):
         line = 'command:'
         expected = {
-            'keywords': ['command'],
-            'dependencies': []
+            'command': {
+                'dependencies': [],
+                'done': False
+            }
         }
         result = projectfile._parse_command_header(line)
         self.assertEqual(expected, result)
@@ -422,8 +424,10 @@ class CommandHeaderParser(TestCase):
     def test__valid_command_header__command_name_full_range(self):
         line = 'command_COMMAND_1234567890.abc-abc:'
         expected = {
-            'keywords': ['command_COMMAND_1234567890.abc-abc'],
-            'dependencies': []
+            'command_COMMAND_1234567890.abc-abc': {
+                'dependencies': [],
+                'done': False
+            }
         }
         result = projectfile._parse_command_header(line)
         self.assertEqual(expected, result)
@@ -431,8 +435,10 @@ class CommandHeaderParser(TestCase):
     def test__valid_command_header__extra_space_after_colon(self):
         line = 'command:   '
         expected = {
-            'keywords': ['command'],
-            'dependencies': []
+            'command': {
+                'dependencies': [],
+                'done': False
+            }
         }
         result = projectfile._parse_command_header(line)
         self.assertEqual(expected, result)
@@ -440,8 +446,10 @@ class CommandHeaderParser(TestCase):
     def test__valid_command_header__extra_space_before_colon(self):
         line = 'command  :'
         expected = {
-            'keywords': ['command'],
-            'dependencies': []
+            'command': {
+                'dependencies': [],
+                'done': False
+            }
         }
         result = projectfile._parse_command_header(line)
         self.assertEqual(expected, result)
@@ -449,8 +457,13 @@ class CommandHeaderParser(TestCase):
     def test__valid_command_header__two_alternative_commands(self):
         line = 'command|com:'
         expected = {
-            'keywords': ['command', 'com'],
-            'dependencies': []
+            'command': {
+                'dependencies': [],
+                'done': False
+            },
+            'com': {
+                'alias': 'command'
+            }
         }
         result = projectfile._parse_command_header(line)
         self.assertEqual(expected, result)
@@ -458,8 +471,16 @@ class CommandHeaderParser(TestCase):
     def test__valid_command_header__three_alternative_commands(self):
         line = 'command|com|c:'
         expected = {
-            'keywords': ['command', 'com', 'c'],
-            'dependencies': []
+            'command': {
+                'dependencies': [],
+                'done': False
+            },
+            'com': {
+                'alias': 'command'
+            },
+            'c': {
+                'alias': 'command'
+            }
         }
         result = projectfile._parse_command_header(line)
         self.assertEqual(expected, result)
@@ -467,8 +488,16 @@ class CommandHeaderParser(TestCase):
     def test__valid_command_header__alternatives_with_space(self):
         line = 'command |  com    | c    :'
         expected = {
-            'keywords': ['command', 'com', 'c'],
-            'dependencies': []
+            'command': {
+                'dependencies': [],
+                'done': False
+            },
+            'com': {
+                'alias': 'command'
+            },
+            'c': {
+                'alias': 'command'
+            }
         }
         result = projectfile._parse_command_header(line)
         self.assertEqual(expected, result)
@@ -476,8 +505,16 @@ class CommandHeaderParser(TestCase):
     def test__valid_command_header__dependencies(self):
         line = 'command|com|c: [dep]'
         expected = {
-            'keywords': ['command', 'com', 'c'],
-            'dependencies': ['dep']
+            'command': {
+                'dependencies': ['dep'],
+                'done': False
+            },
+            'com': {
+                'alias': 'command'
+            },
+            'c': {
+                'alias': 'command'
+            }
         }
         result = projectfile._parse_command_header(line)
         self.assertEqual(expected, result)
@@ -485,8 +522,16 @@ class CommandHeaderParser(TestCase):
     def test__valid_command_header__multiple_dependencies(self):
         line = 'command|com|c: [dep, dep2, dep3]'
         expected = {
-            'keywords': ['command', 'com', 'c'],
-            'dependencies': ['dep', 'dep2', 'dep3']
+            'command': {
+                'dependencies': ['dep', 'dep2', 'dep3'],
+                'done': False
+            },
+            'com': {
+                'alias': 'command'
+            },
+            'c': {
+                'alias': 'command'
+            }
         }
         result = projectfile._parse_command_header(line)
         self.assertEqual(expected, result)
@@ -494,8 +539,16 @@ class CommandHeaderParser(TestCase):
     def test__valid_command_header__full_range_dependencies(self):
         line = 'command|com|c: [command_COMMAND_1234567890.abc-abc]'
         expected = {
-            'keywords': ['command', 'com', 'c'],
-            'dependencies': ['command_COMMAND_1234567890.abc-abc']
+            'command': {
+                'dependencies': ['command_COMMAND_1234567890.abc-abc'],
+                'done': False
+            },
+            'com': {
+                'alias': 'command'
+            },
+            'c': {
+                'alias': 'command'
+            }
         }
         result = projectfile._parse_command_header(line)
         self.assertEqual(expected, result)
@@ -503,8 +556,16 @@ class CommandHeaderParser(TestCase):
     def test__valid_command_header__dependencies_with_no_whitespaces(self):
         line = 'command|com|c:[dep]'
         expected = {
-            'keywords': ['command', 'com', 'c'],
-            'dependencies': ['dep']
+            'command': {
+                'dependencies': ['dep'],
+                'done': False
+            },
+            'com': {
+                'alias': 'command'
+            },
+            'c': {
+                'alias': 'command'
+            }
         }
         result = projectfile._parse_command_header(line)
         self.assertEqual(expected, result)
@@ -512,8 +573,16 @@ class CommandHeaderParser(TestCase):
     def test__valid_command_header__dependencies_with_more_outside_whitespaces(self):
         line = 'command|com|c:    [dep]          '
         expected = {
-            'keywords': ['command', 'com', 'c'],
-            'dependencies': ['dep']
+            'command': {
+                'dependencies': ['dep'],
+                'done': False
+            },
+            'com': {
+                'alias': 'command'
+            },
+            'c': {
+                'alias': 'command'
+            }
         }
         result = projectfile._parse_command_header(line)
         self.assertEqual(expected, result)
@@ -521,8 +590,16 @@ class CommandHeaderParser(TestCase):
     def test__valid_command_header__dependencies_with_more_inside_whitespaces(self):
         line = 'command|com|c: [ dep    ]'
         expected = {
-            'keywords': ['command', 'com', 'c'],
-            'dependencies': ['dep']
+            'command': {
+                'dependencies': ['dep'],
+                'done': False
+            },
+            'com': {
+                'alias': 'command'
+            },
+            'c': {
+                'alias': 'command'
+            }
         }
         result = projectfile._parse_command_header(line)
         self.assertEqual(expected, result)
@@ -530,8 +607,16 @@ class CommandHeaderParser(TestCase):
     def test__valid_command_header__multiple_dependencies_with_more_inside_whitespaces(self):
         line = 'command|com|c: [ dep  ,               dep1  ]'
         expected = {
-            'keywords': ['command', 'com', 'c'],
-            'dependencies': ['dep', 'dep1']
+            'command': {
+                'dependencies': ['dep', 'dep1'],
+                'done': False
+            },
+            'com': {
+                'alias': 'command'
+            },
+            'c': {
+                'alias': 'command'
+            }
         }
         result = projectfile._parse_command_header(line)
         self.assertEqual(expected, result)
@@ -677,49 +762,95 @@ class CommandHeaderParser(TestCase):
         self.assertTrue(projectfile._COMMAND_HEADER_INVALID_DEPENDENCY_LIST == cm.exception.args[0])
 
 
+class StartState(TestCase):
 
-# class StartState(TestCase):
-#
-#     def test__start_state_can_parse_version(self):
-#         data = {}
-#         line = 'from v1.2.3'
-#         expected = {'version': (1, 2, 3)}
-#         expected_state = projectfile._before_commands_state
-#         next_state = projectfile._start_state(data, line)
-#         self.assertEqual(expected, data)
-#         self.assertEqual(expected_state, next_state)
-#
-#     def test__start_state_can_tolerate_empty_lines(self):
-#         data = {}
-#         line1 = ''
-#         line2 = 'from v1.2.3'
-#
-#         expected1 = {}
-#         expected2 = {'version': (1, 2, 3)}
-#         expected_state1 = projectfile._start_state
-#         expected_state2 = projectfile._before_commands_state
-#
-#         next_state1 = projectfile._start_state(data, line1)
-#         self.assertEqual(expected1, data)
-#         self.assertEqual(expected_state1, next_state1)
-#
-#         next_state2 = projectfile._start_state(data, line2)
-#         self.assertEqual(expected2, data)
-#         self.assertEqual(expected_state2, next_state2)
-#
-#     def test__start_state_cannot_tolerate_anything_else(self):
-#         data = {}
-#         line = 'valami'
-#         with self.assertRaises(Exception) as cm:
-#             projectfile._start_state(data, line)
-#         self.assertEqual(cm.exception.__class__, SyntaxError)
-#
-#     def test__start_state_raise_error_on_invalid_version(self):
-#         data = {}
-#         line = 'from v.1'
-#         with self.assertRaises(Exception) as cm:
-#             projectfile._start_state(data, line)
-#         self.assertEqual(cm.exception.__class__, SyntaxError)
-#         self.assertTrue(projectfile._VERSION_FORMAT_ERROR == cm.exception.args[0])
+    def test__can_parse_version(self):
+        data = {}
+        line = 'from v1.2.3'
+        expected = {'min-version': (1, 2, 3)}
+        expected_state = projectfile._state_before_commands
+        next_state = projectfile._state_start(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
+
+    def test__can_tolerate_empty_lines(self):
+        data = {}
+        line1 = ''
+        line2 = 'from v1.2.3'
+
+        expected1 = {}
+        expected2 = {'min-version': (1, 2, 3)}
+        expected_state1 = projectfile._state_start
+        expected_state2 = projectfile._state_before_commands
+
+        next_state1 = projectfile._state_start(data, line1)
+        self.assertEqual(expected1, data)
+        self.assertEqual(expected_state1, next_state1)
+
+        next_state2 = projectfile._state_start(data, line2)
+        self.assertEqual(expected2, data)
+        self.assertEqual(expected_state2, next_state2)
+
+    def test__cannot_tolerate_anything_else(self):
+        data = {}
+        line = 'valami'
+        with self.assertRaises(Exception) as cm:
+            projectfile._state_start(data, line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._VERSION_MISSING_ERROR == cm.exception.args[0])
+
+    def test__raise_error_on_invalid_version(self):
+        data = {}
+        line = 'from v.1'
+        with self.assertRaises(Exception) as cm:
+            projectfile._state_start(data, line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._VERSION_FORMAT_ERROR == cm.exception.args[0])
+
+
+class BeforeCommandsState(TestCase):
+
+    def test__can_tolerate_empty_lines(self):
+        data = {}
+        line = ''
+        expected = {}
+        expected_state = projectfile._state_before_commands
+        next_state = projectfile._state_before_commands(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
+
+    def test__can_parse_comments(self):
+        data = {}
+        line = '"""'
+        expected = {'description': {'done': False}}
+        expected_state = projectfile._state_main_comment
+        next_state = projectfile._state_before_commands(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
+
+    def test__can_parse_variables(self):
+        data = {}
+        line = 'some_variable = 42'
+        expected = {'variables': {'some_variable': '42'}}
+        expected_state = projectfile._state_variables
+        next_state = projectfile._state_before_commands(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
+
+    def test__can_parse_command_header(self):
+        data = {}
+        line = 'my_command:'
+        expected = {
+            'commands': {
+                'my_command': {
+                    'dependencies': [],
+                    'done': False
+                }
+            }
+        }
+        expected_state = projectfile._state_command
+        next_state = projectfile._state_before_commands(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
 
 

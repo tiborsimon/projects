@@ -9,6 +9,7 @@ class ProjectfileError(Exception):
 _PROJECTFILE = 'Projectfile'
 _VERSION_INDENTATION_ERROR = 'Whitespaces are not allowed before the "from" keyword!'
 _VERSION_FORMAT_ERROR = 'Invalid version format. The valid one looks like "v1.2.3".'
+_VERSION_MISSING_ERROR = 'You have to start your projectfile with the minimum supported version!'
 _VARIABLE_INDENTATION_ERROR = 'Variables cannot be indented!'
 _VARIABLE_QUOTE_BEFORE_ERROR = 'No matching quote found at the beginning of value!'
 _VARIABLE_QUOTE_AFTER_ERROR = 'No matching quote found at the end of value!'
@@ -18,6 +19,7 @@ _COMMAND_HEADER_COLON_ERROR = 'Invalid colon placement! It should be "command:".
 _COMMAND_HEADER_INVALID_ALTERNATIVE = 'Invalid command alternative syntax! It should be "command|c:".'
 _COMMAND_HEADER_EMPTY_DEPENDENCY_LIST = 'Empty dependency list!'
 _COMMAND_HEADER_INVALID_DEPENDENCY_LIST = 'Invalid dependency list syntax! It should be: "[dep1, dep2]".'
+
 
 
 def _get_projectfile_list_for_project_root(project_root):
@@ -125,10 +127,17 @@ def _parse_command_header(line):
                     raise SyntaxError(_COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
         else:
             deps = []
-        return {
-            'keywords': keys,
-            'dependencies': deps
+
+        ret = {
+            keys[0]: {
+                'dependencies': deps,
+                'done': False
+            }
         }
+        if len(keys) > 1:
+            for key in keys[1:]:
+                ret[key] = {'alias': keys[0]}
+        return ret
     else:
         if re.match('^\s+.*', line):
             raise SyntaxError(_COMMAND_HEADER_INDENTATION_ERROR)
@@ -145,19 +154,40 @@ def _parse_command_header(line):
             return None
 
 
-
-def _start_state(data, line):
+def _state_start(data, line):
     v = _parse_version(line)
     if v:
-        data.update({'version': v})
-        return _before_commands_state
-    elif _invalid_version(line):
-        pass
+        data.update({'min-version': v})
+        return _state_before_commands
     elif _parse_empty_line(line):
-        return _start_state
+        return _state_start
     else:
-        raise SyntaxError('You have to start your projectfile with the minimum supported p version!')
+        raise SyntaxError(_VERSION_MISSING_ERROR)
 
 
-def _before_commands_state():
+def _state_before_commands(data, line):
+    if _parse_empty_line(line):
+        return _state_before_commands
+    if _parse_comment_delimiter(line):
+        data.update({'description': {'done': False}})
+        return _state_main_comment
+    v = _parse_variable(line)
+    if v:
+        data.update({'variables': v})
+        return _state_variables
+    c = _parse_command_header(line)
+    if c:
+        data['commands'] = c
+        return _state_command
+
+
+def _state_main_comment():
+    return None
+
+
+def _state_variables():
+    return None
+
+
+def _state_command():
     return None
