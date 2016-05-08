@@ -7,18 +7,25 @@ class ProjectfileError(Exception):
 
 
 _PROJECTFILE = 'Projectfile'
+
+_COMMAND_DELIMITER_UNEXPECTED_ERROR = 'Unexpected comment delimiter!'
+
 _VERSION_INDENTATION_ERROR = 'Whitespaces are not allowed before the "from" keyword!'
 _VERSION_FORMAT_ERROR = 'Invalid version format. The valid one looks like "v1.2.3".'
 _VERSION_MISSING_ERROR = 'You have to start your projectfile with the minimum supported version!'
+
 _VARIABLE_INDENTATION_ERROR = 'Variables cannot be indented!'
 _VARIABLE_QUOTE_BEFORE_ERROR = 'No matching quote found at the beginning of value!'
 _VARIABLE_QUOTE_AFTER_ERROR = 'No matching quote found at the end of value!'
+_VARIABLE_SYNTAX_ERROR = 'Invalid variable format! It should be "my-variable = 42".'
+
 _COMMAND_HEADER_INDENTATION_ERROR = 'Command header cannot be indented!'
 _COMMAND_HEADER_MISSING_COLON_ERROR = 'Missing colon after command name!'
 _COMMAND_HEADER_COLON_ERROR = 'Invalid colon placement! It should be "command:".'
 _COMMAND_HEADER_INVALID_ALTERNATIVE = 'Invalid command alternative syntax! It should be "command|c:".'
 _COMMAND_HEADER_EMPTY_DEPENDENCY_LIST = 'Empty dependency list!'
 _COMMAND_HEADER_INVALID_DEPENDENCY_LIST = 'Invalid dependency list syntax! It should be: "[dep1, dep2]".'
+_COMMAND_HEADER_SYNTAX_ERROR = 'Invalid command header format! It should be "command|c: [dep1, dep2]".'
 
 
 def _get_projectfile_list_for_project_root(project_root):
@@ -80,7 +87,7 @@ def _parse_comment_delimiter(line):
 
 
 def _parse_variable(line):
-    m = re.match('^(\w+)\s*=\s*(.*)$', line)
+    m = re.match('^([\w\.-]+)\s*=\s*(.*)$', line)
     if m:
         value = m.group(2).strip()
         temp_value = value
@@ -98,7 +105,7 @@ def _parse_variable(line):
         value = value.replace("\\'", "'")
         return {m.group(1): value}
     else:
-        if re.match('^\s+\w+\s*=\s*.*$', line):
+        if re.match('^\s+[\w\.-]+\s*=\s*.*$', line):
             raise SyntaxError(_VARIABLE_INDENTATION_ERROR)
         return None
 
@@ -111,7 +118,7 @@ def _parse_command_divisor(line):
 
 
 def _parse_command_header(line):
-    if re.match('^\s+.*', line):
+    if re.match('^\s+.*:.*', line):
         raise SyntaxError(_COMMAND_HEADER_INDENTATION_ERROR)
     m = re.match('^([\w\|\.\s-]+):\s*(?:\[([\w\.\s,-]+)\])?\s*$', line)
     if m:
@@ -140,16 +147,16 @@ def _parse_command_header(line):
                 ret[key] = {'alias': keys[0]}
         return ret
     else:
-        if not re.search(':', line):
+        if not re.match('^\s+.*', line) and not re.search(':', line):
             raise SyntaxError(_COMMAND_HEADER_MISSING_COLON_ERROR)
-        if re.search('(\w:\w|^:)', line):
+        if not re.match('^\s+.*', line) and re.search('(\w:\w|^:)', line):
             raise SyntaxError(_COMMAND_HEADER_COLON_ERROR)
         if re.search('\[\]', line):
             raise SyntaxError(_COMMAND_HEADER_EMPTY_DEPENDENCY_LIST)
         if re.search('[\[\]]', line):
             if not re.search('\[[^\[\]]*\]', line) or re.search('\[(\s*,\s*|[^,]*,\s*,[^,]*)\]', line):
                 raise SyntaxError(_COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
-        return None
+        raise SyntaxError(_COMMAND_HEADER_SYNTAX_ERROR)
 
 
 def _state_start(data, line):
@@ -167,7 +174,7 @@ def _state_before_commands(data, line):
     if _parse_empty_line(line):
         return _state_before_commands
     if _parse_comment_delimiter(line):
-        data.update({'description': {'done': False}})
+        data.update({'description': ''})
         return _state_main_comment
     v = _parse_variable(line)
     if v:
@@ -177,14 +184,43 @@ def _state_before_commands(data, line):
     if c:
         data['commands'] = c
         return _state_command
+    else:
+        raise SyntaxError(_COMMAND_HEADER_SYNTAX_ERROR)
 
 
-def _state_main_comment():
-    return None
+def _state_main_comment(data, line):
+    if _parse_comment_delimiter(line):
+        return _state_variables
+    l = _parse_line(line)
+    if l:
+        if data['description'] == '':
+            data['description'] = l
+        else:
+            data['description'] += ' ' + l
+        return _state_main_comment
+    if _parse_empty_line(line):
+        if data['description'] != '':
+            if data['description'][-2:] != '\n\n':
+                data['description'] += '\n\n'
+        return _state_main_comment
 
 
-def _state_variables():
-    return None
+def _state_variables(data, line):
+    if _parse_empty_line(line):
+        return _state_variables
+    if _parse_comment_delimiter(line):
+        raise SyntaxError(_COMMAND_DELIMITER_UNEXPECTED_ERROR)
+    v = _parse_variable(line)
+    if v:
+        data['variables'].update(v)
+        return _state_variables
+    else:
+        c = _parse_command_header(line)
+        if c:
+            data['commands'] = c
+            return _state_command
+        else:
+            raise SyntaxError(_VARIABLE_SYNTAX_ERROR)
 
 
 def _state_command():

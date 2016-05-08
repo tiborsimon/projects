@@ -26,26 +26,6 @@
     <splitter split-orientation="horizontal" split-proportion="0.5">
       <split-first>
         <leaf>
-          <file leaf-file-name="config.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/projects/config.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="668">
-                  <caret line="70" column="64" selection-start-line="70" selection-start-column="64" selection-end-line="70" selection-end-column="64" />
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="pydevd.py" pinned="false" current-in-tab="false">
-            <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/pydevd.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="180">
-                  <caret line="662" column="11" selection-start-line="662" selection-start-column="11" selection-end-line="662" selection-end-column="11" />
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
           <file leaf-file-name="p.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/projects/p.py">
               <provider selected="true" editor-type-id="text-editor">
@@ -59,8 +39,8 @@
           <file leaf-file-name="projectfile.py" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/projects/projectfile.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="960">
-                  <caret line="204" column="0" selection-start-line="204" selection-start-column="0" selection-end-line="204" selection-end-column="0" />
+                <state relative-caret-position="613">
+                  <caret line="224" column="0" selection-start-line="224" selection-start-column="0" selection-end-line="224" selection-end-column="0" />
                   <folding>
                     <element signature="e#0#9#0" expanded="true" />
                   </folding>
@@ -72,16 +52,6 @@
       </split-first>
       <split-second>
         <leaf>
-          <file leaf-file-name="case.py" pinned="false" current-in-tab="false">
-            <entry file="file:///usr/local/Cellar/python/2.7.11/Frameworks/Python.framework/Versions/2.7/lib/python2.7/unittest/case.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="187">
-                  <caret line="328" column="0" selection-start-line="328" selection-start-column="0" selection-end-line="328" selection-end-column="0" />
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
           <file leaf-file-name="test_config.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/test/test_config.py">
               <provider selected="true" editor-type-id="text-editor">
@@ -92,24 +62,14 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="test_main.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/test/test_main.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="435">
-                  <caret line="29" column="10" selection-start-line="29" selection-start-column="10" selection-end-line="29" selection-end-column="10" />
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
           <file leaf-file-name="test_projectfile.py" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/test/test_projectfile.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="900">
-                  <caret line="940" column="52" selection-start-line="940" selection-start-column="52" selection-end-line="940" selection-end-column="52" />
+                <state relative-caret-position="-152">
+                  <caret line="992" column="37" selection-start-line="992" selection-start-column="37" selection-end-line="992" selection-end-column="37" />
                   <folding>
-                    <marker date="1462737310000" expanded="true" signature="962:1614" placeholder="..." />
-                    <marker date="1462737310000" expanded="true" signature="1063:1072" placeholder="..." />
+                    <marker date="1462744849000" expanded="true" signature="962:1614" placeholder="..." />
+                    <marker date="1462744849000" expanded="true" signature="1063:1072" placeholder="..." />
                   </folding>
                 </state>
               </provider>
@@ -152,8 +112,8 @@
         <option value="$PROJECT_DIR$/test/test_main.py" />
         <option value="$PROJECT_DIR$/projects/config.py" />
         <option value="$PROJECT_DIR$/test/test_config.py" />
-        <option value="$PROJECT_DIR$/test/test_projectfile.py" />
         <option value="$PROJECT_DIR$/projects/projectfile.py" />
+        <option value="$PROJECT_DIR$/test/test_projectfile.py" />
       </list>
     </option>
   </component>
@@ -463,34 +423,34 @@
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="RunTests - 2016.05.08 at 21h 41m 37s.xml">
+    <history-entry file="RunTests - 2016.05.08 at 23h 48m 26s.xml">
       <configuration name="RunTests" configurationId="tests" />
     </history-entry>
-    <history-entry file="RunTests - 2016.05.08 at 21h 41m 56s.xml">
+    <history-entry file="RunTests - 2016.05.08 at 23h 50m 27s.xml">
       <configuration name="RunTests" configurationId="tests" />
     </history-entry>
-    <history-entry file="RunTests - 2016.05.08 at 21h 42m 32s.xml">
+    <history-entry file="RunTests - 2016.05.08 at 23h 52m 24s.xml">
       <configuration name="RunTests" configurationId="tests" />
     </history-entry>
-    <history-entry file="RunTests - 2016.05.08 at 21h 45m 13s.xml">
+    <history-entry file="RunTests - 2016.05.08 at 23h 53m 27s.xml">
       <configuration name="RunTests" configurationId="tests" />
     </history-entry>
-    <history-entry file="RunTests - 2016.05.08 at 21h 46m 25s.xml">
+    <history-entry file="RunTests - 2016.05.08 at 23h 54m 04s.xml">
       <configuration name="RunTests" configurationId="tests" />
     </history-entry>
-    <history-entry file="RunTests - 2016.05.08 at 21h 47m 02s.xml">
+    <history-entry file="RunTests - 2016.05.08 at 23h 54m 17s.xml">
       <configuration name="RunTests" configurationId="tests" />
     </history-entry>
-    <history-entry file="RunTests - 2016.05.08 at 21h 50m 27s.xml">
+    <history-entry file="RunTests - 2016.05.08 at 23h 54m 56s.xml">
       <configuration name="RunTests" configurationId="tests" />
     </history-entry>
-    <history-entry file="RunTests - 2016.05.08 at 21h 55m 11s.xml">
+    <history-entry file="RunTests - 2016.05.08 at 23h 56m 09s.xml">
       <configuration name="RunTests" configurationId="tests" />
     </history-entry>
-    <history-entry file="RunTests - 2016.05.08 at 21h 57m 38s.xml">
+    <history-entry file="RunTests - 2016.05.08 at 23h 59m 34s.xml">
       <configuration name="RunTests" configurationId="tests" />
     </history-entry>
-    <history-entry file="RunTests - 2016.05.08 at 22h 32m 22s.xml">
+    <history-entry file="RunTests - 2016.05.09 at 00h 00m 50s.xml">
       <configuration name="RunTests" configurationId="tests" />
     </history-entry>
   </component>
@@ -512,8 +472,8 @@
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32857144" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32959184" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.28163266" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20816326" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24954791" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3297619" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39795917" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -533,15 +493,15 @@
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32959184" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.28163266" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.20816326" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.121157326" sideWeight="0.5" order="1" side_tool="false" content_ui="combo" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24969475" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32857144" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24954791" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3297619" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39795917" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.39795917" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
     </layout-to-restore>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -557,6 +517,13 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="python-line">
+          <url>file://$PROJECT_DIR$/test/test_projectfile.py</url>
+          <line>666</line>
+          <option name="timeStamp" value="39" />
+        </line-breakpoint>
+      </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
           <properties notifyOnTerminate="true" exception="BaseException">
@@ -564,7 +531,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="34" />
+      <option name="time" value="40" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -844,14 +811,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/projects/p.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="16" column="0" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/pydevd.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="180">
@@ -868,28 +827,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/projects/projectfile.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="960">
-          <caret line="204" column="0" selection-start-line="204" selection-start-column="0" selection-end-line="204" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/test/test_main.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="435">
           <caret line="29" column="10" selection-start-line="29" selection-start-column="10" selection-end-line="29" selection-end-column="10" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/test_config.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="20" column="0" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -902,13 +843,39 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/projects/p.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="16" column="0" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/test_config.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="15">
+          <caret line="20" column="0" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/projectfile.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="613">
+          <caret line="224" column="0" selection-start-line="224" selection-start-column="0" selection-end-line="224" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/test/test_projectfile.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="900">
-          <caret line="940" column="52" selection-start-line="940" selection-start-column="52" selection-end-line="940" selection-end-column="52" />
+        <state relative-caret-position="-152">
+          <caret line="992" column="37" selection-start-line="992" selection-start-column="37" selection-end-line="992" selection-end-column="37" />
           <folding>
-            <marker date="1462737310000" expanded="true" signature="962:1614" placeholder="..." />
-            <marker date="1462737310000" expanded="true" signature="1063:1072" placeholder="..." />
+            <marker date="1462744849000" expanded="true" signature="962:1614" placeholder="..." />
+            <marker date="1462744849000" expanded="true" signature="1063:1072" placeholder="..." />
           </folding>
         </state>
       </provider>

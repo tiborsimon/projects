@@ -101,39 +101,6 @@ class VersionParser(TestCase):
         self.assertEqual(expected, result)
 
 
-class LineParser(TestCase):
-
-    def test__line_can_be_parsed_1(self):
-        line = 'valami'
-        expected = 'valami'
-        result = projectfile._parse_line(line)
-        self.assertEqual(expected, result)
-
-    def test__line_can_be_parsed_2(self):
-        line = ' valami'
-        expected = 'valami'
-        result = projectfile._parse_line(line)
-        self.assertEqual(expected, result)
-
-    def test__line_can_be_parsed_3(self):
-        line = '   valami    '
-        expected = 'valami'
-        result = projectfile._parse_line(line)
-        self.assertEqual(expected, result)
-
-    def test__line_can_be_parsed_4(self):
-        line = '\t\tvalami    '
-        expected = 'valami'
-        result = projectfile._parse_line(line)
-        self.assertEqual(expected, result)
-
-    def test__line_can_be_parsed_5(self):
-        line = ' valami valami    '
-        expected = 'valami valami'
-        result = projectfile._parse_line(line)
-        self.assertEqual(expected, result)
-
-
 class EmptyLineParser(TestCase):
 
     def test__parse_empty_line_1(self):
@@ -196,40 +163,79 @@ class IndentedLineParser(TestCase):
 
 class CommentDelimiterParser(TestCase):
 
-    def test__comment_delimiter_can_be_parsed_1(self):
+    def test__delimiter_can_be_parsed__zero_indentation(self):
         line = '"""'
         expected = True
         result = projectfile._parse_comment_delimiter(line)
         self.assertEqual(expected, result)
 
-    def test__comment_delimiter_can_be_parsed_2(self):
-        line = '  """'
+    def test__delimiter_can_be_parsed__one_indentation(self):
+        line = ' """'
         expected = True
         result = projectfile._parse_comment_delimiter(line)
         self.assertEqual(expected, result)
 
-    def test__comment_delimiter_can_be_parsed_3(self):
+    def test__delimiter_can_be_parsed__one_indentation_with_tab(self):
         line = '\t"""'
         expected = True
         result = projectfile._parse_comment_delimiter(line)
         self.assertEqual(expected, result)
 
-    def test__comment_delimiter_can_be_parsed_4(self):
-        line = '   """     '
+    def test__delimiter_can_be_parsed__two_indentations(self):
+        line = '  """'
         expected = True
         result = projectfile._parse_comment_delimiter(line)
         self.assertEqual(expected, result)
 
-    def test__comment_delimiter_can_be_parsed_5(self):
+    def test__delimiter_can_be_parsed__two_indentations__tailing_indentations_ignored(self):
+        line = '  """                    \t\t\t   '
+        expected = True
+        result = projectfile._parse_comment_delimiter(line)
+        self.assertEqual(expected, result)
+
+    def test__invalid_delimiter_returns_negative_number_1(self):
         line = '""'
         expected = False
         result = projectfile._parse_comment_delimiter(line)
         self.assertEqual(expected, result)
 
-    def test__comment_delimiter_can_be_parsed_6(self):
+    def test__invalid_delimiter_returns_negative_number_2(self):
         line = '" ""'
         expected = False
         result = projectfile._parse_comment_delimiter(line)
+        self.assertEqual(expected, result)
+
+
+class LineParser(TestCase):
+
+    def test__line_can_be_parsed_1(self):
+        line = 'valami'
+        expected = 'valami'
+        result = projectfile._parse_line(line)
+        self.assertEqual(expected, result)
+
+    def test__line_can_be_parsed_2(self):
+        line = ' valami'
+        expected = 'valami'
+        result = projectfile._parse_line(line)
+        self.assertEqual(expected, result)
+
+    def test__line_can_be_parsed_3(self):
+        line = '   valami    '
+        expected = 'valami'
+        result = projectfile._parse_line(line)
+        self.assertEqual(expected, result)
+
+    def test__line_can_be_parsed_4(self):
+        line = '\t\tvalami    '
+        expected = 'valami'
+        result = projectfile._parse_line(line)
+        self.assertEqual(expected, result)
+
+    def test__line_can_be_parsed_5(self):
+        line = ' valami valami    '
+        expected = 'valami valami'
+        result = projectfile._parse_line(line)
         self.assertEqual(expected, result)
 
 
@@ -250,6 +256,12 @@ class VariableParser(TestCase):
     def test__variable_can_be_parsed__no_whitespace(self):
         line = 'my_variable=valami'
         expected = {'my_variable': 'valami'}
+        result = projectfile._parse_variable(line)
+        self.assertEqual(expected, result)
+
+    def test__variable_can_be_parsed__full_range_variable_name(self):
+        line = '1234567890.abc-abc = valami'
+        expected = {'1234567890.abc-abc': 'valami'}
         result = projectfile._parse_variable(line)
         self.assertEqual(expected, result)
 
@@ -329,6 +341,13 @@ class VariableParser(TestCase):
 
     def test__invalid_variable__indentation_should_raise_exception__tabs(self):
         line = '\t\tmy_variable = valami'
+        with self.assertRaises(Exception) as cm:
+            projectfile._parse_variable(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._VARIABLE_INDENTATION_ERROR == cm.exception.args[0])
+
+    def test__invalid_full_range_variable__indentation_should_raise_exception(self):
+        line = ' 1234567890.abc-abc = valami'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_variable(line)
         self.assertEqual(cm.exception.__class__, SyntaxError)
@@ -622,25 +641,32 @@ class CommandHeaderParser(TestCase):
         self.assertEqual(expected, result)
 
     def test__invalid_command_header__raises_exception__indentation_1(self):
-        line = ' command'
+        line = ' command:'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_command_header(line)
         self.assertEqual(cm.exception.__class__, SyntaxError)
         self.assertTrue(projectfile._COMMAND_HEADER_INDENTATION_ERROR == cm.exception.args[0])
 
     def test__invalid_command_header__raises_exception__indentation_2(self):
-        line = '     command'
+        line = '     command:'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_command_header(line)
         self.assertEqual(cm.exception.__class__, SyntaxError)
         self.assertTrue(projectfile._COMMAND_HEADER_INDENTATION_ERROR == cm.exception.args[0])
 
     def test__invalid_command_header__raises_exception__indentation_3(self):
-        line = '\tcommand'
+        line = '\tcommand:'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_command_header(line)
         self.assertEqual(cm.exception.__class__, SyntaxError)
         self.assertTrue(projectfile._COMMAND_HEADER_INDENTATION_ERROR == cm.exception.args[0])
+
+    def test__invalid_command_header__raises_exception__indentation_4(self):
+        line = ' command'
+        with self.assertRaises(Exception) as cm:
+            projectfile._parse_command_header(line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._COMMAND_HEADER_SYNTAX_ERROR == cm.exception.args[0])
 
     def test__invalid_command_header__raises_exception__no_colon_1(self):
         line = 'command'
@@ -822,7 +848,7 @@ class BeforeCommandsState(TestCase):
     def test__can_parse_comments(self):
         data = {}
         line = '"""'
-        expected = {'description': {'done': False}}
+        expected = {'description': ''}
         expected_state = projectfile._state_main_comment
         next_state = projectfile._state_before_commands(data, line)
         self.assertEqual(expected, data)
@@ -875,7 +901,146 @@ class BeforeCommandsState(TestCase):
         with self.assertRaises(Exception) as cm:
             projectfile._state_before_commands(data, line)
         self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._COMMAND_HEADER_INDENTATION_ERROR == cm.exception.args[0])
+        self.assertTrue(projectfile._COMMAND_HEADER_SYNTAX_ERROR == cm.exception.args[0])
+
+
+class MainCommentState(TestCase):
+
+    def test__first_comment_line_added_right(self):
+        data = {'description': ''}
+        line = 'This is the first line for the main comment..'
+        expected = {'description': line}
+        expected_state = projectfile._state_main_comment
+        next_state = projectfile._state_main_comment(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
+
+    def test__another_line_appended_with_a_space_to_the_existing_ones(self):
+        data = {'description': 'Some text.'}
+        line = 'This should be appended..'
+        expected = {'description': 'Some text. This should be appended..'}
+        expected_state = projectfile._state_main_comment
+        next_state = projectfile._state_main_comment(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
+
+    def test__extra_whitespaces_will_be_ignored(self):
+        data = {'description': 'Some text.'}
+        line = '         \t\tThis should be appended..    \t   '
+        expected = {'description': 'Some text. This should be appended..'}
+        expected_state = projectfile._state_main_comment
+        next_state = projectfile._state_main_comment(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
+
+    def test__empty_line_acts_as_a_separator__appends_two_lines_to_the_end(self):
+        data = {'description': 'Some text.'}
+        line = ''
+        expected = {'description': 'Some text.\n\n'}
+        expected_state = projectfile._state_main_comment
+        next_state = projectfile._state_main_comment(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
+
+    def test__second_empty_Line_does_not_add_more_seaprators(self):
+        data = {'description': 'Some text.\n\n'}
+        line = ''
+        expected = {'description': 'Some text.\n\n'}
+        expected_state = projectfile._state_main_comment
+        next_state = projectfile._state_main_comment(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
+
+    def test__comment_delimiter_ends_the_comment_Capturing(self):
+        data = {'description': 'Some text.\n\n'}
+        line = '"""'
+        expected = {'description': 'Some text.\n\n'}
+        expected_state = projectfile._state_variables
+        next_state = projectfile._state_main_comment(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
+
+
+class VariableState(TestCase):
+
+    def test__next_variable_is_added_to_the_dictionary(self):
+        data = {'variables': {
+            'first-variable': '42'
+        }}
+        line = 'second-variable = 23'
+        expected = {'variables': {
+            'first-variable': '42',
+            'second-variable': '23'
+        }}
+        expected_state = projectfile._state_variables
+        next_state = projectfile._state_variables(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
+
+    def test__can_tolerate_empty_lines(self):
+        data = {'variables': {
+            'first-variable': '42'
+        }}
+        line = ''
+        expected = {'variables': {
+            'first-variable': '42'
+        }}
+        expected_state = projectfile._state_variables
+        next_state = projectfile._state_variables(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
+
+    def test__invalid_variable_syntax__raises_exception(self):
+        data = {'variables': {
+            'first-variable': '42'
+        }}
+        line = 'second-variable = \'23'
+        with self.assertRaises(Exception) as cm:
+            projectfile._state_variables(data, line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._VARIABLE_QUOTE_AFTER_ERROR == cm.exception.args[0])
+
+    def test__non_variable__raises_invalid_command_header_exception(self):
+        # command headers are in higher priority than variables
+        data = {'variables': {
+            'first-variable': '42'
+        }}
+        line = ' non-variable'
+        with self.assertRaises(Exception) as cm:
+            projectfile._state_variables(data, line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._COMMAND_HEADER_SYNTAX_ERROR == cm.exception.args[0])
+
+    def test__comment_delimiter__raises_exception(self):
+        data = {'variables': {
+            'first-variable': '42'
+        }}
+        line = '"""'
+        with self.assertRaises(Exception) as cm:
+            projectfile._state_variables(data, line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._COMMAND_DELIMITER_UNEXPECTED_ERROR == cm.exception.args[0])
+
+    def test__valid_command_header_switches_state(self):
+        data = {'variables': {
+            'first-variable': '42'
+        }}
+        line = 'my_command:'
+        expected = {
+            'variables': {
+                'first-variable': '42'
+            },
+            'commands': {
+                'my_command': {
+                    'dependencies': [],
+                    'done': False
+                }
+            }
+        }
+        expected_state = projectfile._state_command
+        next_state = projectfile._state_variables(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
 
 
 
