@@ -21,7 +21,6 @@ _COMMAND_HEADER_EMPTY_DEPENDENCY_LIST = 'Empty dependency list!'
 _COMMAND_HEADER_INVALID_DEPENDENCY_LIST = 'Invalid dependency list syntax! It should be: "[dep1, dep2]".'
 
 
-
 def _get_projectfile_list_for_project_root(project_root):
     result = []
     for root, dirs, files in os.walk(project_root):
@@ -112,6 +111,8 @@ def _parse_command_divisor(line):
 
 
 def _parse_command_header(line):
+    if re.match('^\s+.*', line):
+        raise SyntaxError(_COMMAND_HEADER_INDENTATION_ERROR)
     m = re.match('^([\w\|\.\s-]+):\s*(?:\[([\w\.\s,-]+)\])?\s*$', line)
     if m:
         keys = m.group(1).split('|')
@@ -139,19 +140,16 @@ def _parse_command_header(line):
                 ret[key] = {'alias': keys[0]}
         return ret
     else:
-        if re.match('^\s+.*', line):
-            raise SyntaxError(_COMMAND_HEADER_INDENTATION_ERROR)
-        elif not re.search(':', line):
+        if not re.search(':', line):
             raise SyntaxError(_COMMAND_HEADER_MISSING_COLON_ERROR)
-        elif re.search('(\w:\w|^:)', line):
+        if re.search('(\w:\w|^:)', line):
             raise SyntaxError(_COMMAND_HEADER_COLON_ERROR)
-        elif re.search('\[\]', line):
+        if re.search('\[\]', line):
             raise SyntaxError(_COMMAND_HEADER_EMPTY_DEPENDENCY_LIST)
-        elif re.search('[\[\]]', line):
+        if re.search('[\[\]]', line):
             if not re.search('\[[^\[\]]*\]', line) or re.search('\[(\s*,\s*|[^,]*,\s*,[^,]*)\]', line):
                 raise SyntaxError(_COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
-        else:
-            return None
+        return None
 
 
 def _state_start(data, line):

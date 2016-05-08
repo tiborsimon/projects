@@ -853,4 +853,29 @@ class BeforeCommandsState(TestCase):
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
+    def test__invalid_variable__raises_error(self):
+        data = {}
+        line = '  invalid_variable=4'
+        with self.assertRaises(Exception) as cm:
+            projectfile._state_before_commands(data, line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._VARIABLE_INDENTATION_ERROR == cm.exception.args[0])
+
+    def test__invalid_command_header__raises_error(self):
+        data = {}
+        line = '  invalid_command|:'
+        with self.assertRaises(Exception) as cm:
+            projectfile._state_before_commands(data, line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._COMMAND_HEADER_INDENTATION_ERROR == cm.exception.args[0])
+
+    def test__indented_line_raises_error(self):
+        data = {}
+        line = '  indented line'
+        with self.assertRaises(Exception) as cm:
+            projectfile._state_before_commands(data, line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._COMMAND_HEADER_INDENTATION_ERROR == cm.exception.args[0])
+
+
 
