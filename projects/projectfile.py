@@ -252,10 +252,24 @@ def _state_command(data, line):
     else:
         raise SyntaxError(_COMMAND_HEADER_UNEXPECTED_UNINDENTED_ERROR)
     
-
-
+    
 def _state_command_comment(data, line):
-    return None
+    command = _get_current_command(data)
+    if _parse_comment_delimiter(line):
+        command['pre'] = []
+        return _state_pre
+    l = _parse_line(line)
+    if l:
+        if command['description'] == '':
+            command['description'] = l
+        else:
+            command['description'] += ' ' + l
+        return _state_command_comment
+    if _parse_empty_line(line):
+        if command['description'] != '':
+            if command['description'][-2:] != '\n\n':
+                command['description'] += '\n\n'
+        return _state_command_comment
 
 
 def _state_pre(data, line):

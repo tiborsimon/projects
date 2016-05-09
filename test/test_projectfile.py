@@ -1185,5 +1185,158 @@ class CommandState(TestCase):
         self.assertTrue(projectfile._COMMAND_HEADER_UNEXPECTED_UNINDENTED_ERROR == cm.exception.args[0])
 
 
+class CommandComment(TestCase):
+
+    def test__first_comment_line_added_right(self):
+        data = {
+            'commands': {
+                'my_command': {
+                    'description': '',
+                    'dependencies': [],
+                    'done': False
+                }
+            }
+        }
+        line = 'This is the first line for the main comment..'
+        expected = {
+            'commands': {
+                'my_command': {
+                    'description': 'This is the first line for the main comment..',
+                    'dependencies': [],
+                    'done': False
+                }
+            }
+        }
+        expected_state = projectfile._state_command_comment
+        next_state = projectfile._state_command_comment(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
+
+    def test__another_line_appended_with_a_space_to_the_existing_ones(self):
+        data = {
+            'commands': {
+                'my_command': {
+                    'description': 'Some text..',
+                    'dependencies': [],
+                    'done': False
+                }
+            }
+        }
+        line = 'This should be appended..'
+        expected = {
+            'commands': {
+                'my_command': {
+                    'description': 'Some text.. This should be appended..',
+                    'dependencies': [],
+                    'done': False
+                }
+            }
+        }
+        expected_state = projectfile._state_command_comment
+        next_state = projectfile._state_command_comment(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
+
+    def test__extra_whitespaces_will_be_ignored(self):
+        data = {
+            'commands': {
+                'my_command': {
+                    'description': 'Some text..',
+                    'dependencies': [],
+                    'done': False
+                }
+            }
+        }
+        line = '         \t\tThis should be appended..    \t   '
+        expected = {
+            'commands': {
+                'my_command': {
+                    'description': 'Some text.. This should be appended..',
+                    'dependencies': [],
+                    'done': False
+                }
+            }
+        }
+        expected_state = projectfile._state_command_comment
+        next_state = projectfile._state_command_comment(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
+
+    def test__empty_line_acts_as_a_separator__appends_two_lines_to_the_end(self):
+        data = {
+            'commands': {
+                'my_command': {
+                    'description': 'Some text.',
+                    'dependencies': [],
+                    'done': False
+                }
+            }
+        }
+        line = ''
+        expected = {
+            'commands': {
+                'my_command': {
+                    'description': 'Some text.\n\n',
+                    'dependencies': [],
+                    'done': False
+                }
+            }
+        }
+        expected_state = projectfile._state_command_comment
+        next_state = projectfile._state_command_comment(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
+
+    def test__second_empty_Line_does_not_add_more_seaprators(self):
+        data = {
+            'commands': {
+                'my_command': {
+                    'description': 'Some text.\n\n',
+                    'dependencies': [],
+                    'done': False
+                }
+            }
+        }
+        line = ''
+        expected = {
+            'commands': {
+                'my_command': {
+                    'description': 'Some text.\n\n',
+                    'dependencies': [],
+                    'done': False
+                }
+            }
+        }
+        expected_state = projectfile._state_command_comment
+        next_state = projectfile._state_command_comment(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
+
+    def test__comment_delimiter_ends_the_comment_capturing(self):
+        data = {
+            'commands': {
+                'my_command': {
+                    'description': 'Some text.\n\n',
+                    'dependencies': [],
+                    'done': False
+                }
+            }
+        }
+        line = '"""'
+        expected = {
+            'commands': {
+                'my_command': {
+                    'description': 'Some text.\n\n',
+                    'dependencies': [],
+                    'done': False,
+                    'pre': []
+                }
+            }
+        }
+        expected_state = projectfile._state_pre
+        next_state = projectfile._state_command_comment(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
+
 
 
