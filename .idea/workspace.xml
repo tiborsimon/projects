@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="827c05a9-29f7-41d5-9a23-59c97662e350" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/projects/projectfile.py" afterPath="$PROJECT_DIR$/projects/projectfile.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/test_projectfile.py" afterPath="$PROJECT_DIR$/test/test_projectfile.py" />
     </list>
     <ignored path="p.iws" />
@@ -45,11 +44,11 @@
           <file leaf-file-name="test_projectfile.py" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/test/test_projectfile.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="-1267">
-                  <caret line="1209" column="59" selection-start-line="1209" selection-start-column="59" selection-end-line="1209" selection-end-column="59" />
+                <state relative-caret-position="-3052">
+                  <caret line="1070" column="13" selection-start-line="1070" selection-start-column="13" selection-end-line="1070" selection-end-column="13" />
                   <folding>
-                    <marker date="1462830252000" expanded="true" signature="1893:2545" placeholder="..." />
-                    <marker date="1462830252000" expanded="true" signature="1994:2003" placeholder="..." />
+                    <marker date="1462830543000" expanded="true" signature="1893:2545" placeholder="..." />
+                    <marker date="1462830543000" expanded="true" signature="1994:2003" placeholder="..." />
                   </folding>
                 </state>
               </provider>
@@ -92,8 +91,8 @@
         <option value="$PROJECT_DIR$/test/test_main.py" />
         <option value="$PROJECT_DIR$/projects/config.py" />
         <option value="$PROJECT_DIR$/test/test_config.py" />
-        <option value="$PROJECT_DIR$/test/test_projectfile.py" />
         <option value="$PROJECT_DIR$/projects/projectfile.py" />
+        <option value="$PROJECT_DIR$/test/test_projectfile.py" />
       </list>
     </option>
   </component>
@@ -403,24 +402,6 @@
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="RunTests - 2016.05.09 at 23h 22m 55s.xml">
-      <configuration name="RunTests" configurationId="tests" />
-    </history-entry>
-    <history-entry file="RunTests - 2016.05.09 at 23h 25m 20s.xml">
-      <configuration name="RunTests" configurationId="tests" />
-    </history-entry>
-    <history-entry file="RunTests - 2016.05.09 at 23h 25m 46s.xml">
-      <configuration name="RunTests" configurationId="tests" />
-    </history-entry>
-    <history-entry file="RunTests - 2016.05.09 at 23h 26m 30s.xml">
-      <configuration name="RunTests" configurationId="tests" />
-    </history-entry>
-    <history-entry file="RunTests - 2016.05.09 at 23h 26m 55s.xml">
-      <configuration name="RunTests" configurationId="tests" />
-    </history-entry>
-    <history-entry file="RunTests - 2016.05.09 at 23h 26m 59s.xml">
-      <configuration name="RunTests" configurationId="tests" />
-    </history-entry>
     <history-entry file="RunTests - 2016.05.09 at 23h 27m 18s.xml">
       <configuration name="RunTests" configurationId="tests" />
     </history-entry>
@@ -431,6 +412,24 @@
       <configuration name="RunTests" configurationId="tests" />
     </history-entry>
     <history-entry file="RunTests - 2016.05.09 at 23h 46m 12s.xml">
+      <configuration name="RunTests" configurationId="tests" />
+    </history-entry>
+    <history-entry file="RunTests - 2016.05.09 at 23h 47m 58s.xml">
+      <configuration name="RunTests" configurationId="tests" />
+    </history-entry>
+    <history-entry file="RunTests - 2016.05.09 at 23h 48m 07s.xml">
+      <configuration name="RunTests" configurationId="tests" />
+    </history-entry>
+    <history-entry file="RunTests - 2016.05.09 at 23h 48m 21s.xml">
+      <configuration name="RunTests" configurationId="tests" />
+    </history-entry>
+    <history-entry file="RunTests - 2016.05.09 at 23h 48m 41s.xml">
+      <configuration name="RunTests" configurationId="tests" />
+    </history-entry>
+    <history-entry file="RunTests - 2016.05.09 at 23h 48m 57s.xml">
+      <configuration name="RunTests" configurationId="tests" />
+    </history-entry>
+    <history-entry file="RunTests - 2016.05.09 at 23h 49m 04s.xml">
       <configuration name="RunTests" configurationId="tests" />
     </history-entry>
   </component>
@@ -452,7 +451,7 @@
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32857144" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32959184" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22095238" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22095238" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24954791" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3297619" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
@@ -832,23 +831,23 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/test_projectfile.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1267">
-          <caret line="1209" column="59" selection-start-line="1209" selection-start-column="59" selection-end-line="1209" selection-end-column="59" />
-          <folding>
-            <marker date="1462830252000" expanded="true" signature="1893:2545" placeholder="..." />
-            <marker date="1462830252000" expanded="true" signature="1994:2003" placeholder="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/projects/projectfile.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="443">
           <caret line="258" column="27" selection-start-line="258" selection-start-column="27" selection-end-line="258" selection-end-column="27" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/test_projectfile.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-3052">
+          <caret line="1070" column="13" selection-start-line="1070" selection-start-column="13" selection-end-line="1070" selection-end-column="13" />
+          <folding>
+            <marker date="1462830543000" expanded="true" signature="1893:2545" placeholder="..." />
+            <marker date="1462830543000" expanded="true" signature="1994:2003" placeholder="..." />
           </folding>
         </state>
       </provider>

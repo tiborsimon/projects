@@ -1082,7 +1082,6 @@ class CommandState(TestCase):
         data = {
             'commands': {
                 'my_command': {
-                    'dependencies': [],
                     'done': False
                 }
             }
@@ -1098,7 +1097,6 @@ class CommandState(TestCase):
         data = {
             'commands': {
                 'my_command': {
-                    'dependencies': [],
                     'done': False
                 }
             }
@@ -1108,7 +1106,6 @@ class CommandState(TestCase):
             'commands': {
                 'my_command': {
                     'description': '',
-                    'dependencies': [],
                     'done': False
                 }
             }
@@ -1122,7 +1119,6 @@ class CommandState(TestCase):
         data = {
             'commands': {
                 'my_command': {
-                    'dependencies': [],
                     'done': False
                 }
             }
@@ -1131,7 +1127,6 @@ class CommandState(TestCase):
         expected = {
             'commands': {
                 'my_command': {
-                    'dependencies': [],
                     'done': False,
                     'pre': [
                         'cd ~'
@@ -1148,7 +1143,6 @@ class CommandState(TestCase):
         data = {
             'commands': {
                 'my_command': {
-                    'dependencies': [],
                     'done': False
                 }
             }
@@ -1157,7 +1151,6 @@ class CommandState(TestCase):
         expected = {
             'commands': {
                 'my_command': {
-                    'dependencies': [],
                     'done': False,
                     'pre': [],
                     'post': []
@@ -1173,7 +1166,6 @@ class CommandState(TestCase):
         data = {
             'commands': {
                 'my_command': {
-                    'dependencies': [],
                     'done': False
                 }
             }
@@ -1192,7 +1184,6 @@ class CommandComment(TestCase):
             'commands': {
                 'my_command': {
                     'description': '',
-                    'dependencies': [],
                     'done': False
                 }
             }
@@ -1202,7 +1193,6 @@ class CommandComment(TestCase):
             'commands': {
                 'my_command': {
                     'description': 'This is the first line for the main comment..',
-                    'dependencies': [],
                     'done': False
                 }
             }
@@ -1217,7 +1207,6 @@ class CommandComment(TestCase):
             'commands': {
                 'my_command': {
                     'description': 'Some text..',
-                    'dependencies': [],
                     'done': False
                 }
             }
@@ -1227,7 +1216,6 @@ class CommandComment(TestCase):
             'commands': {
                 'my_command': {
                     'description': 'Some text.. This should be appended..',
-                    'dependencies': [],
                     'done': False
                 }
             }
@@ -1242,7 +1230,6 @@ class CommandComment(TestCase):
             'commands': {
                 'my_command': {
                     'description': 'Some text..',
-                    'dependencies': [],
                     'done': False
                 }
             }
@@ -1252,7 +1239,6 @@ class CommandComment(TestCase):
             'commands': {
                 'my_command': {
                     'description': 'Some text.. This should be appended..',
-                    'dependencies': [],
                     'done': False
                 }
             }
@@ -1267,7 +1253,6 @@ class CommandComment(TestCase):
             'commands': {
                 'my_command': {
                     'description': 'Some text.',
-                    'dependencies': [],
                     'done': False
                 }
             }
@@ -1277,7 +1262,6 @@ class CommandComment(TestCase):
             'commands': {
                 'my_command': {
                     'description': 'Some text.\n\n',
-                    'dependencies': [],
                     'done': False
                 }
             }
@@ -1292,7 +1276,6 @@ class CommandComment(TestCase):
             'commands': {
                 'my_command': {
                     'description': 'Some text.\n\n',
-                    'dependencies': [],
                     'done': False
                 }
             }
@@ -1302,7 +1285,6 @@ class CommandComment(TestCase):
             'commands': {
                 'my_command': {
                     'description': 'Some text.\n\n',
-                    'dependencies': [],
                     'done': False
                 }
             }
@@ -1317,7 +1299,6 @@ class CommandComment(TestCase):
             'commands': {
                 'my_command': {
                     'description': 'Some text.\n\n',
-                    'dependencies': [],
                     'done': False
                 }
             }
@@ -1327,7 +1308,6 @@ class CommandComment(TestCase):
             'commands': {
                 'my_command': {
                     'description': 'Some text.\n\n',
-                    'dependencies': [],
                     'done': False,
                     'pre': []
                 }
