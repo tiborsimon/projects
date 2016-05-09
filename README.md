@@ -1,5 +1,7 @@
 #PROJECTS - the extensible project manager
 
+## Warning - this projects is currently under development and it is not ready to use!
+
 [![Build Status](https://travis-ci.org/tiborsimon/projects.svg?branch=master)](https://travis-ci.org/tiborsimon/projects)
 
  __PROJECTS__ is a project management tool. You can list all of your projects and access
