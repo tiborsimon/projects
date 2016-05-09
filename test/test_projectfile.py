@@ -33,6 +33,39 @@ class FileLoading(TestCase):
             self.assertEqual(expected, result)
 
 
+class AdditionalHelperFunctions(TestCase):
+
+    def test__get_currently_parseable_command(self):
+        data = {
+            'commands': {
+                'current-command': {
+                    'done': False
+                },
+                'finished-command': {
+                    'done': True
+                }
+            }
+        }
+        expected = data['commands']['current-command']
+        result = projectfile._get_current_command(data)
+        self.assertEqual(expected, result)
+
+    def test__no_returnable_command_found__returns_none(self):
+        data = {
+            'commands': {
+                'current-command': {
+                    'done': True
+                },
+                'finished-command': {
+                    'done': True
+                }
+            }
+        }
+        expected = None
+        result = projectfile._get_current_command(data)
+        self.assertEqual(expected, result)
+
+
 class VersionParser(TestCase):
 
     def test__valid_version_can_be_parsed_1(self):
@@ -1041,6 +1074,116 @@ class VariableState(TestCase):
         next_state = projectfile._state_variables(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
+
+
+class CommandState(TestCase):
+
+    def test__can_tolerate_empty_line(self):
+        data = {
+            'commands': {
+                'my_command': {
+                    'dependencies': [],
+                    'done': False
+                }
+            }
+        }
+        line = ''
+        expected = dict(data)
+        expected_state = projectfile._state_command
+        next_state = projectfile._state_command(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
+
+    def test__can_parse_comment_delimiter(self):
+        data = {
+            'commands': {
+                'my_command': {
+                    'dependencies': [],
+                    'done': False
+                }
+            }
+        }
+        line = '"""'
+        expected = {
+            'commands': {
+                'my_command': {
+                    'description': '',
+                    'dependencies': [],
+                    'done': False
+                }
+            }
+        }
+        expected_state = projectfile._state_command_comment
+        next_state = projectfile._state_command(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
+
+    def test__indented_line__will_be_the_first_pre_command(self):
+        data = {
+            'commands': {
+                'my_command': {
+                    'dependencies': [],
+                    'done': False
+                }
+            }
+        }
+        line = '  cd ~ '
+        expected = {
+            'commands': {
+                'my_command': {
+                    'dependencies': [],
+                    'done': False,
+                    'pre': [
+                        'cd ~'
+                    ]
+                }
+            }
+        }
+        expected_state = projectfile._state_pre
+        next_state = projectfile._state_command(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
+
+    def test__command_separator_switches_right_to_post(self):
+        data = {
+            'commands': {
+                'my_command': {
+                    'dependencies': [],
+                    'done': False
+                }
+            }
+        }
+        line = '  ==='
+        expected = {
+            'commands': {
+                'my_command': {
+                    'dependencies': [],
+                    'done': False,
+                    'pre': [],
+                    'post': []
+                }
+            }
+        }
+        expected_state = projectfile._state_post
+        next_state = projectfile._state_command(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
+
+    def test__nonindented_line__raises_exception(self):
+        data = {
+            'commands': {
+                'my_command': {
+                    'dependencies': [],
+                    'done': False
+                }
+            }
+        }
+        line = 'something'
+        with self.assertRaises(Exception) as cm:
+            projectfile._state_command(data, line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._COMMAND_HEADER_UNEXPECTED_UNINDENTED_ERROR == cm.exception.args[0])
+
 
 
 

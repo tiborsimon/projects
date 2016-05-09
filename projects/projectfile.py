@@ -26,6 +26,7 @@ _COMMAND_HEADER_INVALID_ALTERNATIVE = 'Invalid command alternative syntax! It sh
 _COMMAND_HEADER_EMPTY_DEPENDENCY_LIST = 'Empty dependency list!'
 _COMMAND_HEADER_INVALID_DEPENDENCY_LIST = 'Invalid dependency list syntax! It should be: "[dep1, dep2]".'
 _COMMAND_HEADER_SYNTAX_ERROR = 'Invalid command header format! It should be "command|c: [dep1, dep2]".'
+_COMMAND_HEADER_UNEXPECTED_UNINDENTED_ERROR = 'Unexpected unindented line!'
 
 
 def _get_projectfile_list_for_project_root(project_root):
@@ -41,6 +42,14 @@ def _load(path):
     with open(path, 'r') as f:
         raw = f.read()
     return raw.split('\n')
+
+
+def _get_current_command(data):
+    for command in data['commands'].keys():
+        if not data['commands'][command]['done']:
+            return data['commands'][command]
+    else:
+        return None
 
 
 def _parse_version(line):
@@ -223,5 +232,35 @@ def _state_variables(data, line):
             raise SyntaxError(_VARIABLE_SYNTAX_ERROR)
 
 
-def _state_command():
+def _state_command(data, line):
+    if _parse_empty_line(line):
+        return _state_command
+    if _parse_comment_delimiter(line):
+        command = _get_current_command(data)
+        command['description'] = ''
+        return _state_command_comment
+    if _parse_command_divisor(line):
+        command = _get_current_command(data)
+        command['pre'] = []
+        command['post'] = []
+        return _state_post
+    l = _parse_indented_line(line)
+    if l:
+        command = _get_current_command(data)
+        command['pre'] = [l]
+        return _state_pre
+    else:
+        raise SyntaxError(_COMMAND_HEADER_UNEXPECTED_UNINDENTED_ERROR)
+    
+
+
+def _state_command_comment(data, line):
+    return None
+
+
+def _state_pre(data, line):
+    return None
+
+
+def _state_post(data, line):
     return None
