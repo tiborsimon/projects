@@ -2,7 +2,7 @@
 
 ## Warning - this projects is currently under development and it is not ready to use!
 
-[![Build Status](https://travis-ci.org/tiborsimon/projects.svg?branch=master)](https://travis-ci.org/tiborsimon/projects) [![Build status](https://ci.appveyor.com/api/projects/status/gi9lg03s7cihh5v6?svg=true)](https://ci.appveyor.com/project/tiborsimon/projects)
+[![Build Status](https://travis-ci.org/tiborsimon/projects.svg?branch=master)](https://travis-ci.org/tiborsimon/projects)
 
  __PROJECTS__ is a project management tool. You can list all of your projects and access
  them with ease. Custom, project specific commands can be defined also. The built
