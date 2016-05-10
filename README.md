@@ -68,7 +68,7 @@ This project is under the __MIT license__.
 See the included license file for further details.
 
 ```
-Copyright (c) 2015 Tibor Simon
+Copyright (c) 2016 Tibor Simon
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
