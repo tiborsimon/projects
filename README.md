@@ -2,7 +2,7 @@
 
 ## Warning - this projects is currently under development and it is not ready to use!
 
-[![Build Status](https://travis-ci.org/tiborsimon/projects.svg?branch=master)](https://travis-ci.org/tiborsimon/projects)
+[![Build Status](https://travis-ci.org/tiborsimon/projects.svg?branch=master)](https://travis-ci.org/tiborsimon/projects) [![PyPI](https://img.shields.io/pypi/v/projects.svg?maxAge=2592000)](https://pypi.python.org/pypi?name=projects&version=0.1.1&:action=display)
 
  __PROJECTS__ is a project management tool. You can list all of your projects and access
  them with ease. Custom, project specific commands can be defined also. The built
