@@ -1,5 +1,7 @@
 #PROJECTS - the extensible project manager
 
+[![Join the chat at https://gitter.im/tiborsimon/projects](https://badges.gitter.im/tiborsimon/projects.svg)](https://gitter.im/tiborsimon/projects?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ## Warning - this projects is currently under development and it is not ready to use!
 
 [![Build Status](https://travis-ci.org/tiborsimon/projects.svg?branch=master)](https://travis-ci.org/tiborsimon/projects) [![PyPI](https://img.shields.io/pypi/v/projects.svg?maxAge=2592000)](https://pypi.python.org/pypi?name=projects&version=0.1.1&:action=display)
