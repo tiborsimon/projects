@@ -1318,5 +1318,143 @@ class CommandComment(TestCase):
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
+class PreState(TestCase):
+
+    def test__can_tolerate_empty_lines(self):
+        data = {
+            'commands': {
+                'my_command': {
+                    'done': False,
+                    'pre': []
+                }
+            }
+        }
+        line = ''
+        expected = dict(data)
+        expected_state = projectfile._state_pre
+        next_state = projectfile._state_pre(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
+
+    def test__indented_line_processed_as_a_command(self):
+        data = {
+            'commands': {
+                'my_command': {
+                    'done': False,
+                    'pre': []
+                }
+            }
+        }
+        line = '  some indented command'
+        expected = {
+            'commands': {
+                'my_command': {
+                    'done': False,
+                    'pre': ['some indented command']
+                }
+            }
+        }
+        expected_state = projectfile._state_pre
+        next_state = projectfile._state_pre(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
+
+    def test__parsed_command_appended_to_the_pre_list(self):
+        data = {
+            'commands': {
+                'my_command': {
+                    'done': False,
+                    'pre': ['previous command']
+                }
+            }
+        }
+        line = '  some indented command'
+        expected = {
+            'commands': {
+                'my_command': {
+                    'done': False,
+                    'pre': [
+                        'previous command',
+                        'some indented command'
+                        ]
+                }
+            }
+        }
+        expected_state = projectfile._state_pre
+        next_state = projectfile._state_pre(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
+
+    def test__command_divisor_switches_state(self):
+        data = {
+            'commands': {
+                'my_command': {
+                    'done': False,
+                    'pre': ['previous command']
+                }
+            }
+        }
+        line = '  ==='
+        expected = {
+            'commands': {
+                'my_command': {
+                    'done': False,
+                    'pre': ['previous command'],
+                    'post': []
+                }
+            }
+        }
+        expected_state = projectfile._state_post
+        next_state = projectfile._state_pre(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
+
+    def test__valid_command_header_finishes_command(self):
+        data = {
+            'commands': {
+                'my_command': {
+                    'done': False,
+                    'pre': ['previous command']
+                }
+            }
+        }
+        line = 'next_command:'
+        expected = {
+            'commands': {
+                'my_command': {
+                    'done': True,
+                    'pre': ['previous command']
+                },
+                'next_command': {
+                    'dependencies': [],
+                    'done': False,
+                }
+            }
+        }
+        expected_state = projectfile._state_command
+        next_state = projectfile._state_pre(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
+
+    def test__valid_command_header_finishes_command(self):
+        data = {
+            'commands': {
+                'my_command': {
+                    'done': False,
+                    'pre': ['previous command']
+                }
+            }
+        }
+        line = 'next_command|'
+        with self.assertRaises(Exception) as cm:
+            projectfile._state_pre(data, line)
+        self.assertEqual(cm.exception.__class__, SyntaxError)
+        self.assertTrue(projectfile._COMMAND_HEADER_MISSING_COLON_ERROR == cm.exception.args[0])
 
 
+
+
+
+
+
+    

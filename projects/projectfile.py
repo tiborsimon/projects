@@ -235,45 +235,57 @@ def _state_variables(data, line):
 def _state_command(data, line):
     if _parse_empty_line(line):
         return _state_command
+    current_command = _get_current_command(data)
     if _parse_comment_delimiter(line):
-        command = _get_current_command(data)
-        command['description'] = ''
+        current_command['description'] = ''
         return _state_command_comment
     if _parse_command_divisor(line):
-        command = _get_current_command(data)
-        command['pre'] = []
-        command['post'] = []
+        current_command['pre'] = []
+        current_command['post'] = []
         return _state_post
     l = _parse_indented_line(line)
     if l:
-        command = _get_current_command(data)
-        command['pre'] = [l]
+        current_command['pre'] = [l]
         return _state_pre
     else:
         raise SyntaxError(_COMMAND_HEADER_UNEXPECTED_UNINDENTED_ERROR)
     
     
 def _state_command_comment(data, line):
-    command = _get_current_command(data)
+    current_command = _get_current_command(data)
     if _parse_comment_delimiter(line):
-        command['pre'] = []
+        current_command['pre'] = []
         return _state_pre
     l = _parse_line(line)
     if l:
-        if command['description'] == '':
-            command['description'] = l
+        if current_command['description'] == '':
+            current_command['description'] = l
         else:
-            command['description'] += ' ' + l
+            current_command['description'] += ' ' + l
         return _state_command_comment
     if _parse_empty_line(line):
-        if command['description'] != '':
-            if command['description'][-2:] != '\n\n':
-                command['description'] += '\n\n'
+        if current_command['description'] != '':
+            if current_command['description'][-2:] != '\n\n':
+                current_command['description'] += '\n\n'
         return _state_command_comment
 
 
 def _state_pre(data, line):
-    return None
+    if _parse_empty_line(line):
+        return _state_pre
+    current_command = _get_current_command(data)
+    if _parse_command_divisor(line):
+        current_command['post'] = []
+        return _state_post
+    l = _parse_indented_line(line)
+    if l:
+        current_command['pre'].append(l)
+        return _state_pre
+    c = _parse_command_header(line)
+    if c:
+        current_command['done'] = True
+        data['commands'].update(c)
+        return _state_command
 
 
 def _state_post(data, line):
