@@ -241,8 +241,6 @@ def _state_command(data, line):
     if _parse_comment_delimiter(line):
         return _state_command_comment
     if _parse_command_divisor(line):
-        current_command['pre'] = []
-        current_command['post'] = []
         return _state_post
     l = _parse_indented_line(line)
     if l:
@@ -253,10 +251,9 @@ def _state_command(data, line):
     
     
 def _state_command_comment(data, line):
-    current_command = _get_current_command(data)
     if _parse_comment_delimiter(line):
-        current_command['pre'] = []
         return _state_pre
+    current_command = _get_current_command(data)
     if 'description' not in current_command:
         current_command['description'] = ''
     l = _parse_line(line)
@@ -277,8 +274,9 @@ def _state_pre(data, line):
     if _parse_empty_line(line):
         return _state_pre
     current_command = _get_current_command(data)
+    if 'pre' not in current_command:
+        current_command['pre'] = []
     if _parse_command_divisor(line):
-        current_command['post'] = []
         return _state_post
     l = _parse_indented_line(line)
     if l:
@@ -297,6 +295,8 @@ def _state_post(data, line):
     if _parse_command_divisor(line):
         raise SyntaxError(_COMMAND_DELIMITER_UNEXPECTED_ERROR)
     current_command = _get_current_command(data)
+    if 'post' not in current_command:
+        current_command['post'] = []
     l = _parse_indented_line(line)
     if l:
         current_command['post'].append(l)

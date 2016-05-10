@@ -1144,9 +1144,7 @@ class CommandState(TestCase):
         expected = {
             'commands': {
                 'my_command': {
-                    'done': False,
-                    'pre': [],
-                    'post': []
+                    'done': False
                 }
             }
         }
@@ -1300,8 +1298,7 @@ class CommandCommentState(TestCase):
             'commands': {
                 'my_command': {
                     'description': 'Some text.\n\n',
-                    'done': False,
-                    'pre': []
+                    'done': False
                 }
             }
         }
@@ -1316,8 +1313,7 @@ class PreState(TestCase):
         data = {
             'commands': {
                 'my_command': {
-                    'done': False,
-                    'pre': []
+                    'done': False
                 }
             }
         }
@@ -1332,8 +1328,7 @@ class PreState(TestCase):
         data = {
             'commands': {
                 'my_command': {
-                    'done': False,
-                    'pre': []
+                    'done': False
                 }
             }
         }
@@ -1391,8 +1386,7 @@ class PreState(TestCase):
             'commands': {
                 'my_command': {
                     'done': False,
-                    'pre': ['previous command'],
-                    'post': []
+                    'pre': ['previous command']
                 }
             }
         }
@@ -1450,7 +1444,6 @@ class PostState(TestCase):
             'commands': {
                 'my_command': {
                     'done': False,
-                    'pre': []
                 }
             }
         }
@@ -1465,8 +1458,7 @@ class PostState(TestCase):
         data = {
             'commands': {
                 'my_command': {
-                    'done': False,
-                    'post': []
+                    'done': False
                 }
             }
         }
