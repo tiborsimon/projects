@@ -198,6 +198,8 @@ def _state_before_commands(data, line):
 def _state_main_comment(data, line):
     if _parse_comment_delimiter(line):
         return _state_variables
+    if 'description' not in data:
+        data['description'] = ''
     l = _parse_line(line)
     if l:
         if data['description'] == '':
@@ -255,6 +257,8 @@ def _state_command_comment(data, line):
     if _parse_comment_delimiter(line):
         current_command['pre'] = []
         return _state_pre
+    if 'description' not in current_command:
+        current_command['description'] = ''
     l = _parse_line(line)
     if l:
         if current_command['description'] == '':

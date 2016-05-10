@@ -932,7 +932,7 @@ class BeforeCommandsState(TestCase):
 class MainCommentState(TestCase):
 
     def test__first_comment_line_added_right(self):
-        data = {'description': ''}
+        data = {}
         line = 'This is the first line for the main comment..'
         expected = {'description': line}
         expected_state = projectfile._state_main_comment
@@ -1176,7 +1176,6 @@ class CommandCommentState(TestCase):
         data = {
             'commands': {
                 'my_command': {
-                    'description': '',
                     'done': False
                 }
             }
