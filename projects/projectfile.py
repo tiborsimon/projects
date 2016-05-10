@@ -146,12 +146,9 @@ def _parse_command_header(line):
         else:
             deps = []
 
-        ret = {
-            keys[0]: {
-                'dependencies': deps,
-                'done': False
-            }
-        }
+        ret = {keys[0]: {'done': False}}
+        if deps:
+            ret[keys[0]]['dependencies'] = deps
         if len(keys) > 1:
             for key in keys[1:]:
                 ret[key] = {'alias': keys[0]}
@@ -220,6 +217,8 @@ def _state_variables(data, line):
         return _state_variables
     if _parse_comment_delimiter(line):
         raise SyntaxError(_COMMENT_DELIMITER_UNEXPECTED_ERROR)
+    if 'variables' not in data:
+        data['variables'] = {}
     v = _parse_variable(line)
     if v:
         data['variables'].update(v)
@@ -238,7 +237,6 @@ def _state_command(data, line):
         return _state_command
     current_command = _get_current_command(data)
     if _parse_comment_delimiter(line):
-        current_command['description'] = ''
         return _state_command_comment
     if _parse_command_divisor(line):
         current_command['pre'] = []

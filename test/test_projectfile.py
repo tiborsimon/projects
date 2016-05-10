@@ -466,7 +466,6 @@ class CommandHeaderParser(TestCase):
         line = 'command:'
         expected = {
             'command': {
-                'dependencies': [],
                 'done': False
             }
         }
@@ -477,7 +476,6 @@ class CommandHeaderParser(TestCase):
         line = 'command_COMMAND_1234567890.abc-abc:'
         expected = {
             'command_COMMAND_1234567890.abc-abc': {
-                'dependencies': [],
                 'done': False
             }
         }
@@ -488,7 +486,6 @@ class CommandHeaderParser(TestCase):
         line = 'command:   '
         expected = {
             'command': {
-                'dependencies': [],
                 'done': False
             }
         }
@@ -499,7 +496,6 @@ class CommandHeaderParser(TestCase):
         line = 'command  :'
         expected = {
             'command': {
-                'dependencies': [],
                 'done': False
             }
         }
@@ -510,7 +506,6 @@ class CommandHeaderParser(TestCase):
         line = 'command|com:'
         expected = {
             'command': {
-                'dependencies': [],
                 'done': False
             },
             'com': {
@@ -524,7 +519,6 @@ class CommandHeaderParser(TestCase):
         line = 'command|com|c:'
         expected = {
             'command': {
-                'dependencies': [],
                 'done': False
             },
             'com': {
@@ -541,7 +535,6 @@ class CommandHeaderParser(TestCase):
         line = 'command |  com    | c    :'
         expected = {
             'command': {
-                'dependencies': [],
                 'done': False
             },
             'com': {
@@ -902,7 +895,6 @@ class BeforeCommandsState(TestCase):
         expected = {
             'commands': {
                 'my_command': {
-                    'dependencies': [],
                     'done': False
                 }
             }
@@ -975,7 +967,7 @@ class MainCommentState(TestCase):
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
-    def test__second_empty_Line_does_not_add_more_seaprators(self):
+    def test__second_empty_line_does_not_add_more_seaprators(self):
         data = {'description': 'Some text.\n\n'}
         line = ''
         expected = {'description': 'Some text.\n\n'}
@@ -984,7 +976,7 @@ class MainCommentState(TestCase):
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
-    def test__comment_delimiter_ends_the_comment_Capturing(self):
+    def test__comment_delimiter_ends_the_comment_capturing(self):
         data = {'description': 'Some text.\n\n'}
         line = '"""'
         expected = {'description': 'Some text.\n\n'}
@@ -995,6 +987,15 @@ class MainCommentState(TestCase):
 
 
 class VariableState(TestCase):
+
+    def test__no_variable_parsed_yet__create_the_variable_key(self):
+        data = {}
+        line = 'my-variable = 42'
+        expected = {'variables': {'my-variable': '42'}}
+        expected_state = projectfile._state_variables
+        next_state = projectfile._state_variables(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
 
     def test__next_variable_is_added_to_the_dictionary(self):
         data = {'variables': {
@@ -1065,7 +1066,6 @@ class VariableState(TestCase):
             },
             'commands': {
                 'my_command': {
-                    'dependencies': [],
                     'done': False
                 }
             }
@@ -1102,14 +1102,7 @@ class CommandState(TestCase):
             }
         }
         line = '"""'
-        expected = {
-            'commands': {
-                'my_command': {
-                    'description': '',
-                    'done': False
-                }
-            }
-        }
+        expected = dict(data)
         expected_state = projectfile._state_command_comment
         next_state = projectfile._state_command(data, line)
         self.assertEqual(expected, data)
@@ -1177,7 +1170,7 @@ class CommandState(TestCase):
         self.assertTrue(projectfile._COMMAND_HEADER_UNEXPECTED_UNINDENTED_ERROR == cm.exception.args[0])
 
 
-class CommandComment(TestCase):
+class CommandCommentState(TestCase):
 
     def test__first_comment_line_added_right(self):
         data = {
@@ -1271,7 +1264,7 @@ class CommandComment(TestCase):
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
-    def test__second_empty_Line_does_not_add_more_seaprators(self):
+    def test__second_empty_line_does_not_add_more_seaprators(self):
         data = {
             'commands': {
                 'my_command': {
@@ -1426,7 +1419,6 @@ class PreState(TestCase):
                     'pre': ['previous command']
                 },
                 'next_command': {
-                    'dependencies': [],
                     'done': False,
                 }
             }
@@ -1551,7 +1543,6 @@ class PostState(TestCase):
                     'post': ['previous command']
                 },
                 'next_command': {
-                    'dependencies': [],
                     'done': False,
                 }
             }
