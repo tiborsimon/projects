@@ -8,7 +8,8 @@ class ProjectfileError(Exception):
 
 _PROJECTFILE = 'Projectfile'
 
-_COMMAND_DELIMITER_UNEXPECTED_ERROR = 'Unexpected comment delimiter!'
+_COMMENT_DELIMITER_UNEXPECTED_ERROR = 'Unexpected comment delimiter (""")!'
+_COMMAND_DELIMITER_UNEXPECTED_ERROR = 'Unexpected command delimiter (===)!'
 
 _VERSION_INDENTATION_ERROR = 'Whitespaces are not allowed before the "from" keyword!'
 _VERSION_FORMAT_ERROR = 'Invalid version format. The valid one looks like "v1.2.3".'
@@ -218,7 +219,7 @@ def _state_variables(data, line):
     if _parse_empty_line(line):
         return _state_variables
     if _parse_comment_delimiter(line):
-        raise SyntaxError(_COMMAND_DELIMITER_UNEXPECTED_ERROR)
+        raise SyntaxError(_COMMENT_DELIMITER_UNEXPECTED_ERROR)
     v = _parse_variable(line)
     if v:
         data['variables'].update(v)
@@ -289,4 +290,18 @@ def _state_pre(data, line):
 
 
 def _state_post(data, line):
-    return None
+    if _parse_empty_line(line):
+        return _state_post
+    if _parse_command_divisor(line):
+        raise SyntaxError(_COMMAND_DELIMITER_UNEXPECTED_ERROR)
+    current_command = _get_current_command(data)
+    l = _parse_indented_line(line)
+    if l:
+        current_command['post'].append(l)
+        return _state_post
+    c = _parse_command_header(line)
+    if c:
+        current_command['done'] = True
+        data['commands'].update(c)
+        return _state_command
+
