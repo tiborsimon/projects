@@ -10,6 +10,7 @@ except ImportError:
 
 try:
     import __builtin__
+
     builtin_module = '__builtin__'
 except ImportError:
     builtin_module = 'builtins'
@@ -18,23 +19,21 @@ from projects import projectfile
 
 
 class FileLoading(TestCase):
-
     def test__load_method_called_with_the_right_path(self):
         dummy_path = '/dummy/path'
-        with mock.patch(builtin_module+'.open') as mock_open:
+        with mock.patch(builtin_module + '.open') as mock_open:
             projectfile._load(dummy_path)
             mock_open.assert_called_with(dummy_path, 'r')
 
     def test__load_method_returns_the_loaded_file_content_as_a_list_of_string(self):
         mock_open = mock.mock_open(read_data='line 1\nline 2')
         expected = ['line 1', 'line 2']
-        with mock.patch(builtin_module+'.open', mock_open):
+        with mock.patch(builtin_module + '.open', mock_open):
             result = projectfile._load('...')
             self.assertEqual(expected, result)
 
 
 class AdditionalHelperFunctions(TestCase):
-
     def test__get_currently_parseable_command(self):
         data = {
             'commands': {
@@ -67,7 +66,6 @@ class AdditionalHelperFunctions(TestCase):
 
 
 class VersionParser(TestCase):
-
     def test__valid_version_can_be_parsed_1(self):
         line = 'from v1.2.3'
         expected = (1, 2, 3)
@@ -135,7 +133,6 @@ class VersionParser(TestCase):
 
 
 class EmptyLineParser(TestCase):
-
     def test__parse_empty_line_1(self):
         line = ''
         expected = True
@@ -168,7 +165,6 @@ class EmptyLineParser(TestCase):
 
 
 class IndentedLineParser(TestCase):
-
     def test__parse_indented_line_1(self):
         line = ' valami'
         expected = 'valami'
@@ -195,7 +191,6 @@ class IndentedLineParser(TestCase):
 
 
 class CommentDelimiterParser(TestCase):
-
     def test__delimiter_can_be_parsed__zero_indentation(self):
         line = '"""'
         expected = True
@@ -240,7 +235,6 @@ class CommentDelimiterParser(TestCase):
 
 
 class LineParser(TestCase):
-
     def test__line_can_be_parsed_1(self):
         line = 'valami'
         expected = 'valami'
@@ -273,7 +267,6 @@ class LineParser(TestCase):
 
 
 class VariableParser(TestCase):
-
     def test__variable_can_be_parsed__basic_case(self):
         line = 'my_variable = valami'
         expected = {'my_variable': 'valami'}
@@ -416,7 +409,6 @@ class VariableParser(TestCase):
 
 
 class CommandDivisorParser(TestCase):
-
     def test__command_divisor_can_be_parsed_1(self):
         line = '==='
         expected = True
@@ -461,7 +453,6 @@ class CommandDivisorParser(TestCase):
 
 
 class CommandHeaderParser(TestCase):
-
     def test__valid_command_header__basic_case(self):
         line = 'command:'
         expected = {
@@ -815,7 +806,6 @@ class CommandHeaderParser(TestCase):
 
 
 class StartState(TestCase):
-
     def test__can_parse_version(self):
         data = {}
         line = 'from v1.2.3'
@@ -861,7 +851,6 @@ class StartState(TestCase):
 
 
 class BeforeCommandsState(TestCase):
-
     def test__can_tolerate_empty_lines(self):
         data = {}
         line = ''
@@ -930,7 +919,6 @@ class BeforeCommandsState(TestCase):
 
 
 class MainCommentState(TestCase):
-
     def test__first_comment_line_added_right(self):
         data = {}
         line = 'This is the first line for the main comment..'
@@ -987,7 +975,6 @@ class MainCommentState(TestCase):
 
 
 class VariableState(TestCase):
-
     def test__no_variable_parsed_yet__create_the_variable_key(self):
         data = {}
         line = 'my-variable = 42'
@@ -1077,7 +1064,6 @@ class VariableState(TestCase):
 
 
 class CommandState(TestCase):
-
     def test__can_tolerate_empty_line(self):
         data = {
             'commands': {
@@ -1169,7 +1155,6 @@ class CommandState(TestCase):
 
 
 class CommandCommentState(TestCase):
-
     def test__first_comment_line_added_right(self):
         data = {
             'commands': {
@@ -1307,8 +1292,8 @@ class CommandCommentState(TestCase):
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
-class PreState(TestCase):
 
+class PreState(TestCase):
     def test__can_tolerate_empty_lines(self):
         data = {
             'commands': {
@@ -1363,7 +1348,7 @@ class PreState(TestCase):
                     'pre': [
                         'previous command',
                         'some indented command'
-                        ]
+                    ]
                 }
             }
         }
@@ -1438,7 +1423,6 @@ class PreState(TestCase):
 
 
 class PostState(TestCase):
-
     def test__can_tolerate_empty_lines(self):
         data = {
             'commands': {
@@ -1493,7 +1477,7 @@ class PostState(TestCase):
                     'post': [
                         'previous command',
                         'some indented command'
-                        ]
+                    ]
                 }
             }
         }
@@ -1543,7 +1527,7 @@ class PostState(TestCase):
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
-    def test__valid_command_header_finishes_command(self):
+    def test__invalid_command_header__raises_error(self):
         data = {
             'commands': {
                 'my_command': {
@@ -1558,3 +1542,64 @@ class PostState(TestCase):
         self.assertEqual(cm.exception.__class__, SyntaxError)
         self.assertTrue(projectfile._COMMAND_HEADER_MISSING_COLON_ERROR == cm.exception.args[0])
 
+
+class FinishingState(TestCase):
+    def test__eof_in_pre_state__data_will_be_closed(self):
+        state = projectfile._state_pre
+        data = {
+            'commands': {
+                'my_command': {
+                    'done': False,
+                    'pre': ['some command']
+                }
+            }
+        }
+        expected = {
+            'commands': {
+                'my_command': {
+                    'pre': ['some command']
+                }
+            }
+        }
+        projectfile._finish_processing(data, state)
+        self.assertEqual(expected, data)
+
+    def test__eof_in_post_state__data_will_be_closed(self):
+        state = projectfile._state_post
+        data = {
+            'commands': {
+                'my_command': {
+                    'done': False,
+                    'post': ['some command']
+                }
+            }
+        }
+        expected = {
+            'commands': {
+                'my_command': {
+                    'post': ['some command']
+                }
+            }
+        }
+        projectfile._finish_processing(data, state)
+        self.assertEqual(expected, data)
+
+
+class StateMachineParser(TestCase):
+    def test__list_of_lines_can_be_parsed(self):
+        lines = [
+            'from v1.2.3',
+            '',
+            'command:',
+            '  echo "hello"'
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'pre': ['echo "hello"']
+                }
+            }
+        }
+        result = projectfile._process_lines(lines)
+        self.assertEqual(expected, result)

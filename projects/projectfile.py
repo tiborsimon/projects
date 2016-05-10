@@ -247,8 +247,8 @@ def _state_command(data, line):
         return _state_pre
     else:
         raise SyntaxError(_COMMAND_HEADER_UNEXPECTED_UNINDENTED_ERROR)
-    
-    
+
+
 def _state_command_comment(data, line):
     if _parse_comment_delimiter(line):
         return _state_pre
@@ -306,3 +306,17 @@ def _state_post(data, line):
         data['commands'].update(c)
         return _state_command
 
+
+def _finish_processing(data, state):
+    if state in (_state_pre, _state_post):
+        for command_name in data['commands'].keys():
+            del data['commands'][command_name]['done']
+
+
+def _process_lines(lines):
+    data = {}
+    state_function = _state_start
+    for line in lines:
+        state_function = state_function(data, line)
+    _finish_processing(data, state_function)
+    return data
