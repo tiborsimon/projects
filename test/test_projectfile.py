@@ -874,7 +874,7 @@ class BeforeCommandsState(TestCase):
     def test__can_parse_comments(self):
         data = {}
         line = '"""'
-        expected = {'description': ''}
+        expected = {}
         expected_state = projectfile._state_main_comment
         next_state = projectfile._state_before_commands(data, line)
         self.assertEqual(expected, data)

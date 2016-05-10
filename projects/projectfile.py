@@ -181,7 +181,6 @@ def _state_before_commands(data, line):
     if _parse_empty_line(line):
         return _state_before_commands
     if _parse_comment_delimiter(line):
-        data.update({'description': ''})
         return _state_main_comment
     v = _parse_variable(line)
     if v:
