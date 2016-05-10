@@ -1,11 +1,10 @@
 #PROJECTS - the extensible project manager
 
-## Warning - this projects is currently under development and it is not ready to use!
-
 [![Gitter](https://img.shields.io/gitter/room/tiborsimon/projects.svg?maxAge=2592000)](https://gitter.im/tiborsimon/projects?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/tiborsimon/projects.svg?branch=master)](https://travis-ci.org/tiborsimon/projects) [![PyPI](https://img.shields.io/pypi/v/projects.svg?maxAge=2592000)](https://pypi.python.org/pypi?name=projects&version=0.1.1&:action=display)
 [![license](https://img.shields.io/github/license/tiborsimon/projects.svg?maxAge=2592000)](https://github.com/tiborsimon/projects#license)
 [![Github All Releases](https://img.shields.io/github/downloads/tiborsimon/projects/total.svg?maxAge=2592000)](https://github.com/tiborsimon/projects/releases/latest)
+[![Status](https://img.shields.io/badge/status-under_development-yellow.svg)]()
 
 
  __PROJECTS__ is a project management tool. You can list all of your projects and access
