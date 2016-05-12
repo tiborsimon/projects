@@ -2108,3 +2108,186 @@ class ParserErrorCases(TestCase):
         with self.assertRaises(Exception) as cm:
             projectfile._run_state_machine(lines)
         assert_exception(self, cm, projectfile.ProjectfileError, expected_error)
+
+    def test__version_indentation_error(self):
+        lines = [
+            ' from v1.2.3'
+        ]
+        expected_error = {
+            'line': 1,
+            'error': projectfile._VERSION_INDENTATION_ERROR
+        }
+        with self.assertRaises(Exception) as cm:
+            projectfile._run_state_machine(lines)
+        assert_exception(self, cm, projectfile.ProjectfileError, expected_error)
+
+    def test__invalid_version_format_error(self):
+        lines = [
+            'from v12.3'
+        ]
+        expected_error = {
+            'line': 1,
+            'error': projectfile._VERSION_FORMAT_ERROR
+        }
+        with self.assertRaises(Exception) as cm:
+            projectfile._run_state_machine(lines)
+        assert_exception(self, cm, projectfile.ProjectfileError, expected_error)
+
+    def test__version_missing_error(self):
+        lines = [
+            'variable = 4'
+        ]
+        expected_error = {
+            'line': 1,
+            'error': projectfile._VERSION_MISSING_ERROR
+        }
+        with self.assertRaises(Exception) as cm:
+            projectfile._run_state_machine(lines)
+        assert_exception(self, cm, projectfile.ProjectfileError, expected_error)
+
+    def test__variable_indentation_error(self):
+        lines = [
+            'from v1.2.3',
+            '  variable = 4'
+        ]
+        expected_error = {
+            'line': 2,
+            'error': projectfile._VARIABLE_INDENTATION_ERROR
+        }
+        with self.assertRaises(Exception) as cm:
+            projectfile._run_state_machine(lines)
+        assert_exception(self, cm, projectfile.ProjectfileError, expected_error)
+
+    def test__variable_quote_before_error(self):
+        lines = [
+            'from v1.2.3',
+            'variable = 4"'
+        ]
+        expected_error = {
+            'line': 2,
+            'error': projectfile._VARIABLE_QUOTE_BEFORE_ERROR
+        }
+        with self.assertRaises(Exception) as cm:
+            projectfile._run_state_machine(lines)
+        assert_exception(self, cm, projectfile.ProjectfileError, expected_error)
+
+    def test__variable_quote_after_error(self):
+        lines = [
+            'from v1.2.3',
+            'variable = "4'
+        ]
+        expected_error = {
+            'line': 2,
+            'error': projectfile._VARIABLE_QUOTE_AFTER_ERROR
+        }
+        with self.assertRaises(Exception) as cm:
+            projectfile._run_state_machine(lines)
+        assert_exception(self, cm, projectfile.ProjectfileError, expected_error)
+
+    def test_command_header_indentation_error(self):
+        lines = [
+            'from v1.2.3',
+            ' command:'
+        ]
+        expected_error = {
+            'line': 2,
+            'error': projectfile._COMMAND_HEADER_INDENTATION_ERROR
+        }
+        with self.assertRaises(Exception) as cm:
+            projectfile._run_state_machine(lines)
+        assert_exception(self, cm, projectfile.ProjectfileError, expected_error)
+
+    def test_command_missing_colon_error(self):
+        lines = [
+            'from v1.2.3',
+            'command'
+        ]
+        expected_error = {
+            'line': 2,
+            'error': projectfile._COMMAND_HEADER_MISSING_COLON_ERROR
+        }
+        with self.assertRaises(Exception) as cm:
+            projectfile._run_state_machine(lines)
+        assert_exception(self, cm, projectfile.ProjectfileError, expected_error)
+
+    def test_command_invalid_colon_error(self):
+        lines = [
+            'from v1.2.3',
+            'command:vmi'
+        ]
+        expected_error = {
+            'line': 2,
+            'error': projectfile._COMMAND_HEADER_COLON_ERROR
+        }
+        with self.assertRaises(Exception) as cm:
+            projectfile._run_state_machine(lines)
+        assert_exception(self, cm, projectfile.ProjectfileError, expected_error)
+
+    def test_command_invalid_alternative_error(self):
+        lines = [
+            'from v1.2.3',
+            'command|ffd|:'
+        ]
+        expected_error = {
+            'line': 2,
+            'error': projectfile._COMMAND_HEADER_INVALID_ALTERNATIVE
+        }
+        with self.assertRaises(Exception) as cm:
+            projectfile._run_state_machine(lines)
+        assert_exception(self, cm, projectfile.ProjectfileError, expected_error)
+
+    def test_command_empty_dependency_list_error(self):
+        lines = [
+            'from v1.2.3',
+            'command: []'
+        ]
+        expected_error = {
+            'line': 2,
+            'error': projectfile._COMMAND_HEADER_EMPTY_DEPENDENCY_LIST
+        }
+        with self.assertRaises(Exception) as cm:
+            projectfile._run_state_machine(lines)
+        assert_exception(self, cm, projectfile.ProjectfileError, expected_error)
+
+    def test_command_invalid_dependency_list_error(self):
+        lines = [
+            'from v1.2.3',
+            'command: [vmi,]'
+        ]
+        expected_error = {
+            'line': 2,
+            'error': projectfile._COMMAND_HEADER_INVALID_DEPENDENCY_LIST
+        }
+        with self.assertRaises(Exception) as cm:
+            projectfile._run_state_machine(lines)
+        assert_exception(self, cm, projectfile.ProjectfileError, expected_error)
+
+    def test_command_syntax_error(self):
+        lines = [
+            'from v1.2.3',
+            'command: : [vmi,]'
+        ]
+        expected_error = {
+            'line': 2,
+            'error': projectfile._COMMAND_HEADER_SYNTAX_ERROR
+        }
+        with self.assertRaises(Exception) as cm:
+            projectfile._run_state_machine(lines)
+        assert_exception(self, cm, projectfile.ProjectfileError, expected_error)
+
+    def test_command_unexpected_unindented_line_error(self):
+        lines = [
+            'from v1.2.3',
+            'command:',
+            'vmi'
+        ]
+        expected_error = {
+            'line': 3,
+            'error': projectfile._COMMAND_HEADER_UNEXPECTED_UNINDENTED_ERROR
+        }
+        with self.assertRaises(Exception) as cm:
+            projectfile._run_state_machine(lines)
+        assert_exception(self, cm, projectfile.ProjectfileError, expected_error)
+
+        
+
