@@ -927,6 +927,15 @@ class MainCommentState(TestCase):
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
+    def test__next_not_empty_line_appended_nicely(self):
+        data = {'description': 'Some text.\n\n'}
+        line = 'vmi'
+        expected = {'description': 'Some text.\n\nvmi'}
+        expected_state = projectfile._state_main_comment
+        next_state = projectfile._state_main_comment(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
+
     def test__comment_delimiter_ends_the_comment_capturing(self):
         data = {'description': 'Some text.\n\n'}
         line = '"""'
@@ -962,23 +971,17 @@ class VariableState(TestCase):
         self.assertEqual(expected_state, next_state)
 
     def test__can_tolerate_empty_lines(self):
-        data = {'variables': {
-            'first-variable': '42'
-        }}
+        data = {}
         line = ''
-        expected = {'variables': {
-            'first-variable': '42'
-        }}
+        expected = {}
         expected_state = projectfile._state_variables
         next_state = projectfile._state_variables(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
     def test__invalid_variable_syntax__raises_exception(self):
-        data = {'variables': {
-            'first-variable': '42'
-        }}
-        line = 'second-variable = \'23'
+        data = {}
+        line = 'some-variable = \'23'
         with self.assertRaises(Exception) as cm:
             projectfile._state_variables(data, line)
         assert_exception(self, cm, SyntaxError, projectfile._VARIABLE_QUOTE_AFTER_ERROR)
@@ -1228,6 +1231,29 @@ class CommandCommentState(TestCase):
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
+    def test__next_not_empty_line_appended_nicely(self):
+        data = {
+            'commands': {
+                'my_command': {
+                    'description': 'Some text.\n\n',
+                    'done': False
+                }
+            }
+        }
+        line = 'vmi'
+        expected = {
+            'commands': {
+                'my_command': {
+                    'description': 'Some text.\n\nvmi',
+                    'done': False
+                }
+            }
+        }
+        expected_state = projectfile._state_command_comment
+        next_state = projectfile._state_command_comment(data, line)
+        self.assertEqual(expected, data)
+        self.assertEqual(expected_state, next_state)
+
     def test__comment_delimiter_ends_the_comment_capturing(self):
         data = {
             'commands': {
@@ -1289,6 +1315,20 @@ class PreState(TestCase):
         next_state = projectfile._state_pre(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
+
+    def test__comment_delimiter__raises_error(self):
+        data = {
+            'commands': {
+                'my_command': {
+                    'done': False,
+                    'post': ['previous command']
+                }
+            }
+        }
+        line = '  """'
+        with self.assertRaises(Exception) as cm:
+            projectfile._state_post(data, line)
+        assert_exception(self, cm, SyntaxError, projectfile._COMMENT_DELIMITER_UNEXPECTED_ERROR)
 
     def test__parsed_command_appended_to_the_pre_list(self):
         data = {
@@ -1417,6 +1457,20 @@ class PostState(TestCase):
         next_state = projectfile._state_post(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
+
+    def test__comment_delimiter__raises_error(self):
+        data = {
+            'commands': {
+                'my_command': {
+                    'done': False,
+                    'post': ['previous command']
+                }
+            }
+        }
+        line = '  """'
+        with self.assertRaises(Exception) as cm:
+            projectfile._state_post(data, line)
+        assert_exception(self, cm, SyntaxError, projectfile._COMMENT_DELIMITER_UNEXPECTED_ERROR)
 
     def test__parsed_command_appended_to_the_post_list(self):
         data = {
@@ -1598,7 +1652,7 @@ class FinishingState(TestCase):
 
 
 class StateMachineParser(TestCase):
-    def test__list_of_lines_can_be_parsed(self):
+    def test__single_command_no_deps(self):
         lines = [
             'from v1.2.3',
             '',
@@ -1616,13 +1670,423 @@ class StateMachineParser(TestCase):
         result = projectfile._run_state_machine(lines)
         self.assertEqual(expected, result)
 
+    def test__single_command_no_deps_more_commands(self):
+        lines = [
+            'from v1.2.3',
+            '',
+            'command:',
+            '  echo "hello"',
+            '  cd ~',
+            '  make html'
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'pre': ['echo "hello"', 'cd ~', 'make html']
+                }
+            }
+        }
+        result = projectfile._run_state_machine(lines)
+        self.assertEqual(expected, result)
+
+    def test__single_command_with_deps(self):
+        lines = [
+            'from v1.2.3',
+            '',
+            'command: [a, b]',
+            '  echo "hello"'
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'dependencies': ['a', 'b'],
+                    'pre': ['echo "hello"']
+                }
+            }
+        }
+        result = projectfile._run_state_machine(lines)
+        self.assertEqual(expected, result)
+
+    def test__more_commands_with_no_deps(self):
+        lines = [
+            'from v1.2.3',
+            '',
+            'command:',
+            '  echo "hello"',
+            'command2:',
+            '  echo "vmi"'
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'pre': ['echo "hello"']
+                },
+                'command2': {
+                    'pre': ['echo "vmi"']
+                }
+            }
+        }
+        result = projectfile._run_state_machine(lines)
+        self.assertEqual(expected, result)
+
+    def test__single_command_with_only_post(self):
+        lines = [
+            'from v1.2.3',
+            '',
+            'command: [a, b]',
+            '  ===',
+            '  echo "hello"'
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'dependencies': ['a', 'b'],
+                    'post': ['echo "hello"']
+                }
+            }
+        }
+        result = projectfile._run_state_machine(lines)
+        self.assertEqual(expected, result)
+
+    def test__single_command_with_pre_and_post(self):
+        lines = [
+            'from v1.2.3',
+            '',
+            'command: [a, b]',
+            '  echo "pre"',
+            '  ===',
+            '  echo "post"'
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'dependencies': ['a', 'b'],
+                    'post': ['echo "post"'],
+                    'pre': ['echo "pre"']
+                }
+            }
+        }
+        result = projectfile._run_state_machine(lines)
+        self.assertEqual(expected, result)
+
+    def test__single_command_with_variable(self):
+        lines = [
+            'from v1.2.3',
+            '',
+            'a = 42',
+            'command: [a, b]',
+            '  echo "pre"'
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'variables': {'a': '42'},
+            'commands': {
+                'command': {
+                    'dependencies': ['a', 'b'],
+                    'pre': ['echo "pre"']
+                }
+            }
+        }
+        result = projectfile._run_state_machine(lines)
+        self.assertEqual(expected, result)
+
+    def test__single_command_with_variables(self):
+        lines = [
+            'from v1.2.3',
+            '',
+            'a = 42',
+            'b = 54',
+            'command: [a, b]',
+            '  echo "pre"'
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'variables': {
+                'a': '42',
+                'b': '54'
+            },
+            'commands': {
+                'command': {
+                    'dependencies': ['a', 'b'],
+                    'pre': ['echo "pre"']
+                }
+            }
+        }
+        result = projectfile._run_state_machine(lines)
+        self.assertEqual(expected, result)
+
+    def test__main_comment(self):
+        lines = [
+            'from v1.2.3',
+            '',
+            '"""',
+            'This is the main description',
+            '"""',
+            'command:',
+            '  echo "pre"'
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'description': 'This is the main description',
+            'commands': {
+                'command': {
+                    'pre': ['echo "pre"']
+                }
+            }
+        }
+        result = projectfile._run_state_machine(lines)
+        self.assertEqual(expected, result)
+
+    def test__main_comment_indentation_gets_ignored(self):
+        lines = [
+            'from v1.2.3',
+            '',
+            '         """',
+            '                This is the main description',
+            '                  """',
+            'command:',
+            '  echo "pre"'
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'description': 'This is the main description',
+            'commands': {
+                'command': {
+                    'pre': ['echo "pre"']
+                }
+            }
+        }
+        result = projectfile._run_state_machine(lines)
+        self.assertEqual(expected, result)
+
+    def test__main_comment__inserting_line_break(self):
+        lines = [
+            'from v1.2.3',
+            '',
+            '"""',
+            'This is the main description',
+            '',
+            'after break',
+            '"""',
+            'command:',
+            '  echo "pre"'
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'description': 'This is the main description\n\nafter break',
+            'commands': {
+                'command': {
+                    'pre': ['echo "pre"']
+                }
+            }
+        }
+        result = projectfile._run_state_machine(lines)
+        self.assertEqual(expected, result)
+
+    def test__main_comment__appending_lines(self):
+        lines = [
+            'from v1.2.3',
+            '',
+            '"""',
+            'This is the main description',
+            'after break',
+            '"""',
+            'command:',
+            '  echo "pre"'
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'description': 'This is the main description after break',
+            'commands': {
+                'command': {
+                    'pre': ['echo "pre"']
+                }
+            }
+        }
+        result = projectfile._run_state_machine(lines)
+        self.assertEqual(expected, result)
+
+    def test__command_comment(self):
+        lines = [
+            'from v1.2.3',
+            '',
+            'command:',
+            '  """',
+            '  This is the command description',
+            '  """',
+            '  echo "pre"'
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'description': 'This is the command description',
+                    'pre': ['echo "pre"']
+                }
+            }
+        }
+        result = projectfile._run_state_machine(lines)
+        self.assertEqual(expected, result)
+
+    def test__command_comment_indentation_gets_ignored_1(self):
+        lines = [
+            'from v1.2.3',
+            '',
+            'command:',
+            '"""',
+            'This is the command description',
+            '"""',
+            '  echo "pre"'
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'description': 'This is the command description',
+                    'pre': ['echo "pre"']
+                }
+            }
+        }
+        result = projectfile._run_state_machine(lines)
+        self.assertEqual(expected, result)
+
+    def test__command_comment_indentation_gets_ignored_2(self):
+        lines = [
+            'from v1.2.3',
+            '',
+            'command:',
+            '             """',
+            '          This is the command description',
+            '               """',
+            '  echo "pre"'
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'description': 'This is the command description',
+                    'pre': ['echo "pre"']
+                }
+            }
+        }
+        result = projectfile._run_state_machine(lines)
+        self.assertEqual(expected, result)
+
+    def test__command_comment__inserting_line_break(self):
+        lines = [
+            'from v1.2.3',
+            '',
+            'command:',
+            '  """',
+            '  This is the command description',
+            '  ',
+            '  vmi',
+            '  """',
+            '  echo "pre"'
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'description': 'This is the command description\n\nvmi',
+                    'pre': ['echo "pre"']
+                }
+            }
+        }
+        result = projectfile._run_state_machine(lines)
+        self.assertEqual(expected, result)
+
+    def test__command_comment__lines_appended_nicely(self):
+        lines = [
+            'from v1.2.3',
+            '',
+            'command:',
+            '  """',
+            '  This is the command description',
+            '  vmi',
+            '  """',
+            '  echo "pre"'
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'description': 'This is the command description vmi',
+                    'pre': ['echo "pre"']
+                }
+            }
+        }
+        result = projectfile._run_state_machine(lines)
+        self.assertEqual(expected, result)
+
 
 class StateMachineExceptionWrapping(TestCase):
     @mock.patch.object(projectfile, '_state_start')
     def test__line_numbers_prepended_to_exception_message(self, mock_state):
         error_message = 'Some error'
         mock_state.side_effect = SyntaxError(error_message)
+        expected_error = {
+            'line': 1,
+            'error': error_message
+        }
         with self.assertRaises(Exception) as cm:
             projectfile._run_state_machine([''])
-        assert_exception(self, cm, projectfile.ProjectfileError,
-                         projectfile._PROJECTFILE_EXCEPTION_WRAPPER_TEMPLATE.format(1, error_message))
+        assert_exception(self, cm, projectfile.ProjectfileError, expected_error)
+
+
+class ParserErrorCases(TestCase):
+
+    def test__unexpected_comment_delimiter_1(self):
+        lines = [
+            'from v1.2.3',
+            '',
+            'a = 42',
+            'b = 54',
+            '"""'
+        ]
+        expected_error = {
+            'line': 5,
+            'error': projectfile._COMMENT_DELIMITER_UNEXPECTED_ERROR
+        }
+        with self.assertRaises(Exception) as cm:
+            projectfile._run_state_machine(lines)
+        assert_exception(self, cm, projectfile.ProjectfileError, expected_error)
+
+    def test__unexpected_comment_delimiter_2(self):
+        lines = [
+            'from v1.2.3',
+            '',
+            'command:',
+            '   cat file',
+            '   """'
+        ]
+        expected_error = {
+            'line': 5,
+            'error': projectfile._COMMENT_DELIMITER_UNEXPECTED_ERROR
+        }
+        with self.assertRaises(Exception) as cm:
+            projectfile._run_state_machine(lines)
+        assert_exception(self, cm, projectfile.ProjectfileError, expected_error)
+
+    def test__unexpected_comment_delimiter_3(self):
+        lines = [
+            'from v1.2.3',
+            '',
+            'command:',
+            '   cat file',
+            '   ===',
+            '   cat file',
+            '   """'
+        ]
+        expected_error = {
+            'line': 7,
+            'error': projectfile._COMMENT_DELIMITER_UNEXPECTED_ERROR
+        }
+        with self.assertRaises(Exception) as cm:
+            projectfile._run_state_machine(lines)
+        assert_exception(self, cm, projectfile.ProjectfileError, expected_error)

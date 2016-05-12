@@ -11,7 +11,6 @@ _PROJECTFILE = 'Projectfile'
 _PROJECTFILE_EMPTY_ERROR = 'Projectfile is empty! Or at least it does not contain any parsable text.'
 _PROJECTFILE_NO_COMMAND_ERROR = 'No commands were defined in the projectfile!'
 _PROJECTFILE_NO_COMMAND_IN_COMMAND_ERROR = 'Command {} do not have any executable commands! Is this command necessary?'
-_PROJECTFILE_EXCEPTION_WRAPPER_TEMPLATE = 'Error in line 1 of {{}}: {}'
 
 _COMMENT_DELIMITER_UNEXPECTED_ERROR = 'Unexpected comment delimiter (""")!'
 _COMMAND_DELIMITER_UNEXPECTED_ERROR = 'Unexpected command delimiter (===)!'
@@ -209,7 +208,10 @@ def _state_main_comment(data, line):
         if data['description'] == '':
             data['description'] = l
         else:
-            data['description'] += ' ' + l
+            if data['description'][-2:] != '\n\n':
+                data['description'] += ' ' + l
+            else:
+                data['description'] += l
         return _state_main_comment
     if _parse_empty_line(line):
         if data['description'] != '':
@@ -223,10 +225,10 @@ def _state_variables(data, line):
         return _state_variables
     if _parse_comment_delimiter(line):
         raise SyntaxError(_COMMENT_DELIMITER_UNEXPECTED_ERROR)
-    if 'variables' not in data:
-        data['variables'] = {}
     v = _parse_variable(line)
     if v:
+        if 'variables' not in data:
+            data['variables'] = {}
         data['variables'].update(v)
         return _state_variables
     else:
@@ -265,7 +267,10 @@ def _state_command_comment(data, line):
         if current_command['description'] == '':
             current_command['description'] = l
         else:
-            current_command['description'] += ' ' + l
+            if current_command['description'][-2:] != '\n\n':
+                current_command['description'] += ' ' + l
+            else:
+                current_command['description'] += l
         return _state_command_comment
     if _parse_empty_line(line):
         if current_command['description'] != '':
@@ -277,6 +282,8 @@ def _state_command_comment(data, line):
 def _state_pre(data, line):
     if _parse_empty_line(line):
         return _state_pre
+    if _parse_comment_delimiter(line):
+        raise SyntaxError(_COMMENT_DELIMITER_UNEXPECTED_ERROR)
     current_command = _get_current_command(data)
     if 'pre' not in current_command:
         current_command['pre'] = []
@@ -298,6 +305,8 @@ def _state_post(data, line):
         return _state_post
     if _parse_command_divisor(line):
         raise SyntaxError(_COMMAND_DELIMITER_UNEXPECTED_ERROR)
+    if _parse_comment_delimiter(line):
+        raise SyntaxError(_COMMENT_DELIMITER_UNEXPECTED_ERROR)
     current_command = _get_current_command(data)
     if 'post' not in current_command:
         current_command['post'] = []
@@ -334,7 +343,10 @@ def _run_state_machine(lines):
         try:
             state_function = state_function(data, lines[i])
         except SyntaxError as e:
-            raise ProjectfileError(_PROJECTFILE_EXCEPTION_WRAPPER_TEMPLATE.format(i+1, e))
+            raise ProjectfileError({
+                'line': i+1,
+                'error': e.message
+            })
     _finish_processing(data, state_function)
     return data
 
