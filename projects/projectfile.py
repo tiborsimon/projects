@@ -9,6 +9,9 @@ class ProjectfileError(Exception):
 _PROJECTFILE = 'Projectfile'
 
 _PROJECTFILE_EMPTY_ERROR = 'Projectfile is empty! Or at least it does not contain any parsable text.'
+_PROJECTFILE_NO_COMMAND_ERROR = 'No commands were defined in the projectfile!'
+_PROJECTFILE_NO_COMMAND_IN_COMMAND_ERROR = 'Command {} do not have any executable commands! Is this command necessary?'
+_PROJECTFILE_EXCEPTION_WRAPPER_TEMPLATE = 'Error in line 1 of {{}}: {}'
 
 _COMMENT_DELIMITER_UNEXPECTED_ERROR = 'Unexpected comment delimiter (""")!'
 _COMMAND_DELIMITER_UNEXPECTED_ERROR = 'Unexpected command delimiter (===)!'
@@ -315,12 +318,25 @@ def _finish_processing(data, state):
             del data['commands'][command_name]['done']
     elif state == _state_start:
         raise SyntaxError(_PROJECTFILE_EMPTY_ERROR)
+    elif state in (_state_before_commands, _state_variables, _state_main_comment):
+        raise SyntaxError(_PROJECTFILE_NO_COMMAND_ERROR)
+    elif state in (_state_command, _state_command_comment):
+        for command in data['commands'].keys():
+            if data['commands'][command]['done'] == False:
+                break
+        raise SyntaxError(_PROJECTFILE_NO_COMMAND_IN_COMMAND_ERROR.format(command))
 
 
-def _process_lines(lines):
+def _run_state_machine(lines):
     data = {}
     state_function = _state_start
-    for line in lines:
-        state_function = state_function(data, line)
+    for i in range(len(lines)):
+        try:
+            state_function = state_function(data, lines[i])
+        except SyntaxError as e:
+            raise ProjectfileError(_PROJECTFILE_EXCEPTION_WRAPPER_TEMPLATE.format(i+1, e))
     _finish_processing(data, state_function)
     return data
+
+def _process_lines(lines):
+    pass

@@ -1547,6 +1547,52 @@ class FinishingState(TestCase):
             projectfile._finish_processing(data, state)
         assert_exception(self, cm, SyntaxError, projectfile._PROJECTFILE_EMPTY_ERROR)
 
+    def test__eof_in_before_commands_state__raises_error(self):
+        data = {}
+        state = projectfile._state_before_commands
+        with self.assertRaises(Exception) as cm:
+            projectfile._finish_processing(data, state)
+        assert_exception(self, cm, SyntaxError, projectfile._PROJECTFILE_NO_COMMAND_ERROR)
+
+    def test__eof_in_main_comment_state__raises_error(self):
+        data = {}
+        state = projectfile._state_main_comment
+        with self.assertRaises(Exception) as cm:
+            projectfile._finish_processing(data, state)
+        assert_exception(self, cm, SyntaxError, projectfile._PROJECTFILE_NO_COMMAND_ERROR)
+
+    def test__eof_in_variable_state__raises_error(self):
+        data = {}
+        state = projectfile._state_variables
+        with self.assertRaises(Exception) as cm:
+            projectfile._finish_processing(data, state)
+        assert_exception(self, cm, SyntaxError, projectfile._PROJECTFILE_NO_COMMAND_ERROR)
+
+    def test__eof_in_command_state__raises_error(self):
+        data = {
+            'commands': {
+                'unfinished-command': {
+                    'done': False
+                }
+            }
+        }
+        state = projectfile._state_command
+        with self.assertRaises(Exception) as cm:
+            projectfile._finish_processing(data, state)
+        assert_exception(self, cm, SyntaxError, projectfile._PROJECTFILE_NO_COMMAND_IN_COMMAND_ERROR.format('unfinished-command'))
+
+    def test__eof_in_command_comment_state__raises_error(self):
+        data = {
+            'commands': {
+                'unfinished-command': {
+                    'done': False
+                }
+            }
+        }
+        state = projectfile._state_command_comment
+        with self.assertRaises(Exception) as cm:
+            projectfile._finish_processing(data, state)
+        assert_exception(self, cm, SyntaxError, projectfile._PROJECTFILE_NO_COMMAND_IN_COMMAND_ERROR.format('unfinished-command'))
 
 
 class StateMachineParser(TestCase):
@@ -1565,5 +1611,18 @@ class StateMachineParser(TestCase):
                 }
             }
         }
-        result = projectfile._process_lines(lines)
+        result = projectfile._run_state_machine(lines)
         self.assertEqual(expected, result)
+
+
+class StateMachineExceptionWrapping(TestCase):
+
+    @mock.patch.object(projectfile, '_state_start')
+    def test__line_numbers_prepended_to_exception_message(self, mock_state):
+        error_message = 'Some error'
+        mock_state.side_effect = SyntaxError(error_message)
+        with self.assertRaises(Exception) as cm:
+            projectfile._run_state_machine([''])
+        assert_exception(self, cm, projectfile.ProjectfileError, projectfile._PROJECTFILE_EXCEPTION_WRAPPER_TEMPLATE.format(1, error_message))
+
+
