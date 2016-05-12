@@ -1579,7 +1579,8 @@ class FinishingState(TestCase):
         state = projectfile._state_command
         with self.assertRaises(Exception) as cm:
             projectfile._finish_processing(data, state)
-        assert_exception(self, cm, SyntaxError, projectfile._PROJECTFILE_NO_COMMAND_IN_COMMAND_ERROR.format('unfinished-command'))
+        assert_exception(self, cm, SyntaxError,
+                         projectfile._PROJECTFILE_NO_COMMAND_IN_COMMAND_ERROR.format('unfinished-command'))
 
     def test__eof_in_command_comment_state__raises_error(self):
         data = {
@@ -1592,7 +1593,8 @@ class FinishingState(TestCase):
         state = projectfile._state_command_comment
         with self.assertRaises(Exception) as cm:
             projectfile._finish_processing(data, state)
-        assert_exception(self, cm, SyntaxError, projectfile._PROJECTFILE_NO_COMMAND_IN_COMMAND_ERROR.format('unfinished-command'))
+        assert_exception(self, cm, SyntaxError,
+                         projectfile._PROJECTFILE_NO_COMMAND_IN_COMMAND_ERROR.format('unfinished-command'))
 
 
 class StateMachineParser(TestCase):
@@ -1616,13 +1618,11 @@ class StateMachineParser(TestCase):
 
 
 class StateMachineExceptionWrapping(TestCase):
-
     @mock.patch.object(projectfile, '_state_start')
     def test__line_numbers_prepended_to_exception_message(self, mock_state):
         error_message = 'Some error'
         mock_state.side_effect = SyntaxError(error_message)
         with self.assertRaises(Exception) as cm:
             projectfile._run_state_machine([''])
-        assert_exception(self, cm, projectfile.ProjectfileError, projectfile._PROJECTFILE_EXCEPTION_WRAPPER_TEMPLATE.format(1, error_message))
-
-
+        assert_exception(self, cm, projectfile.ProjectfileError,
+                         projectfile._PROJECTFILE_EXCEPTION_WRAPPER_TEMPLATE.format(1, error_message))
