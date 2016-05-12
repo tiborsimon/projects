@@ -2090,3 +2090,21 @@ class ParserErrorCases(TestCase):
         with self.assertRaises(Exception) as cm:
             projectfile._run_state_machine(lines)
         assert_exception(self, cm, projectfile.ProjectfileError, expected_error)
+
+    def test__unexpected_command_delimiter(self):
+        lines = [
+            'from v1.2.3',
+            '',
+            'command:',
+            '   cat file',
+            '   ===',
+            '   cat file',
+            '   ==='
+        ]
+        expected_error = {
+            'line': 7,
+            'error': projectfile._COMMAND_DELIMITER_UNEXPECTED_ERROR
+        }
+        with self.assertRaises(Exception) as cm:
+            projectfile._run_state_machine(lines)
+        assert_exception(self, cm, projectfile.ProjectfileError, expected_error)

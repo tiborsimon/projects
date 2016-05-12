@@ -343,9 +343,13 @@ def _run_state_machine(lines):
         try:
             state_function = state_function(data, lines[i])
         except SyntaxError as e:
+            try:
+                msg = e.message
+            except AttributeError:
+                msg = e.msg
             raise ProjectfileError({
                 'line': i+1,
-                'error': e.message
+                'error': msg
             })
     _finish_processing(data, state_function)
     return data
