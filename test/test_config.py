@@ -14,6 +14,8 @@ try:
 except ImportError:
     open_mock_string = 'builtins.open'
 
+from test.helpers import *
+
 from projects import config
 
 
@@ -45,11 +47,12 @@ class Loading(TestCase):
 
     @mock.patch.object(config, 'json', autospec=True)
     def test__file_not_found__raises_error(self, mock_json):
-        mock_open = mock.MagicMock(side_effect = IOError())
+        error_message = 'file not found'
+        mock_open = mock.MagicMock(side_effect = IOError(error_message))
         with self.assertRaises(Exception) as cm:
             with mock.patch(open_mock_string, mock_open):
                 config._load_config()
-        self.assertEqual(cm.exception.__class__, IOError)
+        assert_exception(self, cm, IOError, error_message)
 
     @mock.patch.object(config, 'json', autospec=True)
     def test__parsed_config_file_is_returned(self, mock_json):
@@ -61,11 +64,12 @@ class Loading(TestCase):
 
     @mock.patch.object(config, 'json', autospec=True)
     def test__invalid_json_syntax__raises_error(self, mock_json):
-        mock_json.load.side_effect = SyntaxError('json invalid')
+        error_message = 'json invalid'
+        mock_json.load.side_effect = SyntaxError(error_message)
         with self.assertRaises(Exception) as cm:
             with mock.patch(open_mock_string):
                 config._load_config()
-        self.assertEqual(cm.exception.__class__, SyntaxError)
+        assert_exception(self, cm, SyntaxError, error_message)
 
 
 class Validation(TestCase):
@@ -78,7 +82,7 @@ class Validation(TestCase):
         with self.assertRaises(Exception) as cm:
             dummy_config = {}
             config._validate(dummy_config)
-        self.assertEqual(cm.exception.__class__, KeyError)
+        assert_exception_type(self, cm, KeyError)
 
     def test__invalid_key__raises_syntax_error(self):
         invalid_config = {
@@ -88,7 +92,7 @@ class Validation(TestCase):
         }
         with self.assertRaises(Exception) as cm:
             config._validate(invalid_config)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
+        assert_exception_type(self, cm, SyntaxError)
 
     def test__invalid_value__raises_value_error(self):
         invalid_config = {
@@ -96,7 +100,7 @@ class Validation(TestCase):
         }
         with self.assertRaises(Exception) as cm:
             config._validate(invalid_config)
-        self.assertEqual(cm.exception.__class__, ValueError)
+        assert_exception_type(self, cm, ValueError)
 
 
 class Creation(TestCase):
@@ -117,7 +121,7 @@ class Creation(TestCase):
             mock_open.side_effect = IOError()
             with self.assertRaises(Exception) as cm:
                 config._create_default_config()
-            self.assertEqual(cm.exception.__class__, IOError)
+            assert_exception_type(self, cm, IOError)
 
     @mock.patch.object(config, 'json', autospec=True)
     def test__json_file_is_written_with_the_full_configuration(self, mock_json):
@@ -153,8 +157,7 @@ class Getter(TestCase):
         mock_create.side_effect = IOError(error_message)
         with self.assertRaises(Exception) as cm:
             config.get()
-        self.assertEqual(cm.exception.__class__, config.ConfigError)
-        self.assertTrue(config._FILE_CREATION_ERROR.format(error_message) == cm.exception.args[0])
+        assert_exception(self, cm, config.ConfigError, config._FILE_CREATION_ERROR.format(error_message))
 
     @mock.patch.object(config, '_load_config', autospec=True)
     def test__invalid_json_syntax__raises_config_error(self, mock_load):
@@ -162,8 +165,7 @@ class Getter(TestCase):
         mock_load.side_effect = SyntaxError(error_message)
         with self.assertRaises(Exception) as cm:
             config.get()
-        self.assertEqual(cm.exception.__class__, config.ConfigError)
-        self.assertTrue(config._JSON_SYNTAX_ERROR.format(error_message) == cm.exception.args[0])
+        assert_exception(self, cm, config.ConfigError, config._JSON_SYNTAX_ERROR.format(error_message))
 
     @mock.patch.object(config, '_load_config', autospec=True)
     @mock.patch.object(config, '_validate', autospec=True)
@@ -180,8 +182,7 @@ class Getter(TestCase):
         mock_validate.side_effect = KeyError(error_message)
         with self.assertRaises(Exception) as cm:
             config.get()
-        self.assertEqual(cm.exception.__class__, config.ConfigError)
-        self.assertTrue(config._MANDATORY_KEY_ERROR.format(error_message) == cm.exception.args[0])
+        assert_exception(self, cm, config.ConfigError, config._MANDATORY_KEY_ERROR.format(error_message))
 
     @mock.patch.object(config, '_load_config', autospec=True)
     @mock.patch.object(config, '_validate', autospec=True)
@@ -190,8 +191,7 @@ class Getter(TestCase):
         mock_validate.side_effect = SyntaxError(error_message)
         with self.assertRaises(Exception) as cm:
             config.get()
-        self.assertEqual(cm.exception.__class__, config.ConfigError)
-        self.assertTrue(config._INVALID_KEY_ERROR.format(error_message) == cm.exception.args[0])
+        assert_exception(self, cm, config.ConfigError, config._INVALID_KEY_ERROR.format(error_message))
 
     @mock.patch.object(config, '_load_config', autospec=True)
     @mock.patch.object(config, '_validate', autospec=True)
@@ -200,5 +200,4 @@ class Getter(TestCase):
         mock_validate.side_effect = ValueError(error_message)
         with self.assertRaises(Exception) as cm:
             config.get()
-        self.assertEqual(cm.exception.__class__, config.ConfigError)
-        self.assertTrue(config._INVALID_VALUE_ERROR.format(error_message) == cm.exception.args[0])
+        assert_exception(self, cm, config.ConfigError, config._INVALID_VALUE_ERROR.format(error_message))

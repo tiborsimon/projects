@@ -15,6 +15,8 @@ try:
 except ImportError:
     builtin_module = 'builtins'
 
+from test.helpers import *
+
 from projects import projectfile
 
 
@@ -94,36 +96,31 @@ class VersionParser(TestCase):
         line = ' from v1.2.3'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_version(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._VERSION_INDENTATION_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._VERSION_INDENTATION_ERROR)
 
     def test__invalid_version__raise_exception_2(self):
         line = '       from v1.2.3'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_version(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._VERSION_INDENTATION_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._VERSION_INDENTATION_ERROR)
 
     def test__invalid_version__raise_exception_3(self):
         line = '\t\tfrom v1.2.3'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_version(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._VERSION_INDENTATION_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._VERSION_INDENTATION_ERROR)
 
     def test__invalid_version__raise_exception_4(self):
         line = 'from v1.2'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_version(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._VERSION_FORMAT_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._VERSION_FORMAT_ERROR)
 
     def test__invalid_version__raise_exception_5(self):
         line = 'from v1.2_4'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_version(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._VERSION_FORMAT_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._VERSION_FORMAT_ERROR)
 
     def test__not_version_related_input__returns_none(self):
         line = 'something'
@@ -355,57 +352,49 @@ class VariableParser(TestCase):
         line = ' my_variable = valami'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_variable(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._VARIABLE_INDENTATION_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._VARIABLE_INDENTATION_ERROR)
 
     def test__invalid_variable__indentation_should_raise_exception__more_whitespaces(self):
         line = '         my_variable = valami'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_variable(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._VARIABLE_INDENTATION_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._VARIABLE_INDENTATION_ERROR)
 
     def test__invalid_variable__indentation_should_raise_exception__tabs(self):
         line = '\t\tmy_variable = valami'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_variable(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._VARIABLE_INDENTATION_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._VARIABLE_INDENTATION_ERROR)
 
     def test__invalid_full_range_variable__indentation_should_raise_exception(self):
         line = ' 1234567890.abc-abc = valami'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_variable(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._VARIABLE_INDENTATION_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._VARIABLE_INDENTATION_ERROR)
 
     def test__invalid_variable__should_raise_exception__unmatched_quote_1(self):
         line = 'my_variable = \'valami'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_variable(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._VARIABLE_QUOTE_AFTER_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._VARIABLE_QUOTE_AFTER_ERROR)
 
     def test__invalid_variable__should_raise_exception__unmatched_quote_2(self):
         line = 'my_variable = valami\''
         with self.assertRaises(Exception) as cm:
             projectfile._parse_variable(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._VARIABLE_QUOTE_BEFORE_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._VARIABLE_QUOTE_BEFORE_ERROR)
 
     def test__invalid_variable__should_raise_exception__unmatched_double_quote_1(self):
         line = 'my_variable = "valami'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_variable(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._VARIABLE_QUOTE_AFTER_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._VARIABLE_QUOTE_AFTER_ERROR)
 
     def test__invalid_variable__should_raise_exception__unmatched_double_quote_2(self):
         line = 'my_variable = valami"'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_variable(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._VARIABLE_QUOTE_BEFORE_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._VARIABLE_QUOTE_BEFORE_ERROR)
 
 
 class CommandDivisorParser(TestCase):
@@ -661,148 +650,127 @@ class CommandHeaderParser(TestCase):
         line = ' command:'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_command_header(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._COMMAND_HEADER_INDENTATION_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._COMMAND_HEADER_INDENTATION_ERROR)
 
     def test__invalid_command_header__raises_exception__indentation_2(self):
         line = '     command:'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_command_header(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._COMMAND_HEADER_INDENTATION_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._COMMAND_HEADER_INDENTATION_ERROR)
 
     def test__invalid_command_header__raises_exception__indentation_3(self):
         line = '\tcommand:'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_command_header(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._COMMAND_HEADER_INDENTATION_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._COMMAND_HEADER_INDENTATION_ERROR)
 
     def test__invalid_command_header__raises_exception__indentation_4(self):
         line = ' command'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_command_header(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._COMMAND_HEADER_SYNTAX_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._COMMAND_HEADER_SYNTAX_ERROR)
 
     def test__invalid_command_header__raises_exception__no_colon_1(self):
         line = 'command'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_command_header(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._COMMAND_HEADER_MISSING_COLON_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._COMMAND_HEADER_MISSING_COLON_ERROR)
 
     def test__invalid_command_header__raises_exception__no_colon_2(self):
         line = 'command|'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_command_header(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._COMMAND_HEADER_MISSING_COLON_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._COMMAND_HEADER_MISSING_COLON_ERROR)
 
     def test__invalid_command_header__raises_exception__no_colon_3(self):
         line = 'command   [deb]'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_command_header(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._COMMAND_HEADER_MISSING_COLON_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._COMMAND_HEADER_MISSING_COLON_ERROR)
 
     def test__invalid_command_header__raises_exception__wrong_colon_syntax_1(self):
         line = 'command:c'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_command_header(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._COMMAND_HEADER_COLON_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._COMMAND_HEADER_COLON_ERROR)
 
     def test__invalid_command_header__raises_exception__wrong_colon_syntax_2(self):
         line = ':command'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_command_header(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._COMMAND_HEADER_COLON_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._COMMAND_HEADER_COLON_ERROR)
 
     def test__invalid_command_header__raises_exception__wrong_alternative_list_1(self):
         line = 'command|:'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_command_header(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._COMMAND_HEADER_INVALID_ALTERNATIVE == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._COMMAND_HEADER_INVALID_ALTERNATIVE)
 
     def test__invalid_command_header__raises_exception__wrong_alternative_list_2(self):
         line = '|command:'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_command_header(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._COMMAND_HEADER_INVALID_ALTERNATIVE == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._COMMAND_HEADER_INVALID_ALTERNATIVE)
 
     def test__invalid_command_header__raises_exception__wrong_alternative_list_3(self):
         line = '|command|:'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_command_header(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._COMMAND_HEADER_INVALID_ALTERNATIVE == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._COMMAND_HEADER_INVALID_ALTERNATIVE)
 
     def test__invalid_command_header__raises_exception__wrong_alternative_list_4(self):
         line = 'command||:'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_command_header(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._COMMAND_HEADER_INVALID_ALTERNATIVE == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._COMMAND_HEADER_INVALID_ALTERNATIVE)
 
     def test__invalid_command_header__raises_exception__wrong_dependency_list_1(self):
         line = 'command: []'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_command_header(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._COMMAND_HEADER_EMPTY_DEPENDENCY_LIST == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._COMMAND_HEADER_EMPTY_DEPENDENCY_LIST)
 
     def test__invalid_command_header__raises_exception__wrong_dependency_list_2(self):
         line = 'command: ['
         with self.assertRaises(Exception) as cm:
             projectfile._parse_command_header(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._COMMAND_HEADER_INVALID_DEPENDENCY_LIST == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
 
     def test__invalid_command_header__raises_exception__wrong_dependency_list_3(self):
         line = 'command: ]'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_command_header(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._COMMAND_HEADER_INVALID_DEPENDENCY_LIST == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
 
     def test__invalid_command_header__raises_exception__wrong_dependency_list_4(self):
         line = 'command: [,]'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_command_header(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._COMMAND_HEADER_INVALID_DEPENDENCY_LIST == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
 
     def test__invalid_command_header__raises_exception__wrong_dependency_list_5(self):
         line = 'command: [ ,]'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_command_header(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._COMMAND_HEADER_INVALID_DEPENDENCY_LIST == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
 
     def test__invalid_command_header__raises_exception__wrong_dependency_list_6(self):
         line = 'command: [ ,  ]'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_command_header(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._COMMAND_HEADER_INVALID_DEPENDENCY_LIST == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
 
     def test__invalid_command_header__raises_exception__wrong_dependency_list_7(self):
         line = 'command: [dep1, , dep2]'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_command_header(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._COMMAND_HEADER_INVALID_DEPENDENCY_LIST == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
 
     def test__invalid_command_header__raises_exception__wrong_dependency_list_8(self):
         line = 'command: [dep1,,dep2]'
         with self.assertRaises(Exception) as cm:
             projectfile._parse_command_header(line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._COMMAND_HEADER_INVALID_DEPENDENCY_LIST == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
 
 
 class StartState(TestCase):
@@ -838,16 +806,14 @@ class StartState(TestCase):
         line = 'valami'
         with self.assertRaises(Exception) as cm:
             projectfile._state_start(data, line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._VERSION_MISSING_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._VERSION_MISSING_ERROR)
 
     def test__raise_error_on_invalid_version(self):
         data = {}
         line = 'from v.1'
         with self.assertRaises(Exception) as cm:
             projectfile._state_start(data, line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._VERSION_FORMAT_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._VERSION_FORMAT_ERROR)
 
 
 class BeforeCommandsState(TestCase):
@@ -898,24 +864,21 @@ class BeforeCommandsState(TestCase):
         line = '  invalid_variable=4'
         with self.assertRaises(Exception) as cm:
             projectfile._state_before_commands(data, line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._VARIABLE_INDENTATION_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._VARIABLE_INDENTATION_ERROR)
 
     def test__invalid_command_header__raises_error(self):
         data = {}
         line = '  invalid_command|:'
         with self.assertRaises(Exception) as cm:
             projectfile._state_before_commands(data, line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._COMMAND_HEADER_INDENTATION_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._COMMAND_HEADER_INDENTATION_ERROR)
 
     def test__indented_line_raises_error(self):
         data = {}
         line = '  indented line'
         with self.assertRaises(Exception) as cm:
             projectfile._state_before_commands(data, line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._COMMAND_HEADER_SYNTAX_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._COMMAND_HEADER_SYNTAX_ERROR)
 
 
 class MainCommentState(TestCase):
@@ -1018,8 +981,7 @@ class VariableState(TestCase):
         line = 'second-variable = \'23'
         with self.assertRaises(Exception) as cm:
             projectfile._state_variables(data, line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._VARIABLE_QUOTE_AFTER_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._VARIABLE_QUOTE_AFTER_ERROR)
 
     def test__non_variable__raises_invalid_command_header_exception(self):
         # command headers are in higher priority than variables
@@ -1029,8 +991,7 @@ class VariableState(TestCase):
         line = ' non-variable'
         with self.assertRaises(Exception) as cm:
             projectfile._state_variables(data, line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._COMMAND_HEADER_SYNTAX_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._COMMAND_HEADER_SYNTAX_ERROR)
 
     def test__comment_delimiter__raises_exception(self):
         data = {'variables': {
@@ -1039,8 +1000,7 @@ class VariableState(TestCase):
         line = '"""'
         with self.assertRaises(Exception) as cm:
             projectfile._state_variables(data, line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._COMMENT_DELIMITER_UNEXPECTED_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._COMMENT_DELIMITER_UNEXPECTED_ERROR)
 
     def test__valid_command_header_switches_state(self):
         data = {'variables': {
@@ -1150,8 +1110,7 @@ class CommandState(TestCase):
         line = 'something'
         with self.assertRaises(Exception) as cm:
             projectfile._state_command(data, line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._COMMAND_HEADER_UNEXPECTED_UNINDENTED_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._COMMAND_HEADER_UNEXPECTED_UNINDENTED_ERROR)
 
 
 class CommandCommentState(TestCase):
@@ -1406,7 +1365,7 @@ class PreState(TestCase):
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
-    def test__valid_command_header_finishes_command(self):
+    def test__invalid_command_header__raises_error(self):
         data = {
             'commands': {
                 'my_command': {
@@ -1418,8 +1377,7 @@ class PreState(TestCase):
         line = 'next_command|'
         with self.assertRaises(Exception) as cm:
             projectfile._state_pre(data, line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._COMMAND_HEADER_MISSING_COLON_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._COMMAND_HEADER_MISSING_COLON_ERROR)
 
 
 class PostState(TestCase):
@@ -1498,8 +1456,7 @@ class PostState(TestCase):
         line = '==='
         with self.assertRaises(Exception) as cm:
             projectfile._state_post(data, line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._COMMAND_DELIMITER_UNEXPECTED_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._COMMAND_DELIMITER_UNEXPECTED_ERROR)
 
     def test__valid_command_header_finishes_command(self):
         data = {
@@ -1539,8 +1496,7 @@ class PostState(TestCase):
         line = 'next_command|'
         with self.assertRaises(Exception) as cm:
             projectfile._state_post(data, line)
-        self.assertEqual(cm.exception.__class__, SyntaxError)
-        self.assertTrue(projectfile._COMMAND_HEADER_MISSING_COLON_ERROR == cm.exception.args[0])
+        assert_exception(self, cm, SyntaxError, projectfile._COMMAND_HEADER_MISSING_COLON_ERROR)
 
 
 class FinishingState(TestCase):
@@ -1583,6 +1539,14 @@ class FinishingState(TestCase):
         }
         projectfile._finish_processing(data, state)
         self.assertEqual(expected, data)
+
+    def test__eof_in_start_state__raises_error(self):
+        data = {}
+        state = projectfile._state_start
+        with self.assertRaises(Exception) as cm:
+            projectfile._finish_processing(data, state)
+        assert_exception(self, cm, SyntaxError, projectfile._PROJECTFILE_EMPTY_ERROR)
+
 
 
 class StateMachineParser(TestCase):

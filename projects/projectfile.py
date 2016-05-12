@@ -8,6 +8,8 @@ class ProjectfileError(Exception):
 
 _PROJECTFILE = 'Projectfile'
 
+_PROJECTFILE_EMPTY_ERROR = 'Projectfile is empty! Or at least it does not contain any parsable text.'
+
 _COMMENT_DELIMITER_UNEXPECTED_ERROR = 'Unexpected comment delimiter (""")!'
 _COMMAND_DELIMITER_UNEXPECTED_ERROR = 'Unexpected command delimiter (===)!'
 
@@ -311,6 +313,8 @@ def _finish_processing(data, state):
     if state in (_state_pre, _state_post):
         for command_name in data['commands'].keys():
             del data['commands'][command_name]['done']
+    elif state == _state_start:
+        raise SyntaxError(_PROJECTFILE_EMPTY_ERROR)
 
 
 def _process_lines(lines):
