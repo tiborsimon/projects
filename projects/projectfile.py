@@ -11,6 +11,7 @@ _PROJECTFILE = 'Projectfile'
 _PROJECTFILE_EMPTY_ERROR = 'Projectfile is empty! Or at least it does not contain any parsable text.'
 _PROJECTFILE_NO_COMMAND_ERROR = 'No commands were defined in the projectfile!'
 _PROJECTFILE_NO_COMMAND_IN_COMMAND_ERROR = 'Command {} do not have any executable commands! Is this command necessary?'
+_PROJECTFILE_INVALID_DEPENDENCY = 'Invalid dependency "{}" for command "{}".'
 
 _COMMENT_DELIMITER_UNEXPECTED_ERROR = 'Unexpected comment delimiter (""")!'
 _COMMAND_DELIMITER_UNEXPECTED_ERROR = 'Unexpected command delimiter (===)!'
@@ -50,7 +51,7 @@ def _load(path):
 
 
 def _get_current_command(data):
-    for command in data['commands'].keys():
+    for command in data['commands']:
         if 'done' in data['commands'][command]:
             if not data['commands'][command]['done']:
                 return data['commands'][command]
@@ -324,7 +325,7 @@ def _state_post(data, line):
 
 def _finish_processing(data, state):
     if state in (_state_pre, _state_post):
-        for command_name in data['commands'].keys():
+        for command_name in data['commands']:
             if 'done' in data['commands'][command_name]:
                 del data['commands'][command_name]['done']
     elif state == _state_start:
@@ -332,7 +333,7 @@ def _finish_processing(data, state):
     elif state in (_state_before_commands, _state_variables, _state_main_comment):
         raise SyntaxError(_PROJECTFILE_NO_COMMAND_ERROR)
     elif state in (_state_command, _state_command_comment):
-        for command in data['commands'].keys():
+        for command in data['commands']:
             if not data['commands'][command]['done']:
                 break
         raise SyntaxError(_PROJECTFILE_NO_COMMAND_IN_COMMAND_ERROR.format(command))
@@ -350,11 +351,25 @@ def _run_state_machine(lines):
             except AttributeError:
                 msg = e.msg
             raise ProjectfileError({
-                'line': i+1,
+                'line': i + 1,
                 'error': msg
             })
     _finish_processing(data, state_function)
     return data
 
+
 def _data_intedrity_check(data):
-    pass
+    deps = []
+    for command in data['commands']:
+        if 'dependencies' in data['commands'][command]:
+            for d in data['commands'][command]['dependencies']:
+                deps.append({
+                    'd': d,
+                    'c': command
+                })
+    for d in deps:
+        if d['d'] not in data['commands']:
+            raise ProjectfileError({
+                'error': _PROJECTFILE_INVALID_DEPENDENCY.format(d['d'], d['c'])
+            })
+

@@ -2150,7 +2150,6 @@ class StateMachineExceptionWrapping(TestCase):
 
 
 class ParserErrorCases(TestCase):
-
     def test__unexpected_comment_delimiter_1(self):
         lines = [
             'from v1.2.3',
@@ -2399,7 +2398,29 @@ class ParserErrorCases(TestCase):
             projectfile._run_state_machine(lines)
         assert_exception(self, cm, projectfile.ProjectfileError, expected_error)
 
+
 class DataIntegrityTest(TestCase):
-    pass
+    def test__dependecies_refers_to_existing_commands__raises_no_error(self):
+        data = {
+            'commands': {
+                'c1': {},
+                'c2': {
+                    'dependencies': ['c1']
+                }
+            }
+        }
+        projectfile._data_intedrity_check(data)
 
-
+    def test__non_existing_dependency__raises_error(self):
+        data = {
+            'commands': {
+                'c1': {},
+                'c2': {
+                    'dependencies': ['c']
+                }
+            }
+        }
+        with self.assertRaises(Exception) as cm:
+            projectfile._data_intedrity_check(data)
+        assert_exception(self, cm, projectfile.ProjectfileError,
+                         {'error': projectfile._PROJECTFILE_INVALID_DEPENDENCY.format('c', 'c2')})
