@@ -36,7 +36,7 @@ class FileLoading(TestCase):
 
 
 class AdditionalHelperFunctions(TestCase):
-    def test__get_currently_parseable_command(self):
+    def test__get_currently_parsable_command(self):
         data = {
             'commands': {
                 'current-command': {
@@ -48,6 +48,23 @@ class AdditionalHelperFunctions(TestCase):
             }
         }
         expected = data['commands']['current-command']
+        result = projectfile._get_current_command(data)
+        self.assertEqual(expected, result)
+
+    def test__alternative_commands_can_be_handled(self):
+        state = projectfile._state_post
+        data = {
+            'commands': {
+                'my_command': {
+                    'done': False,
+                    'post': ['some command']
+                },
+                'alternative': {
+                    'alias': 'my_command'
+                }
+            }
+        }
+        expected = data['commands']['my_command']
         result = projectfile._get_current_command(data)
         self.assertEqual(expected, result)
 
@@ -1594,6 +1611,32 @@ class FinishingState(TestCase):
         projectfile._finish_processing(data, state)
         self.assertEqual(expected, data)
 
+    def test__alternative_commands_can_be_handled_by_the_finalizer(self):
+        state = projectfile._state_post
+        data = {
+            'commands': {
+                'my_command': {
+                    'done': False,
+                    'post': ['some command']
+                },
+                'alternative': {
+                    'alias': 'my_command'
+                }
+            }
+        }
+        expected = {
+            'commands': {
+                'my_command': {
+                    'post': ['some command']
+                },
+                'alternative': {
+                    'alias': 'my_command'
+                }
+            }
+        }
+        projectfile._finish_processing(data, state)
+        self.assertEqual(expected, data)
+
     def test__eof_in_start_state__raises_error(self):
         data = {}
         state = projectfile._state_start
@@ -2049,7 +2092,7 @@ class StateMachineParser(TestCase):
             '  echo "other"',
             '  echo "something"',
             '  ===',
-            '  echo "post post'
+            '  echo "post2"'
         ]
         expected = {
             'min-version': (1, 2, 3),
@@ -2060,7 +2103,7 @@ class StateMachineParser(TestCase):
             },
             'commands': {
                 'command': {
-                    'description': 'This is the command description vmi',
+                    'description': 'This is the command description. vmi',
                     'pre': ['echo "pre"'],
                     'post': ['echo "post"']
                 },
@@ -2071,9 +2114,10 @@ class StateMachineParser(TestCase):
                     'alias': 'command'
                 },
                 'other_command': {
-                    'description': 'This is the command description vmi',
-                    'pre': ['echo "pre"', 'echo "something"'],
-                    'post': ['echo "post"']
+                    'dependencies': ['command'],
+                    'description': 'Another command..',
+                    'pre': ['echo "other"', 'echo "something"'],
+                    'post': ['echo "post2"']
                 },
                 'oth': {
                     'alias': 'other_command'
@@ -2086,6 +2130,7 @@ class StateMachineParser(TestCase):
                 }
             }
         }
+        self.maxDiff = None
         result = projectfile._run_state_machine(lines)
         self.assertEqual(expected, result)
 

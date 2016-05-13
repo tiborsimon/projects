@@ -51,10 +51,9 @@ def _load(path):
 
 def _get_current_command(data):
     for command in data['commands'].keys():
-        if 'alias' in data['commands'][command]:
-            continue
-        if not data['commands'][command]['done']:
-            return data['commands'][command]
+        if 'done' in data['commands'][command]:
+            if not data['commands'][command]['done']:
+                return data['commands'][command]
     else:
         return None
 
@@ -326,7 +325,8 @@ def _state_post(data, line):
 def _finish_processing(data, state):
     if state in (_state_pre, _state_post):
         for command_name in data['commands'].keys():
-            del data['commands'][command_name]['done']
+            if 'done' in data['commands'][command_name]:
+                del data['commands'][command_name]['done']
     elif state == _state_start:
         raise SyntaxError(_PROJECTFILE_EMPTY_ERROR)
     elif state in (_state_before_commands, _state_variables, _state_main_comment):
