@@ -51,6 +51,8 @@ def _load(path):
 
 def _get_current_command(data):
     for command in data['commands'].keys():
+        if 'alias' in data['commands'][command]:
+            continue
         if not data['commands'][command]['done']:
             return data['commands'][command]
     else:
@@ -331,7 +333,7 @@ def _finish_processing(data, state):
         raise SyntaxError(_PROJECTFILE_NO_COMMAND_ERROR)
     elif state in (_state_command, _state_command_comment):
         for command in data['commands'].keys():
-            if data['commands'][command]['done'] == False:
+            if not data['commands'][command]['done']:
                 break
         raise SyntaxError(_PROJECTFILE_NO_COMMAND_IN_COMMAND_ERROR.format(command))
 
@@ -354,5 +356,5 @@ def _run_state_machine(lines):
     _finish_processing(data, state_function)
     return data
 
-def _process_lines(lines):
+def _data_intedrity_check(data):
     pass

@@ -2024,6 +2024,71 @@ class StateMachineParser(TestCase):
         result = projectfile._run_state_machine(lines)
         self.assertEqual(expected, result)
 
+    def test__full_parsing(self):
+        lines = [
+            'from v1.2.3',
+            '"""',
+            'This is a test..',
+            '"""',
+            'a = 42',
+            'b = 45',
+            '',
+            'command|com|c:',
+            '  """',
+            '  This is the command description.',
+            '  vmi',
+            '  """',
+            '  echo "pre"',
+            '  ===',
+            '  echo "post"',
+            '',
+            'other_command|oth|oo|o: [command]',
+            '  """',
+            '  Another command..',
+            '  """',
+            '  echo "other"',
+            '  echo "something"',
+            '  ===',
+            '  echo "post post'
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'description': 'This is a test..',
+            'variables': {
+                'a': '42',
+                'b': '45'
+            },
+            'commands': {
+                'command': {
+                    'description': 'This is the command description vmi',
+                    'pre': ['echo "pre"'],
+                    'post': ['echo "post"']
+                },
+                'com': {
+                    'alias': 'command'
+                },
+                'c': {
+                    'alias': 'command'
+                },
+                'other_command': {
+                    'description': 'This is the command description vmi',
+                    'pre': ['echo "pre"', 'echo "something"'],
+                    'post': ['echo "post"']
+                },
+                'oth': {
+                    'alias': 'other_command'
+                },
+                'oo': {
+                    'alias': 'other_command'
+                },
+                'o': {
+                    'alias': 'other_command'
+                }
+            }
+        }
+        result = projectfile._run_state_machine(lines)
+        self.assertEqual(expected, result)
+
 
 class StateMachineExceptionWrapping(TestCase):
     @mock.patch.object(projectfile, '_state_start')
@@ -2289,5 +2354,7 @@ class ParserErrorCases(TestCase):
             projectfile._run_state_machine(lines)
         assert_exception(self, cm, projectfile.ProjectfileError, expected_error)
 
-        
+class DataIntegrityTest(TestCase):
+    pass
+
 
