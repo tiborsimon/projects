@@ -358,7 +358,7 @@ def _run_state_machine(lines):
     return data
 
 
-def _data_intedrity_check(data):
+def _data_integrity_check(data):
     deps = []
     for command in data['commands']:
         if 'dependencies' in data['commands'][command]:

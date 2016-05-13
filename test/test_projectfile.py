@@ -2409,7 +2409,7 @@ class DataIntegrityTest(TestCase):
                 }
             }
         }
-        projectfile._data_intedrity_check(data)
+        projectfile._data_integrity_check(data)
 
     def test__non_existing_dependency__raises_error(self):
         data = {
@@ -2421,6 +2421,6 @@ class DataIntegrityTest(TestCase):
             }
         }
         with self.assertRaises(Exception) as cm:
-            projectfile._data_intedrity_check(data)
+            projectfile._data_integrity_check(data)
         assert_exception(self, cm, projectfile.ProjectfileError,
                          {'error': projectfile._PROJECTFILE_INVALID_DEPENDENCY.format('c', 'c2')})
