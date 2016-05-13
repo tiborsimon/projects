@@ -1,5 +1,5 @@
-
 from projects.projectfile import error
+from projects.projectfile.parser import state
 
 def data_integrity_check(data):
     deps = []

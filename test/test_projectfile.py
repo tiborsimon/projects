@@ -16,790 +16,18 @@ except ImportError:
 
 from test.helpers import *
 
-from projects.projectfile import data_processor
-from projects.projectfile import file_handler
-from projects.projectfile import parser
-from projects.projectfile import utils
 from projects.projectfile import error
 
-
-class FileLoading(TestCase):
-    def test__load_method_called_with_the_right_path(self):
-        dummy_path = '/dummy/path'
-        with mock.patch(builtin_module + '.open') as mock_open:
-            file_handler._load(dummy_path)
-            mock_open.assert_called_with(dummy_path, 'r')
-
-    def test__load_method_returns_the_loaded_file_content_as_a_list_of_string(self):
-        mock_open = mock.mock_open(read_data='line 1\nline 2')
-        expected = ['line 1', 'line 2']
-        with mock.patch(builtin_module + '.open', mock_open):
-            result = file_handler._load('...')
-            self.assertEqual(expected, result)
-
-
-class AdditionalHelperFunctions(TestCase):
-    def test__get_currently_parsable_command(self):
-        data = {
-            'commands': {
-                'current-command': {
-                    'done': False
-                },
-                'finished-command': {
-                    'done': True
-                }
-            }
-        }
-        expected = data['commands']['current-command']
-        result = utils.get_current_command(data)
-        self.assertEqual(expected, result)
-
-    def test__alternative_commands_can_be_handled(self):
-        state = parser._state_post
-        data = {
-            'commands': {
-                'my_command': {
-                    'done': False,
-                    'post': ['some command']
-                },
-                'alternative': {
-                    'alias': 'my_command'
-                }
-            }
-        }
-        expected = data['commands']['my_command']
-        result = utils.get_current_command(data)
-        self.assertEqual(expected, result)
-
-    def test__no_returnable_command_found__returns_none(self):
-        data = {
-            'commands': {
-                'current-command': {
-                    'done': True
-                },
-                'finished-command': {
-                    'done': True
-                }
-            }
-        }
-        expected = None
-        result = utils.get_current_command(data)
-        self.assertEqual(expected, result)
-
-
-class VersionParser(TestCase):
-    def test__valid_version_can_be_parsed_1(self):
-        line = 'from v1.2.3'
-        expected = (1, 2, 3)
-        result = parser._parse_version(line)
-        self.assertEqual(expected, result)
-
-    def test__valid_version_can_be_parsed_2(self):
-        line = 'from 1.2.3'
-        expected = (1, 2, 3)
-        result = parser._parse_version(line)
-        self.assertEqual(expected, result)
-
-    def test__valid_version_can_be_parsed_3(self):
-        line = 'from           v1.2.3    '
-        expected = (1, 2, 3)
-        result = parser._parse_version(line)
-        self.assertEqual(expected, result)
-
-    def test__valid_version_can_be_parsed_4(self):
-        line = 'from v123456789.23456789.3456789'
-        expected = (123456789, 23456789, 3456789)
-        result = parser._parse_version(line)
-        self.assertEqual(expected, result)
-
-    def test__invalid_version__raise_exception_1(self):
-        line = ' from v1.2.3'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_version(line)
-        assert_exception(self, cm, SyntaxError, error.VERSION_INDENTATION_ERROR)
-
-    def test__invalid_version__raise_exception_2(self):
-        line = '       from v1.2.3'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_version(line)
-        assert_exception(self, cm, SyntaxError, error.VERSION_INDENTATION_ERROR)
-
-    def test__invalid_version__raise_exception_3(self):
-        line = '\t\tfrom v1.2.3'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_version(line)
-        assert_exception(self, cm, SyntaxError, error.VERSION_INDENTATION_ERROR)
-
-    def test__invalid_version__raise_exception_4(self):
-        line = 'from v1.2'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_version(line)
-        assert_exception(self, cm, SyntaxError, error.VERSION_FORMAT_ERROR)
-
-    def test__invalid_version__raise_exception_5(self):
-        line = 'from v1.2_4'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_version(line)
-        assert_exception(self, cm, SyntaxError, error.VERSION_FORMAT_ERROR)
-
-    def test__not_version_related_input__returns_none(self):
-        line = 'something'
-        expected = None
-        result = parser._parse_version(line)
-        self.assertEqual(expected, result)
-
-
-class EmptyLineParser(TestCase):
-    def test__parse_empty_line_1(self):
-        line = ''
-        expected = True
-        result = parser._parse_empty_line(line)
-        self.assertEqual(expected, result)
-
-    def test__parse_empty_line_2(self):
-        line = ' '
-        expected = True
-        result = parser._parse_empty_line(line)
-        self.assertEqual(expected, result)
-
-    def test__parse_empty_line_3(self):
-        line = '\t'
-        expected = True
-        result = parser._parse_empty_line(line)
-        self.assertEqual(expected, result)
-
-    def test__parse_empty_line_4(self):
-        line = 'valami'
-        expected = False
-        result = parser._parse_empty_line(line)
-        self.assertEqual(expected, result)
-
-    def test__parse_empty_line_5(self):
-        line = '  valami'
-        expected = False
-        result = parser._parse_empty_line(line)
-        self.assertEqual(expected, result)
-
-
-class IndentedLineParser(TestCase):
-    def test__parse_indented_line_1(self):
-        line = ' valami'
-        expected = 'valami'
-        result = parser._parse_indented_line(line)
-        self.assertEqual(expected, result)
-
-    def test__parse_indented_line_2(self):
-        line = '           valami'
-        expected = 'valami'
-        result = parser._parse_indented_line(line)
-        self.assertEqual(expected, result)
-
-    def test__parse_indented_line_3(self):
-        line = ' valami valamik    '
-        expected = 'valami valamik'
-        result = parser._parse_indented_line(line)
-        self.assertEqual(expected, result)
-
-    def test__parse_indented_line_4(self):
-        line = 'valami'
-        expected = None
-        result = parser._parse_indented_line(line)
-        self.assertEqual(expected, result)
-
-
-class CommentDelimiterParser(TestCase):
-    def test__delimiter_can_be_parsed__zero_indentation(self):
-        line = '"""'
-        expected = True
-        result = parser._parse_comment_delimiter(line)
-        self.assertEqual(expected, result)
-
-    def test__delimiter_can_be_parsed__one_indentation(self):
-        line = ' """'
-        expected = True
-        result = parser._parse_comment_delimiter(line)
-        self.assertEqual(expected, result)
-
-    def test__delimiter_can_be_parsed__one_indentation_with_tab(self):
-        line = '\t"""'
-        expected = True
-        result = parser._parse_comment_delimiter(line)
-        self.assertEqual(expected, result)
-
-    def test__delimiter_can_be_parsed__two_indentations(self):
-        line = '  """'
-        expected = True
-        result = parser._parse_comment_delimiter(line)
-        self.assertEqual(expected, result)
-
-    def test__delimiter_can_be_parsed__two_indentations__tailing_indentations_ignored(self):
-        line = '  """                    \t\t\t   '
-        expected = True
-        result = parser._parse_comment_delimiter(line)
-        self.assertEqual(expected, result)
-
-    def test__invalid_delimiter_returns_negative_number_1(self):
-        line = '""'
-        expected = False
-        result = parser._parse_comment_delimiter(line)
-        self.assertEqual(expected, result)
-
-    def test__invalid_delimiter_returns_negative_number_2(self):
-        line = '" ""'
-        expected = False
-        result = parser._parse_comment_delimiter(line)
-        self.assertEqual(expected, result)
-
-
-class LineParser(TestCase):
-    def test__line_can_be_parsed_1(self):
-        line = 'valami'
-        expected = 'valami'
-        result = parser._parse_line(line)
-        self.assertEqual(expected, result)
-
-    def test__line_can_be_parsed_2(self):
-        line = ' valami'
-        expected = 'valami'
-        result = parser._parse_line(line)
-        self.assertEqual(expected, result)
-
-    def test__line_can_be_parsed_3(self):
-        line = '   valami    '
-        expected = 'valami'
-        result = parser._parse_line(line)
-        self.assertEqual(expected, result)
-
-    def test__line_can_be_parsed_4(self):
-        line = '\t\tvalami    '
-        expected = 'valami'
-        result = parser._parse_line(line)
-        self.assertEqual(expected, result)
-
-    def test__line_can_be_parsed_5(self):
-        line = ' valami valami    '
-        expected = 'valami valami'
-        result = parser._parse_line(line)
-        self.assertEqual(expected, result)
-
-
-class VariableParser(TestCase):
-    def test__variable_can_be_parsed__basic_case(self):
-        line = 'my_variable = valami'
-        expected = {'my_variable': 'valami'}
-        result = parser._parse_variable(line)
-        self.assertEqual(expected, result)
-
-    def test__variable_can_be_parsed__more_whitespaces(self):
-        line = 'my_variable   =   valami'
-        expected = {'my_variable': 'valami'}
-        result = parser._parse_variable(line)
-        self.assertEqual(expected, result)
-
-    def test__variable_can_be_parsed__no_whitespace(self):
-        line = 'my_variable=valami'
-        expected = {'my_variable': 'valami'}
-        result = parser._parse_variable(line)
-        self.assertEqual(expected, result)
-
-    def test__variable_can_be_parsed__full_range_variable_name(self):
-        line = '1234567890.abc-abc = valami'
-        expected = {'1234567890.abc-abc': 'valami'}
-        result = parser._parse_variable(line)
-        self.assertEqual(expected, result)
-
-    def test__variable_can_be_parsed__whitespace_inside_value(self):
-        line = 'my_variable = valami vmi'
-        expected = {'my_variable': 'valami vmi'}
-        result = parser._parse_variable(line)
-        self.assertEqual(expected, result)
-
-    def test__variable_can_be_parsed__whitespace_inside_value_and_after_value(self):
-        line = 'my_variable = valami vmi     '
-        expected = {'my_variable': 'valami vmi'}
-        result = parser._parse_variable(line)
-        self.assertEqual(expected, result)
-
-    def test__variable_can_be_parsed__double_quoted_value(self):
-        line = 'my_variable = "valami vmi"'
-        expected = {'my_variable': 'valami vmi'}
-        result = parser._parse_variable(line)
-        self.assertEqual(expected, result)
-
-    def test__variable_can_be_parsed__double_quoted_value_tailing_whitespace(self):
-        line = 'my_variable = "valami vmi"     '
-        expected = {'my_variable': 'valami vmi'}
-        result = parser._parse_variable(line)
-        self.assertEqual(expected, result)
-
-    def test__variable_can_be_parsed__double_quoted_value_with_escaped_double_quote(self):
-        line = 'my_variable = "valami\\"vmi"'
-        expected = {'my_variable': 'valami"vmi'}
-        result = parser._parse_variable(line)
-        self.assertEqual(expected, result)
-
-    def test__variable_can_be_parsed__double_quoted_value_with_escaped_quote(self):
-        line = 'my_variable = "valami\\\'vmi"'
-        expected = {'my_variable': 'valami\'vmi'}
-        result = parser._parse_variable(line)
-        self.assertEqual(expected, result)
-
-    def test__variable_can_be_parsed__quoted_value(self):
-        line = 'my_variable = \'valami vmi\''
-        expected = {'my_variable': 'valami vmi'}
-        result = parser._parse_variable(line)
-        self.assertEqual(expected, result)
-
-    def test__variable_can_be_parsed__quoted_value_tailing_whitespace(self):
-        line = 'my_variable = \'valami vmi\'     '
-        expected = {'my_variable': 'valami vmi'}
-        result = parser._parse_variable(line)
-        self.assertEqual(expected, result)
-
-    def test__variable_can_be_parsed__quoted_value_with_escaped_double_quote(self):
-        line = 'my_variable = \'valami\\"vmi\''
-        expected = {'my_variable': 'valami"vmi'}
-        result = parser._parse_variable(line)
-        self.assertEqual(expected, result)
-
-    def test__variable_can_be_parsed__quoted_value_with_escaped_quote(self):
-        line = 'my_variable = \'valami\\\'vmi\''
-        expected = {'my_variable': 'valami\'vmi'}
-        result = parser._parse_variable(line)
-        self.assertEqual(expected, result)
-
-    def test__invalid_variable__indentation_should_raise_exception__basic_case(self):
-        line = ' my_variable = valami'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_variable(line)
-        assert_exception(self, cm, SyntaxError, error.VARIABLE_INDENTATION_ERROR)
-
-    def test__invalid_variable__indentation_should_raise_exception__more_whitespaces(self):
-        line = '         my_variable = valami'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_variable(line)
-        assert_exception(self, cm, SyntaxError, error.VARIABLE_INDENTATION_ERROR)
-
-    def test__invalid_variable__indentation_should_raise_exception__tabs(self):
-        line = '\t\tmy_variable = valami'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_variable(line)
-        assert_exception(self, cm, SyntaxError, error.VARIABLE_INDENTATION_ERROR)
-
-    def test__invalid_full_range_variable__indentation_should_raise_exception(self):
-        line = ' 1234567890.abc-abc = valami'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_variable(line)
-        assert_exception(self, cm, SyntaxError, error.VARIABLE_INDENTATION_ERROR)
-
-    def test__invalid_variable__should_raise_exception__unmatched_quote_1(self):
-        line = 'my_variable = \'valami'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_variable(line)
-        assert_exception(self, cm, SyntaxError, error.VARIABLE_QUOTE_AFTER_ERROR)
-
-    def test__invalid_variable__should_raise_exception__unmatched_quote_2(self):
-        line = 'my_variable = valami\''
-        with self.assertRaises(Exception) as cm:
-            parser._parse_variable(line)
-        assert_exception(self, cm, SyntaxError, error.VARIABLE_QUOTE_BEFORE_ERROR)
-
-    def test__invalid_variable__should_raise_exception__unmatched_double_quote_1(self):
-        line = 'my_variable = "valami'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_variable(line)
-        assert_exception(self, cm, SyntaxError, error.VARIABLE_QUOTE_AFTER_ERROR)
-
-    def test__invalid_variable__should_raise_exception__unmatched_double_quote_2(self):
-        line = 'my_variable = valami"'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_variable(line)
-        assert_exception(self, cm, SyntaxError, error.VARIABLE_QUOTE_BEFORE_ERROR)
-
-
-class CommandDivisorParser(TestCase):
-    def test__command_divisor_can_be_parsed_1(self):
-        line = '==='
-        expected = True
-        result = parser._parse_command_divisor(line)
-        self.assertEqual(expected, result)
-
-    def test__command_divisor_can_be_parsed_2(self):
-        line = ' ==='
-        expected = True
-        result = parser._parse_command_divisor(line)
-        self.assertEqual(expected, result)
-
-    def test__command_divisor_can_be_parsed_3(self):
-        line = ' ===      '
-        expected = True
-        result = parser._parse_command_divisor(line)
-        self.assertEqual(expected, result)
-
-    def test__command_divisor_can_be_parsed_4(self):
-        line = '\t==='
-        expected = True
-        result = parser._parse_command_divisor(line)
-        self.assertEqual(expected, result)
-
-    def test__command_divisor_can_be_parsed_5(self):
-        line = '=='
-        expected = False
-        result = parser._parse_command_divisor(line)
-        self.assertEqual(expected, result)
-
-    def test__command_divisor_can_be_parsed_6(self):
-        line = '='
-        expected = False
-        result = parser._parse_command_divisor(line)
-        self.assertEqual(expected, result)
-
-    def test__command_divisor_can_be_parsed_7(self):
-        line = '= =='
-        expected = False
-        result = parser._parse_command_divisor(line)
-        self.assertEqual(expected, result)
-
-
-class CommandHeaderParser(TestCase):
-    def test__valid_command_header__basic_case(self):
-        line = 'command:'
-        expected = {
-            'command': {
-                'done': False
-            }
-        }
-        result = parser._parse_command_header(line)
-        self.assertEqual(expected, result)
-
-    def test__valid_command_header__command_name_full_range(self):
-        line = 'command_COMMAND_1234567890.abc-abc:'
-        expected = {
-            'command_COMMAND_1234567890.abc-abc': {
-                'done': False
-            }
-        }
-        result = parser._parse_command_header(line)
-        self.assertEqual(expected, result)
-
-    def test__valid_command_header__extra_space_after_colon(self):
-        line = 'command:   '
-        expected = {
-            'command': {
-                'done': False
-            }
-        }
-        result = parser._parse_command_header(line)
-        self.assertEqual(expected, result)
-
-    def test__valid_command_header__extra_space_before_colon(self):
-        line = 'command  :'
-        expected = {
-            'command': {
-                'done': False
-            }
-        }
-        result = parser._parse_command_header(line)
-        self.assertEqual(expected, result)
-
-    def test__valid_command_header__two_alternative_commands(self):
-        line = 'command|com:'
-        expected = {
-            'command': {
-                'done': False
-            },
-            'com': {
-                'alias': 'command'
-            }
-        }
-        result = parser._parse_command_header(line)
-        self.assertEqual(expected, result)
-
-    def test__valid_command_header__three_alternative_commands(self):
-        line = 'command|com|c:'
-        expected = {
-            'command': {
-                'done': False
-            },
-            'com': {
-                'alias': 'command'
-            },
-            'c': {
-                'alias': 'command'
-            }
-        }
-        result = parser._parse_command_header(line)
-        self.assertEqual(expected, result)
-
-    def test__valid_command_header__alternatives_with_space(self):
-        line = 'command |  com    | c    :'
-        expected = {
-            'command': {
-                'done': False
-            },
-            'com': {
-                'alias': 'command'
-            },
-            'c': {
-                'alias': 'command'
-            }
-        }
-        result = parser._parse_command_header(line)
-        self.assertEqual(expected, result)
-
-    def test__valid_command_header__dependencies(self):
-        line = 'command|com|c: [dep]'
-        expected = {
-            'command': {
-                'dependencies': ['dep'],
-                'done': False
-            },
-            'com': {
-                'alias': 'command'
-            },
-            'c': {
-                'alias': 'command'
-            }
-        }
-        result = parser._parse_command_header(line)
-        self.assertEqual(expected, result)
-
-    def test__valid_command_header__multiple_dependencies(self):
-        line = 'command|com|c: [dep, dep2, dep3]'
-        expected = {
-            'command': {
-                'dependencies': ['dep', 'dep2', 'dep3'],
-                'done': False
-            },
-            'com': {
-                'alias': 'command'
-            },
-            'c': {
-                'alias': 'command'
-            }
-        }
-        result = parser._parse_command_header(line)
-        self.assertEqual(expected, result)
-
-    def test__valid_command_header__full_range_dependencies(self):
-        line = 'command|com|c: [command_COMMAND_1234567890.abc-abc]'
-        expected = {
-            'command': {
-                'dependencies': ['command_COMMAND_1234567890.abc-abc'],
-                'done': False
-            },
-            'com': {
-                'alias': 'command'
-            },
-            'c': {
-                'alias': 'command'
-            }
-        }
-        result = parser._parse_command_header(line)
-        self.assertEqual(expected, result)
-
-    def test__valid_command_header__dependencies_with_no_whitespaces(self):
-        line = 'command|com|c:[dep]'
-        expected = {
-            'command': {
-                'dependencies': ['dep'],
-                'done': False
-            },
-            'com': {
-                'alias': 'command'
-            },
-            'c': {
-                'alias': 'command'
-            }
-        }
-        result = parser._parse_command_header(line)
-        self.assertEqual(expected, result)
-
-    def test__valid_command_header__dependencies_with_more_outside_whitespaces(self):
-        line = 'command|com|c:    [dep]          '
-        expected = {
-            'command': {
-                'dependencies': ['dep'],
-                'done': False
-            },
-            'com': {
-                'alias': 'command'
-            },
-            'c': {
-                'alias': 'command'
-            }
-        }
-        result = parser._parse_command_header(line)
-        self.assertEqual(expected, result)
-
-    def test__valid_command_header__dependencies_with_more_inside_whitespaces(self):
-        line = 'command|com|c: [ dep    ]'
-        expected = {
-            'command': {
-                'dependencies': ['dep'],
-                'done': False
-            },
-            'com': {
-                'alias': 'command'
-            },
-            'c': {
-                'alias': 'command'
-            }
-        }
-        result = parser._parse_command_header(line)
-        self.assertEqual(expected, result)
-
-    def test__valid_command_header__multiple_dependencies_with_more_inside_whitespaces(self):
-        line = 'command|com|c: [ dep  ,               dep1  ]'
-        expected = {
-            'command': {
-                'dependencies': ['dep', 'dep1'],
-                'done': False
-            },
-            'com': {
-                'alias': 'command'
-            },
-            'c': {
-                'alias': 'command'
-            }
-        }
-        result = parser._parse_command_header(line)
-        self.assertEqual(expected, result)
-
-    def test__invalid_command_header__raises_exception__indentation_1(self):
-        line = ' command:'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_command_header(line)
-        assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_INDENTATION_ERROR)
-
-    def test__invalid_command_header__raises_exception__indentation_2(self):
-        line = '     command:'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_command_header(line)
-        assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_INDENTATION_ERROR)
-
-    def test__invalid_command_header__raises_exception__indentation_3(self):
-        line = '\tcommand:'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_command_header(line)
-        assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_INDENTATION_ERROR)
-
-    def test__invalid_command_header__raises_exception__indentation_4(self):
-        line = ' command'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_command_header(line)
-        assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_SYNTAX_ERROR)
-
-    def test__invalid_command_header__raises_exception__no_colon_1(self):
-        line = 'command'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_command_header(line)
-        assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_MISSING_COLON_ERROR)
-
-    def test__invalid_command_header__raises_exception__no_colon_2(self):
-        line = 'command|'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_command_header(line)
-        assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_MISSING_COLON_ERROR)
-
-    def test__invalid_command_header__raises_exception__no_colon_3(self):
-        line = 'command   [deb]'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_command_header(line)
-        assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_MISSING_COLON_ERROR)
-
-    def test__invalid_command_header__raises_exception__wrong_colon_syntax_1(self):
-        line = 'command:c'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_command_header(line)
-        assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_COLON_ERROR)
-
-    def test__invalid_command_header__raises_exception__wrong_colon_syntax_2(self):
-        line = ':command'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_command_header(line)
-        assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_COLON_ERROR)
-
-    def test__invalid_command_header__raises_exception__wrong_alternative_list_1(self):
-        line = 'command|:'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_command_header(line)
-        assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_INVALID_ALTERNATIVE)
-
-    def test__invalid_command_header__raises_exception__wrong_alternative_list_2(self):
-        line = '|command:'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_command_header(line)
-        assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_INVALID_ALTERNATIVE)
-
-    def test__invalid_command_header__raises_exception__wrong_alternative_list_3(self):
-        line = '|command|:'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_command_header(line)
-        assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_INVALID_ALTERNATIVE)
-
-    def test__invalid_command_header__raises_exception__wrong_alternative_list_4(self):
-        line = 'command||:'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_command_header(line)
-        assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_INVALID_ALTERNATIVE)
-
-    def test__invalid_command_header__raises_exception__wrong_dependency_list_1(self):
-        line = 'command: []'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_command_header(line)
-        assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_EMPTY_DEPENDENCY_LIST)
-
-    def test__invalid_command_header__raises_exception__wrong_dependency_list_2(self):
-        line = 'command: ['
-        with self.assertRaises(Exception) as cm:
-            parser._parse_command_header(line)
-        assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
-
-    def test__invalid_command_header__raises_exception__wrong_dependency_list_3(self):
-        line = 'command: ]'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_command_header(line)
-        assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
-
-    def test__invalid_command_header__raises_exception__wrong_dependency_list_4(self):
-        line = 'command: [,]'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_command_header(line)
-        assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
-
-    def test__invalid_command_header__raises_exception__wrong_dependency_list_5(self):
-        line = 'command: [ ,]'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_command_header(line)
-        assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
-
-    def test__invalid_command_header__raises_exception__wrong_dependency_list_6(self):
-        line = 'command: [ ,  ]'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_command_header(line)
-        assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
-
-    def test__invalid_command_header__raises_exception__wrong_dependency_list_7(self):
-        line = 'command: [dep1, , dep2]'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_command_header(line)
-        assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
-
-    def test__invalid_command_header__raises_exception__wrong_dependency_list_8(self):
-        line = 'command: [dep1,,dep2]'
-        with self.assertRaises(Exception) as cm:
-            parser._parse_command_header(line)
-        assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
-
+from projects.projectfile.parser import state
+from projects.projectfile.parser import runner
 
 class StartState(TestCase):
     def test__can_parse_version(self):
         data = {}
         line = 'from v1.2.3'
         expected = {'min-version': (1, 2, 3)}
-        expected_state = parser._state_before_commands
-        next_state = parser._state_start(data, line)
+        expected_state = state.before_commands
+        next_state = state.start(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -810,14 +38,14 @@ class StartState(TestCase):
 
         expected1 = {}
         expected2 = {'min-version': (1, 2, 3)}
-        expected_state1 = parser._state_start
-        expected_state2 = parser._state_before_commands
+        expected_state1 = state.start
+        expected_state2 = state.before_commands
 
-        next_state1 = parser._state_start(data, line1)
+        next_state1 = state.start(data, line1)
         self.assertEqual(expected1, data)
         self.assertEqual(expected_state1, next_state1)
 
-        next_state2 = parser._state_start(data, line2)
+        next_state2 = state.start(data, line2)
         self.assertEqual(expected2, data)
         self.assertEqual(expected_state2, next_state2)
 
@@ -825,14 +53,14 @@ class StartState(TestCase):
         data = {}
         line = 'valami'
         with self.assertRaises(Exception) as cm:
-            parser._state_start(data, line)
+            state.start(data, line)
         assert_exception(self, cm, SyntaxError, error.VERSION_MISSING_ERROR)
 
     def test__raise_error_on_invalid_version(self):
         data = {}
         line = 'from v.1'
         with self.assertRaises(Exception) as cm:
-            parser._state_start(data, line)
+            state.start(data, line)
         assert_exception(self, cm, SyntaxError, error.VERSION_FORMAT_ERROR)
 
 
@@ -841,8 +69,8 @@ class BeforeCommandsState(TestCase):
         data = {}
         line = ''
         expected = {}
-        expected_state = parser._state_before_commands
-        next_state = parser._state_before_commands(data, line)
+        expected_state = state.before_commands
+        next_state = state.before_commands(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -850,8 +78,8 @@ class BeforeCommandsState(TestCase):
         data = {}
         line = '"""'
         expected = {}
-        expected_state = parser._state_main_comment
-        next_state = parser._state_before_commands(data, line)
+        expected_state = state.main_comment
+        next_state = state.before_commands(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -859,8 +87,8 @@ class BeforeCommandsState(TestCase):
         data = {}
         line = 'some_variable = 42'
         expected = {'variables': {'some_variable': '42'}}
-        expected_state = parser._state_variables
-        next_state = parser._state_before_commands(data, line)
+        expected_state = state.variables
+        next_state = state.before_commands(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -874,8 +102,8 @@ class BeforeCommandsState(TestCase):
                 }
             }
         }
-        expected_state = parser._state_command
-        next_state = parser._state_before_commands(data, line)
+        expected_state = state.command
+        next_state = state.before_commands(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -883,21 +111,21 @@ class BeforeCommandsState(TestCase):
         data = {}
         line = '  invalid_variable=4'
         with self.assertRaises(Exception) as cm:
-            parser._state_before_commands(data, line)
+            state.before_commands(data, line)
         assert_exception(self, cm, SyntaxError, error.VARIABLE_INDENTATION_ERROR)
 
     def test__invalid_command_header__raises_error(self):
         data = {}
         line = '  invalid_command|:'
         with self.assertRaises(Exception) as cm:
-            parser._state_before_commands(data, line)
+            state.before_commands(data, line)
         assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_INDENTATION_ERROR)
 
     def test__indented_line_raises_error(self):
         data = {}
         line = '  indented line'
         with self.assertRaises(Exception) as cm:
-            parser._state_before_commands(data, line)
+            state.before_commands(data, line)
         assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_SYNTAX_ERROR)
 
 
@@ -906,8 +134,8 @@ class MainCommentState(TestCase):
         data = {}
         line = 'This is the first line for the main comment..'
         expected = {'description': line}
-        expected_state = parser._state_main_comment
-        next_state = parser._state_main_comment(data, line)
+        expected_state = state.main_comment
+        next_state = state.main_comment(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -915,8 +143,8 @@ class MainCommentState(TestCase):
         data = {'description': 'Some text.'}
         line = 'This should be appended..'
         expected = {'description': 'Some text. This should be appended..'}
-        expected_state = parser._state_main_comment
-        next_state = parser._state_main_comment(data, line)
+        expected_state = state.main_comment
+        next_state = state.main_comment(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -924,8 +152,8 @@ class MainCommentState(TestCase):
         data = {'description': 'Some text.'}
         line = '         \t\tThis should be appended..    \t   '
         expected = {'description': 'Some text. This should be appended..'}
-        expected_state = parser._state_main_comment
-        next_state = parser._state_main_comment(data, line)
+        expected_state = state.main_comment
+        next_state = state.main_comment(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -933,8 +161,8 @@ class MainCommentState(TestCase):
         data = {'description': 'Some text.'}
         line = ''
         expected = {'description': 'Some text.\n\n'}
-        expected_state = parser._state_main_comment
-        next_state = parser._state_main_comment(data, line)
+        expected_state = state.main_comment
+        next_state = state.main_comment(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -942,8 +170,8 @@ class MainCommentState(TestCase):
         data = {'description': 'Some text.\n\n'}
         line = ''
         expected = {'description': 'Some text.\n\n'}
-        expected_state = parser._state_main_comment
-        next_state = parser._state_main_comment(data, line)
+        expected_state = state.main_comment
+        next_state = state.main_comment(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -951,8 +179,8 @@ class MainCommentState(TestCase):
         data = {'description': 'Some text.\n\n'}
         line = 'vmi'
         expected = {'description': 'Some text.\n\nvmi'}
-        expected_state = parser._state_main_comment
-        next_state = parser._state_main_comment(data, line)
+        expected_state = state.main_comment
+        next_state = state.main_comment(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -960,8 +188,8 @@ class MainCommentState(TestCase):
         data = {'description': 'Some text.\n\n'}
         line = '"""'
         expected = {'description': 'Some text.\n\n'}
-        expected_state = parser._state_variables
-        next_state = parser._state_main_comment(data, line)
+        expected_state = state.variables
+        next_state = state.main_comment(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -971,8 +199,8 @@ class VariableState(TestCase):
         data = {}
         line = 'my-variable = 42'
         expected = {'variables': {'my-variable': '42'}}
-        expected_state = parser._state_variables
-        next_state = parser._state_variables(data, line)
+        expected_state = state.variables
+        next_state = state.variables(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -985,8 +213,8 @@ class VariableState(TestCase):
             'first-variable': '42',
             'second-variable': '23'
         }}
-        expected_state = parser._state_variables
-        next_state = parser._state_variables(data, line)
+        expected_state = state.variables
+        next_state = state.variables(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -994,8 +222,8 @@ class VariableState(TestCase):
         data = {}
         line = ''
         expected = {}
-        expected_state = parser._state_variables
-        next_state = parser._state_variables(data, line)
+        expected_state = state.variables
+        next_state = state.variables(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -1003,7 +231,7 @@ class VariableState(TestCase):
         data = {}
         line = 'some-variable = \'23'
         with self.assertRaises(Exception) as cm:
-            parser._state_variables(data, line)
+            state.variables(data, line)
         assert_exception(self, cm, SyntaxError, error.VARIABLE_QUOTE_AFTER_ERROR)
 
     def test__non_variable__raises_invalid_command_header_exception(self):
@@ -1013,7 +241,7 @@ class VariableState(TestCase):
         }}
         line = ' non-variable'
         with self.assertRaises(Exception) as cm:
-            parser._state_variables(data, line)
+            state.variables(data, line)
         assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_SYNTAX_ERROR)
 
     def test__comment_delimiter__raises_exception(self):
@@ -1022,7 +250,7 @@ class VariableState(TestCase):
         }}
         line = '"""'
         with self.assertRaises(Exception) as cm:
-            parser._state_variables(data, line)
+            state.variables(data, line)
         assert_exception(self, cm, SyntaxError, error.COMMENT_DELIMITER_UNEXPECTED_ERROR)
 
     def test__valid_command_header_switches_state(self):
@@ -1040,8 +268,8 @@ class VariableState(TestCase):
                 }
             }
         }
-        expected_state = parser._state_command
-        next_state = parser._state_variables(data, line)
+        expected_state = state.command
+        next_state = state.variables(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -1057,8 +285,8 @@ class CommandState(TestCase):
         }
         line = ''
         expected = dict(data)
-        expected_state = parser._state_command
-        next_state = parser._state_command(data, line)
+        expected_state = state.command
+        next_state = state.command(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -1072,8 +300,8 @@ class CommandState(TestCase):
         }
         line = '"""'
         expected = dict(data)
-        expected_state = parser._state_command_comment
-        next_state = parser._state_command(data, line)
+        expected_state = state.command_comment
+        next_state = state.command(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -1096,8 +324,8 @@ class CommandState(TestCase):
                 }
             }
         }
-        expected_state = parser._state_pre
-        next_state = parser._state_command(data, line)
+        expected_state = state.pre
+        next_state = state.command(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -1117,8 +345,8 @@ class CommandState(TestCase):
                 }
             }
         }
-        expected_state = parser._state_post
-        next_state = parser._state_command(data, line)
+        expected_state = state.post
+        next_state = state.command(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -1132,7 +360,7 @@ class CommandState(TestCase):
         }
         line = 'something'
         with self.assertRaises(Exception) as cm:
-            parser._state_command(data, line)
+            state.command(data, line)
         assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_UNEXPECTED_UNINDENTED_ERROR)
 
 
@@ -1154,8 +382,8 @@ class CommandCommentState(TestCase):
                 }
             }
         }
-        expected_state = parser._state_command_comment
-        next_state = parser._state_command_comment(data, line)
+        expected_state = state.command_comment
+        next_state = state.command_comment(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -1177,8 +405,8 @@ class CommandCommentState(TestCase):
                 }
             }
         }
-        expected_state = parser._state_command_comment
-        next_state = parser._state_command_comment(data, line)
+        expected_state = state.command_comment
+        next_state = state.command_comment(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -1200,8 +428,8 @@ class CommandCommentState(TestCase):
                 }
             }
         }
-        expected_state = parser._state_command_comment
-        next_state = parser._state_command_comment(data, line)
+        expected_state = state.command_comment
+        next_state = state.command_comment(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -1223,8 +451,8 @@ class CommandCommentState(TestCase):
                 }
             }
         }
-        expected_state = parser._state_command_comment
-        next_state = parser._state_command_comment(data, line)
+        expected_state = state.command_comment
+        next_state = state.command_comment(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -1246,8 +474,8 @@ class CommandCommentState(TestCase):
                 }
             }
         }
-        expected_state = parser._state_command_comment
-        next_state = parser._state_command_comment(data, line)
+        expected_state = state.command_comment
+        next_state = state.command_comment(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -1269,8 +497,8 @@ class CommandCommentState(TestCase):
                 }
             }
         }
-        expected_state = parser._state_command_comment
-        next_state = parser._state_command_comment(data, line)
+        expected_state = state.command_comment
+        next_state = state.command_comment(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -1292,8 +520,8 @@ class CommandCommentState(TestCase):
                 }
             }
         }
-        expected_state = parser._state_pre
-        next_state = parser._state_command_comment(data, line)
+        expected_state = state.pre
+        next_state = state.command_comment(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -1309,8 +537,8 @@ class PreState(TestCase):
         }
         line = ''
         expected = dict(data)
-        expected_state = parser._state_pre
-        next_state = parser._state_pre(data, line)
+        expected_state = state.pre
+        next_state = state.pre(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -1331,8 +559,8 @@ class PreState(TestCase):
                 }
             }
         }
-        expected_state = parser._state_pre
-        next_state = parser._state_pre(data, line)
+        expected_state = state.pre
+        next_state = state.pre(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -1347,7 +575,7 @@ class PreState(TestCase):
         }
         line = '  """'
         with self.assertRaises(Exception) as cm:
-            parser._state_post(data, line)
+            state.post(data, line)
         assert_exception(self, cm, SyntaxError, error.COMMENT_DELIMITER_UNEXPECTED_ERROR)
 
     def test__parsed_command_appended_to_the_pre_list(self):
@@ -1371,8 +599,8 @@ class PreState(TestCase):
                 }
             }
         }
-        expected_state = parser._state_pre
-        next_state = parser._state_pre(data, line)
+        expected_state = state.pre
+        next_state = state.pre(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -1394,8 +622,8 @@ class PreState(TestCase):
                 }
             }
         }
-        expected_state = parser._state_post
-        next_state = parser._state_pre(data, line)
+        expected_state = state.post
+        next_state = state.pre(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -1420,8 +648,8 @@ class PreState(TestCase):
                 }
             }
         }
-        expected_state = parser._state_command
-        next_state = parser._state_pre(data, line)
+        expected_state = state.command
+        next_state = state.pre(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -1436,7 +664,7 @@ class PreState(TestCase):
         }
         line = 'next_command|'
         with self.assertRaises(Exception) as cm:
-            parser._state_pre(data, line)
+            state.pre(data, line)
         assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_MISSING_COLON_ERROR)
 
 
@@ -1451,8 +679,8 @@ class PostState(TestCase):
         }
         line = ''
         expected = dict(data)
-        expected_state = parser._state_post
-        next_state = parser._state_post(data, line)
+        expected_state = state.post
+        next_state = state.post(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -1473,8 +701,8 @@ class PostState(TestCase):
                 }
             }
         }
-        expected_state = parser._state_post
-        next_state = parser._state_post(data, line)
+        expected_state = state.post
+        next_state = state.post(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -1489,7 +717,7 @@ class PostState(TestCase):
         }
         line = '  """'
         with self.assertRaises(Exception) as cm:
-            parser._state_post(data, line)
+            state.post(data, line)
         assert_exception(self, cm, SyntaxError, error.COMMENT_DELIMITER_UNEXPECTED_ERROR)
 
     def test__parsed_command_appended_to_the_post_list(self):
@@ -1513,8 +741,8 @@ class PostState(TestCase):
                 }
             }
         }
-        expected_state = parser._state_post
-        next_state = parser._state_post(data, line)
+        expected_state = state.post
+        next_state = state.post(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -1529,7 +757,7 @@ class PostState(TestCase):
         }
         line = '==='
         with self.assertRaises(Exception) as cm:
-            parser._state_post(data, line)
+            state.post(data, line)
         assert_exception(self, cm, SyntaxError, error.COMMAND_DELIMITER_UNEXPECTED_ERROR)
 
     def test__valid_command_header_finishes_command(self):
@@ -1553,8 +781,8 @@ class PostState(TestCase):
                 }
             }
         }
-        expected_state = parser._state_command
-        next_state = parser._state_post(data, line)
+        expected_state = state.command
+        next_state = state.post(data, line)
         self.assertEqual(expected, data)
         self.assertEqual(expected_state, next_state)
 
@@ -1569,13 +797,13 @@ class PostState(TestCase):
         }
         line = 'next_command|'
         with self.assertRaises(Exception) as cm:
-            parser._state_post(data, line)
+            state.post(data, line)
         assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_MISSING_COLON_ERROR)
 
 
 class FinishingState(TestCase):
     def test__eof_in_pre_state__data_will_be_closed(self):
-        state = parser._state_pre
+        s = state.pre
         data = {
             'commands': {
                 'my_command': {
@@ -1591,11 +819,11 @@ class FinishingState(TestCase):
                 }
             }
         }
-        parser._finish_processing(data, state)
+        runner.finish_processing(data, s)
         self.assertEqual(expected, data)
 
     def test__eof_in_post_state__data_will_be_closed(self):
-        state = parser._state_post
+        s = state.post
         data = {
             'commands': {
                 'my_command': {
@@ -1611,11 +839,11 @@ class FinishingState(TestCase):
                 }
             }
         }
-        parser._finish_processing(data, state)
+        runner.finish_processing(data, s)
         self.assertEqual(expected, data)
 
     def test__alternative_commands_can_be_handled_by_the_finalizer(self):
-        state = parser._state_post
+        s = state.post
         data = {
             'commands': {
                 'my_command': {
@@ -1637,35 +865,35 @@ class FinishingState(TestCase):
                 }
             }
         }
-        parser._finish_processing(data, state)
+        runner.finish_processing(data, s)
         self.assertEqual(expected, data)
 
     def test__eof_in_start_state__raises_error(self):
         data = {}
-        state = parser._state_start
+        s = state.start
         with self.assertRaises(Exception) as cm:
-            parser._finish_processing(data, state)
+            runner.finish_processing(data, s)
         assert_exception(self, cm, SyntaxError, error.PROJECTFILE_EMPTY_ERROR)
 
     def test__eof_in_before_commands_state__raises_error(self):
         data = {}
-        state = parser._state_before_commands
+        s = state.before_commands
         with self.assertRaises(Exception) as cm:
-            parser._finish_processing(data, state)
+            runner.finish_processing(data, s)
         assert_exception(self, cm, SyntaxError, error.PROJECTFILE_NO_COMMAND_ERROR)
 
     def test__eof_in_main_comment_state__raises_error(self):
         data = {}
-        state = parser._state_main_comment
+        s = state.main_comment
         with self.assertRaises(Exception) as cm:
-            parser._finish_processing(data, state)
+            runner.finish_processing(data, s)
         assert_exception(self, cm, SyntaxError, error.PROJECTFILE_NO_COMMAND_ERROR)
 
     def test__eof_in_variable_state__raises_error(self):
         data = {}
-        state = parser._state_variables
+        s = state.variables
         with self.assertRaises(Exception) as cm:
-            parser._finish_processing(data, state)
+            runner.finish_processing(data, s)
         assert_exception(self, cm, SyntaxError, error.PROJECTFILE_NO_COMMAND_ERROR)
 
     def test__eof_in_command_state__raises_error(self):
@@ -1676,9 +904,9 @@ class FinishingState(TestCase):
                 }
             }
         }
-        state = parser._state_command
+        s = state.command
         with self.assertRaises(Exception) as cm:
-            parser._finish_processing(data, state)
+            runner.finish_processing(data, s)
         assert_exception(self, cm, SyntaxError,
                          error.PROJECTFILE_NO_COMMAND_IN_COMMAND_ERROR.format('unfinished-command'))
 
@@ -1690,740 +918,13 @@ class FinishingState(TestCase):
                 }
             }
         }
-        state = parser._state_command_comment
+        s = state.command_comment
         with self.assertRaises(Exception) as cm:
-            parser._finish_processing(data, state)
+            runner.finish_processing(data, s)
         assert_exception(self, cm, SyntaxError,
                          error.PROJECTFILE_NO_COMMAND_IN_COMMAND_ERROR.format('unfinished-command'))
 
 
-class StateMachineParser(TestCase):
-    def test__single_command_no_deps(self):
-        lines = [
-            'from v1.2.3',
-            '',
-            'command:',
-            '  echo "hello"'
-        ]
-        expected = {
-            'min-version': (1, 2, 3),
-            'commands': {
-                'command': {
-                    'pre': ['echo "hello"']
-                }
-            }
-        }
-        result = parser._run_state_machine(lines)
-        self.assertEqual(expected, result)
-
-    def test__single_command_no_deps_more_commands(self):
-        lines = [
-            'from v1.2.3',
-            '',
-            'command:',
-            '  echo "hello"',
-            '  cd ~',
-            '  make html'
-        ]
-        expected = {
-            'min-version': (1, 2, 3),
-            'commands': {
-                'command': {
-                    'pre': ['echo "hello"', 'cd ~', 'make html']
-                }
-            }
-        }
-        result = parser._run_state_machine(lines)
-        self.assertEqual(expected, result)
-
-    def test__single_command_with_deps(self):
-        lines = [
-            'from v1.2.3',
-            '',
-            'command: [a, b]',
-            '  echo "hello"'
-        ]
-        expected = {
-            'min-version': (1, 2, 3),
-            'commands': {
-                'command': {
-                    'dependencies': ['a', 'b'],
-                    'pre': ['echo "hello"']
-                }
-            }
-        }
-        result = parser._run_state_machine(lines)
-        self.assertEqual(expected, result)
-
-    def test__more_commands_with_no_deps(self):
-        lines = [
-            'from v1.2.3',
-            '',
-            'command:',
-            '  echo "hello"',
-            'command2:',
-            '  echo "vmi"'
-        ]
-        expected = {
-            'min-version': (1, 2, 3),
-            'commands': {
-                'command': {
-                    'pre': ['echo "hello"']
-                },
-                'command2': {
-                    'pre': ['echo "vmi"']
-                }
-            }
-        }
-        result = parser._run_state_machine(lines)
-        self.assertEqual(expected, result)
-
-    def test__single_command_with_only_post(self):
-        lines = [
-            'from v1.2.3',
-            '',
-            'command: [a, b]',
-            '  ===',
-            '  echo "hello"'
-        ]
-        expected = {
-            'min-version': (1, 2, 3),
-            'commands': {
-                'command': {
-                    'dependencies': ['a', 'b'],
-                    'post': ['echo "hello"']
-                }
-            }
-        }
-        result = parser._run_state_machine(lines)
-        self.assertEqual(expected, result)
-
-    def test__single_command_with_pre_and_post(self):
-        lines = [
-            'from v1.2.3',
-            '',
-            'command: [a, b]',
-            '  echo "pre"',
-            '  ===',
-            '  echo "post"'
-        ]
-        expected = {
-            'min-version': (1, 2, 3),
-            'commands': {
-                'command': {
-                    'dependencies': ['a', 'b'],
-                    'post': ['echo "post"'],
-                    'pre': ['echo "pre"']
-                }
-            }
-        }
-        result = parser._run_state_machine(lines)
-        self.assertEqual(expected, result)
-
-    def test__single_command_with_variable(self):
-        lines = [
-            'from v1.2.3',
-            '',
-            'a = 42',
-            'command: [a, b]',
-            '  echo "pre"'
-        ]
-        expected = {
-            'min-version': (1, 2, 3),
-            'variables': {'a': '42'},
-            'commands': {
-                'command': {
-                    'dependencies': ['a', 'b'],
-                    'pre': ['echo "pre"']
-                }
-            }
-        }
-        result = parser._run_state_machine(lines)
-        self.assertEqual(expected, result)
-
-    def test__single_command_with_variables(self):
-        lines = [
-            'from v1.2.3',
-            '',
-            'a = 42',
-            'b = 54',
-            'command: [a, b]',
-            '  echo "pre"'
-        ]
-        expected = {
-            'min-version': (1, 2, 3),
-            'variables': {
-                'a': '42',
-                'b': '54'
-            },
-            'commands': {
-                'command': {
-                    'dependencies': ['a', 'b'],
-                    'pre': ['echo "pre"']
-                }
-            }
-        }
-        result = parser._run_state_machine(lines)
-        self.assertEqual(expected, result)
-
-    def test__main_comment(self):
-        lines = [
-            'from v1.2.3',
-            '',
-            '"""',
-            'This is the main description',
-            '"""',
-            'command:',
-            '  echo "pre"'
-        ]
-        expected = {
-            'min-version': (1, 2, 3),
-            'description': 'This is the main description',
-            'commands': {
-                'command': {
-                    'pre': ['echo "pre"']
-                }
-            }
-        }
-        result = parser._run_state_machine(lines)
-        self.assertEqual(expected, result)
-
-    def test__main_comment_indentation_gets_ignored(self):
-        lines = [
-            'from v1.2.3',
-            '',
-            '         """',
-            '                This is the main description',
-            '                  """',
-            'command:',
-            '  echo "pre"'
-        ]
-        expected = {
-            'min-version': (1, 2, 3),
-            'description': 'This is the main description',
-            'commands': {
-                'command': {
-                    'pre': ['echo "pre"']
-                }
-            }
-        }
-        result = parser._run_state_machine(lines)
-        self.assertEqual(expected, result)
-
-    def test__main_comment__inserting_line_break(self):
-        lines = [
-            'from v1.2.3',
-            '',
-            '"""',
-            'This is the main description',
-            '',
-            'after break',
-            '"""',
-            'command:',
-            '  echo "pre"'
-        ]
-        expected = {
-            'min-version': (1, 2, 3),
-            'description': 'This is the main description\n\nafter break',
-            'commands': {
-                'command': {
-                    'pre': ['echo "pre"']
-                }
-            }
-        }
-        result = parser._run_state_machine(lines)
-        self.assertEqual(expected, result)
-
-    def test__main_comment__appending_lines(self):
-        lines = [
-            'from v1.2.3',
-            '',
-            '"""',
-            'This is the main description',
-            'after break',
-            '"""',
-            'command:',
-            '  echo "pre"'
-        ]
-        expected = {
-            'min-version': (1, 2, 3),
-            'description': 'This is the main description after break',
-            'commands': {
-                'command': {
-                    'pre': ['echo "pre"']
-                }
-            }
-        }
-        result = parser._run_state_machine(lines)
-        self.assertEqual(expected, result)
-
-    def test__command_comment(self):
-        lines = [
-            'from v1.2.3',
-            '',
-            'command:',
-            '  """',
-            '  This is the command description',
-            '  """',
-            '  echo "pre"'
-        ]
-        expected = {
-            'min-version': (1, 2, 3),
-            'commands': {
-                'command': {
-                    'description': 'This is the command description',
-                    'pre': ['echo "pre"']
-                }
-            }
-        }
-        result = parser._run_state_machine(lines)
-        self.assertEqual(expected, result)
-
-    def test__command_comment_indentation_gets_ignored_1(self):
-        lines = [
-            'from v1.2.3',
-            '',
-            'command:',
-            '"""',
-            'This is the command description',
-            '"""',
-            '  echo "pre"'
-        ]
-        expected = {
-            'min-version': (1, 2, 3),
-            'commands': {
-                'command': {
-                    'description': 'This is the command description',
-                    'pre': ['echo "pre"']
-                }
-            }
-        }
-        result = parser._run_state_machine(lines)
-        self.assertEqual(expected, result)
-
-    def test__command_comment_indentation_gets_ignored_2(self):
-        lines = [
-            'from v1.2.3',
-            '',
-            'command:',
-            '             """',
-            '          This is the command description',
-            '               """',
-            '  echo "pre"'
-        ]
-        expected = {
-            'min-version': (1, 2, 3),
-            'commands': {
-                'command': {
-                    'description': 'This is the command description',
-                    'pre': ['echo "pre"']
-                }
-            }
-        }
-        result = parser._run_state_machine(lines)
-        self.assertEqual(expected, result)
-
-    def test__command_comment__inserting_line_break(self):
-        lines = [
-            'from v1.2.3',
-            '',
-            'command:',
-            '  """',
-            '  This is the command description',
-            '  ',
-            '  vmi',
-            '  """',
-            '  echo "pre"'
-        ]
-        expected = {
-            'min-version': (1, 2, 3),
-            'commands': {
-                'command': {
-                    'description': 'This is the command description\n\nvmi',
-                    'pre': ['echo "pre"']
-                }
-            }
-        }
-        result = parser._run_state_machine(lines)
-        self.assertEqual(expected, result)
-
-    def test__command_comment__lines_appended_nicely(self):
-        lines = [
-            'from v1.2.3',
-            '',
-            'command:',
-            '  """',
-            '  This is the command description',
-            '  vmi',
-            '  """',
-            '  echo "pre"'
-        ]
-        expected = {
-            'min-version': (1, 2, 3),
-            'commands': {
-                'command': {
-                    'description': 'This is the command description vmi',
-                    'pre': ['echo "pre"']
-                }
-            }
-        }
-        result = parser._run_state_machine(lines)
-        self.assertEqual(expected, result)
-
-    def test__full_parsing(self):
-        lines = [
-            'from v1.2.3',
-            '"""',
-            'This is a test..',
-            '"""',
-            'a = 42',
-            'b = 45',
-            '',
-            'command|com|c:',
-            '  """',
-            '  This is the command description.',
-            '  vmi',
-            '  """',
-            '  echo "pre"',
-            '  ===',
-            '  echo "post"',
-            '',
-            'other_command|oth|oo|o: [command]',
-            '  """',
-            '  Another command..',
-            '  """',
-            '  echo "other"',
-            '  echo "something"',
-            '  ===',
-            '  echo "post2"'
-        ]
-        expected = {
-            'min-version': (1, 2, 3),
-            'description': 'This is a test..',
-            'variables': {
-                'a': '42',
-                'b': '45'
-            },
-            'commands': {
-                'command': {
-                    'description': 'This is the command description. vmi',
-                    'pre': ['echo "pre"'],
-                    'post': ['echo "post"']
-                },
-                'com': {
-                    'alias': 'command'
-                },
-                'c': {
-                    'alias': 'command'
-                },
-                'other_command': {
-                    'dependencies': ['command'],
-                    'description': 'Another command..',
-                    'pre': ['echo "other"', 'echo "something"'],
-                    'post': ['echo "post2"']
-                },
-                'oth': {
-                    'alias': 'other_command'
-                },
-                'oo': {
-                    'alias': 'other_command'
-                },
-                'o': {
-                    'alias': 'other_command'
-                }
-            }
-        }
-        self.maxDiff = None
-        result = parser._run_state_machine(lines)
-        self.assertEqual(expected, result)
 
 
-class StateMachineExceptionWrapping(TestCase):
-    @mock.patch.object(parser, '_state_start')
-    def test__line_numbers_prepended_to_exception_message(self, mock_state):
-        error_message = 'Some error'
-        mock_state.side_effect = SyntaxError(error_message)
-        expected_error = {
-            'line': 1,
-            'error': error_message
-        }
-        with self.assertRaises(Exception) as cm:
-            parser._run_state_machine([''])
-        assert_exception(self, cm, error.ProjectfileError, expected_error)
 
-
-class ParserErrorCases(TestCase):
-    def test__unexpected_comment_delimiter_1(self):
-        lines = [
-            'from v1.2.3',
-            '',
-            'a = 42',
-            'b = 54',
-            '"""'
-        ]
-        expected_error = {
-            'line': 5,
-            'error': error.COMMENT_DELIMITER_UNEXPECTED_ERROR
-        }
-        with self.assertRaises(Exception) as cm:
-            parser._run_state_machine(lines)
-        assert_exception(self, cm, error.ProjectfileError, expected_error)
-
-    def test__unexpected_comment_delimiter_2(self):
-        lines = [
-            'from v1.2.3',
-            '',
-            'command:',
-            '   cat file',
-            '   """'
-        ]
-        expected_error = {
-            'line': 5,
-            'error': error.COMMENT_DELIMITER_UNEXPECTED_ERROR
-        }
-        with self.assertRaises(Exception) as cm:
-            parser._run_state_machine(lines)
-        assert_exception(self, cm, error.ProjectfileError, expected_error)
-
-    def test__unexpected_comment_delimiter_3(self):
-        lines = [
-            'from v1.2.3',
-            '',
-            'command:',
-            '   cat file',
-            '   ===',
-            '   cat file',
-            '   """'
-        ]
-        expected_error = {
-            'line': 7,
-            'error': error.COMMENT_DELIMITER_UNEXPECTED_ERROR
-        }
-        with self.assertRaises(Exception) as cm:
-            parser._run_state_machine(lines)
-        assert_exception(self, cm, error.ProjectfileError, expected_error)
-
-    def test__unexpected_command_delimiter(self):
-        lines = [
-            'from v1.2.3',
-            '',
-            'command:',
-            '   cat file',
-            '   ===',
-            '   cat file',
-            '   ==='
-        ]
-        expected_error = {
-            'line': 7,
-            'error': error.COMMAND_DELIMITER_UNEXPECTED_ERROR
-        }
-        with self.assertRaises(Exception) as cm:
-            parser._run_state_machine(lines)
-        assert_exception(self, cm, error.ProjectfileError, expected_error)
-
-    def test__version_indentation_error(self):
-        lines = [
-            ' from v1.2.3'
-        ]
-        expected_error = {
-            'line': 1,
-            'error': error.VERSION_INDENTATION_ERROR
-        }
-        with self.assertRaises(Exception) as cm:
-            parser._run_state_machine(lines)
-        assert_exception(self, cm, error.ProjectfileError, expected_error)
-
-    def test__invalid_version_format_error(self):
-        lines = [
-            'from v12.3'
-        ]
-        expected_error = {
-            'line': 1,
-            'error': error.VERSION_FORMAT_ERROR
-        }
-        with self.assertRaises(Exception) as cm:
-            parser._run_state_machine(lines)
-        assert_exception(self, cm, error.ProjectfileError, expected_error)
-
-    def test__version_missing_error(self):
-        lines = [
-            'variable = 4'
-        ]
-        expected_error = {
-            'line': 1,
-            'error': error.VERSION_MISSING_ERROR
-        }
-        with self.assertRaises(Exception) as cm:
-            parser._run_state_machine(lines)
-        assert_exception(self, cm, error.ProjectfileError, expected_error)
-
-    def test__variable_indentation_error(self):
-        lines = [
-            'from v1.2.3',
-            '  variable = 4'
-        ]
-        expected_error = {
-            'line': 2,
-            'error': error.VARIABLE_INDENTATION_ERROR
-        }
-        with self.assertRaises(Exception) as cm:
-            parser._run_state_machine(lines)
-        assert_exception(self, cm, error.ProjectfileError, expected_error)
-
-    def test__variable_quote_before_error(self):
-        lines = [
-            'from v1.2.3',
-            'variable = 4"'
-        ]
-        expected_error = {
-            'line': 2,
-            'error': error.VARIABLE_QUOTE_BEFORE_ERROR
-        }
-        with self.assertRaises(Exception) as cm:
-            parser._run_state_machine(lines)
-        assert_exception(self, cm, error.ProjectfileError, expected_error)
-
-    def test__variable_quote_after_error(self):
-        lines = [
-            'from v1.2.3',
-            'variable = "4'
-        ]
-        expected_error = {
-            'line': 2,
-            'error': error.VARIABLE_QUOTE_AFTER_ERROR
-        }
-        with self.assertRaises(Exception) as cm:
-            parser._run_state_machine(lines)
-        assert_exception(self, cm, error.ProjectfileError, expected_error)
-
-    def test_command_header_indentation_error(self):
-        lines = [
-            'from v1.2.3',
-            ' command:'
-        ]
-        expected_error = {
-            'line': 2,
-            'error': error.COMMAND_HEADER_INDENTATION_ERROR
-        }
-        with self.assertRaises(Exception) as cm:
-            parser._run_state_machine(lines)
-        assert_exception(self, cm, error.ProjectfileError, expected_error)
-
-    def test_command_missing_colon_error(self):
-        lines = [
-            'from v1.2.3',
-            'command'
-        ]
-        expected_error = {
-            'line': 2,
-            'error': error.COMMAND_HEADER_MISSING_COLON_ERROR
-        }
-        with self.assertRaises(Exception) as cm:
-            parser._run_state_machine(lines)
-        assert_exception(self, cm, error.ProjectfileError, expected_error)
-
-    def test_command_invalid_colon_error(self):
-        lines = [
-            'from v1.2.3',
-            'command:vmi'
-        ]
-        expected_error = {
-            'line': 2,
-            'error': error.COMMAND_HEADER_COLON_ERROR
-        }
-        with self.assertRaises(Exception) as cm:
-            parser._run_state_machine(lines)
-        assert_exception(self, cm, error.ProjectfileError, expected_error)
-
-    def test_command_invalid_alternative_error(self):
-        lines = [
-            'from v1.2.3',
-            'command|ffd|:'
-        ]
-        expected_error = {
-            'line': 2,
-            'error': error.COMMAND_HEADER_INVALID_ALTERNATIVE
-        }
-        with self.assertRaises(Exception) as cm:
-            parser._run_state_machine(lines)
-        assert_exception(self, cm, error.ProjectfileError, expected_error)
-
-    def test_command_empty_dependency_list_error(self):
-        lines = [
-            'from v1.2.3',
-            'command: []'
-        ]
-        expected_error = {
-            'line': 2,
-            'error': error.COMMAND_HEADER_EMPTY_DEPENDENCY_LIST
-        }
-        with self.assertRaises(Exception) as cm:
-            parser._run_state_machine(lines)
-        assert_exception(self, cm, error.ProjectfileError, expected_error)
-
-    def test_command_invalid_dependency_list_error(self):
-        lines = [
-            'from v1.2.3',
-            'command: [vmi,]'
-        ]
-        expected_error = {
-            'line': 2,
-            'error': error.COMMAND_HEADER_INVALID_DEPENDENCY_LIST
-        }
-        with self.assertRaises(Exception) as cm:
-            parser._run_state_machine(lines)
-        assert_exception(self, cm, error.ProjectfileError, expected_error)
-
-    def test_command_syntax_error(self):
-        lines = [
-            'from v1.2.3',
-            'command: : [vmi,]'
-        ]
-        expected_error = {
-            'line': 2,
-            'error': error.COMMAND_HEADER_SYNTAX_ERROR
-        }
-        with self.assertRaises(Exception) as cm:
-            parser._run_state_machine(lines)
-        assert_exception(self, cm, error.ProjectfileError, expected_error)
-
-    def test_command_unexpected_unindented_line_error(self):
-        lines = [
-            'from v1.2.3',
-            'command:',
-            'vmi'
-        ]
-        expected_error = {
-            'line': 3,
-            'error': error.COMMAND_HEADER_UNEXPECTED_UNINDENTED_ERROR
-        }
-        with self.assertRaises(Exception) as cm:
-            parser._run_state_machine(lines)
-        assert_exception(self, cm, error.ProjectfileError, expected_error)
-
-
-class DataIntegrityTest(TestCase):
-    def test__dependecies_refers_to_existing_commands__raises_no_error(self):
-        data = {
-            'commands': {
-                'c1': {},
-                'c2': {
-                    'dependencies': ['c1']
-                }
-            }
-        }
-        data_processor.data_integrity_check(data)
-
-    def test__non_existing_dependency__raises_error(self):
-        data = {
-            'commands': {
-                'c1': {},
-                'c2': {
-                    'dependencies': ['c']
-                }
-            }
-        }
-        with self.assertRaises(Exception) as cm:
-            data_processor.data_integrity_check(data)
-        assert_exception(self, cm, error.ProjectfileError,
-                         {'error': error.PROJECTFILE_INVALID_DEPENDENCY.format('c', 'c2')})
