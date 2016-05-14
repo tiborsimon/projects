@@ -19,6 +19,7 @@ from test.helpers import *
 from projects.projectfile import error
 from projects.projectfile.parser import parse
 
+
 class VersionParser(TestCase):
     def test__valid_version_can_be_parsed_1(self):
         line = 'from v1.2.3'

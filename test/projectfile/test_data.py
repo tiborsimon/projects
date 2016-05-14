@@ -15,8 +15,10 @@ except ImportError:
     builtin_module = 'builtins'
 
 from test.helpers import *
+
 from projects.projectfile import error
 from projects.projectfile import data_processor
+
 
 class DataIntegrityTest(TestCase):
     def test__dependecies_refers_to_existing_commands__raises_no_error(self):

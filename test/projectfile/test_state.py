@@ -18,7 +18,6 @@ except ImportError:
 from test.helpers import *
 
 from projects.projectfile import error
-
 from projects.projectfile.parser import state
 from projects.projectfile.parser import runner
 

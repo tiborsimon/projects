@@ -14,8 +14,6 @@ try:
 except ImportError:
     builtin_module = 'builtins'
 
-from test.helpers import *
-
 from projects.projectfile import file_handler
 
 
