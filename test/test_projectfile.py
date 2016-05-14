@@ -10,6 +10,7 @@ except ImportError:
 
 try:
     import __builtin__
+
     builtin_module = '__builtin__'
 except ImportError:
     builtin_module = 'builtins'
@@ -20,6 +21,7 @@ from projects.projectfile import error
 
 from projects.projectfile.parser import state
 from projects.projectfile.parser import runner
+
 
 class StartState(TestCase):
     def test__can_parse_version(self):
@@ -923,8 +925,3 @@ class FinishingState(TestCase):
             runner.finish_processing(data, s)
         assert_exception(self, cm, SyntaxError,
                          error.PROJECTFILE_NO_COMMAND_IN_COMMAND_ERROR.format('unfinished-command'))
-
-
-
-
-
