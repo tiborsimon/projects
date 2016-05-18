@@ -15,7 +15,6 @@ def projectfile_walk(project_root):
         for f in files:
             if f == defs.PROJECTFILE:
                 w.append(root)
-                w.append(dirs)
                 path = os.path.join(root, f)
                 w.append(_load(path))
                 result.append(tuple(w))

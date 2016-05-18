@@ -50,7 +50,7 @@ class ProjectfileWalk(TestCase):
         mock_load.return_value = dummy_file_content
 
         expected = [
-            ('.', [], dummy_file_content)
+            ('.', dummy_file_content)
         ]
 
         result = file_handler.projectfile_walk(dummy_path)
@@ -72,7 +72,7 @@ class ProjectfileWalk(TestCase):
         mock_load.return_value = dummy_file_content
 
         expected = [
-            ('.', [], dummy_file_content)
+            ('.', dummy_file_content)
         ]
 
         result = file_handler.projectfile_walk(dummy_path)
@@ -95,7 +95,7 @@ class ProjectfileWalk(TestCase):
         mock_load.return_value = dummy_file_content
 
         expected = [
-            ('.', ['A'], dummy_file_content)
+            ('.', dummy_file_content)
         ]
 
         result = file_handler.projectfile_walk(dummy_path)
@@ -122,13 +122,13 @@ class ProjectfileWalk(TestCase):
         mock_load.return_value = dummy_file_content
 
         expected = [
-            ('.', ['A', 'B', 'C'], dummy_file_content),
-            (os.path.join(dummy_path, 'A'), [], dummy_file_content),
-            (os.path.join(dummy_path, 'B'), ['F'], dummy_file_content),
-            (os.path.join(dummy_path, 'B', 'F'), [], dummy_file_content),
-            (os.path.join(dummy_path, 'C'), ['D', 'E'], dummy_file_content),
-            (os.path.join(dummy_path, 'C', 'D'), [], dummy_file_content),
-            (os.path.join(dummy_path, 'C', 'E'), [], dummy_file_content)
+            ('.', dummy_file_content),
+            (os.path.join(dummy_path, 'A'), dummy_file_content),
+            (os.path.join(dummy_path, 'B'), dummy_file_content),
+            (os.path.join(dummy_path, 'B', 'F'), dummy_file_content),
+            (os.path.join(dummy_path, 'C'), dummy_file_content),
+            (os.path.join(dummy_path, 'C', 'D'), dummy_file_content),
+            (os.path.join(dummy_path, 'C', 'E'), dummy_file_content)
         ]
 
         result = file_handler.projectfile_walk(dummy_path)
@@ -155,9 +155,9 @@ class ProjectfileWalk(TestCase):
         mock_load.return_value = dummy_file_content
 
         expected = [
-            (os.path.join(dummy_path, 'B'), ['F'], dummy_file_content),
-            (os.path.join(dummy_path, 'C', 'D'), [], dummy_file_content),
-            (os.path.join(dummy_path, 'C', 'E'), [], dummy_file_content)
+            (os.path.join(dummy_path, 'B'), dummy_file_content),
+            (os.path.join(dummy_path, 'C', 'D'), dummy_file_content),
+            (os.path.join(dummy_path, 'C', 'E'), dummy_file_content)
         ]
 
         result = file_handler.projectfile_walk(dummy_path)
