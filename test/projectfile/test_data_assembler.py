@@ -76,6 +76,48 @@ class ProcessingTreeCreation(TestCase):
         mock_file_handler.projectfile_walk.assert_called_with(project_root)
         self.assertEqual(expected, result)
 
+    @mock.patch.object(data_processor, 'file_handler', autospec=True)
+    @mock.patch.object(data_processor, 'parser', autospec=True)
+    def test__processing_tree_can_be_created_for_one_deep_structure_2(self, mock_parser, mock_file_handler):
+        project_root = '.'
+        dummy_file_content = ['line 1', 'line 2']
+        dummy_walk = [
+            (project_root, dummy_file_content),
+            (os.path.join(project_root, 'A'), dummy_file_content),
+            (os.path.join(project_root, 'A', 'B'), dummy_file_content),
+            (os.path.join(project_root, 'C'), dummy_file_content)
+        ]
+        dummy_data = {'dummy_data': True}
+
+        mock_file_handler.projectfile_walk.return_value = dummy_walk
+        mock_parser.process_lines.return_value = dummy_data
+
+        expected = {
+            'path': project_root,
+            'data': dummy_data,
+            'children': [{
+                'path': dummy_walk[1][0],
+                'data': dummy_data,
+                'children': [{
+                    'path': dummy_walk[2][0],
+                    'data': dummy_data,
+                    'children': []
+                }]
+            },
+                {
+                    'path': dummy_walk[3][0],
+                    'data': dummy_data,
+                    'children': []
+                }
+            ]
+        }
+
+        result = data_processor.generate_processing_tree(project_root)
+
+        mock_parser.process_lines.assert_called_with(dummy_file_content)
+        mock_file_handler.projectfile_walk.assert_called_with(project_root)
+        self.assertEqual(expected, result)
+
 
 #     @mock.patch.object(data_processor, 'os')
 #     @mock.patch.object(data_processor, 'parser')

@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import os
 
 from . import error
@@ -23,17 +26,19 @@ def data_integrity_check(data):
 
 def generate_processing_tree(project_root):
     ret = {}
-    last_path = ''
-    child_ref = None
+    stack = None
     for path, lines in file_handler.projectfile_walk(project_root):
         temp = {
             'path': path,
             'data': parser.process_lines(lines),
             'children': []
         }
-        if child_ref != None:
-            child_ref.append(temp)
-        else:
+        if stack is None:
             ret = temp
-            child_ref = ret['children']
+            stack = [temp]
+        else:
+            while not path.startswith(stack[-1]['path']):
+                stack.pop()
+            stack[-1]['children'].append(temp)
+            stack.append(temp)
     return ret
