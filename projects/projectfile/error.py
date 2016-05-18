@@ -5,19 +5,18 @@ class ProjectfileError(Exception):
     pass
 
 
-PROJECTFILE = 'Projectfile'
-
 PROJECTFILE_EMPTY_ERROR = 'Projectfile is empty! Or at least it does not contain any parsable text.'
-PROJECTFILE_NO_COMMAND_ERROR = 'No commands were defined in the projectfile!'
+PROJECTFILE_NO_COMMAND_ERROR = 'No commands were defined in the Projectfile!'
 PROJECTFILE_NO_COMMAND_IN_COMMAND_ERROR = 'Command {} do not have any executable commands! Is this command necessary?'
 PROJECTFILE_INVALID_DEPENDENCY = 'Invalid dependency "{}" for command "{}".'
+PROJECTFILE_NO_PROJECTFILE = 'No Projectfile was found. Nothing to do..'
 
 COMMENT_DELIMITER_UNEXPECTED_ERROR = 'Unexpected comment delimiter (""")!'
 COMMAND_DELIMITER_UNEXPECTED_ERROR = 'Unexpected command delimiter (===)!'
 
 VERSION_INDENTATION_ERROR = 'Whitespaces are not allowed before the "from" keyword!'
 VERSION_FORMAT_ERROR = 'Invalid version format. The valid one looks like "v1.2.3".'
-VERSION_MISSING_ERROR = 'You have to start your projectfile with the minimum supported version!'
+VERSION_MISSING_ERROR = 'You have to start your Projectfile with the minimum supported version!'
 
 VARIABLE_INDENTATION_ERROR = 'Variables cannot be indented!'
 VARIABLE_QUOTE_BEFORE_ERROR = 'No matching quote found at the beginning of value!'

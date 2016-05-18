@@ -1,8 +1,8 @@
 import os
 
 from . import error
-from .parser import state
 from . import parser
+from . import file_handler
 
 
 def data_integrity_check(data):
@@ -19,3 +19,8 @@ def data_integrity_check(data):
             raise error.ProjectfileError({
                 'error': error.PROJECTFILE_INVALID_DEPENDENCY.format(d['d'], d['c'])
             })
+
+
+def generate_processing_tree():
+    for root, dirs, files in os.walk('.'):
+        pass
