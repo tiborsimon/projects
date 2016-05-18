@@ -1,8 +1,9 @@
 import os
 
-from projects.projectfile import error
-from projects.projectfile.parser import state
+from . import error
+from .parser import state
 from . import parser
+
 
 def data_integrity_check(data):
     deps = []
