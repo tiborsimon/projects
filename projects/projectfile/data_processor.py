@@ -21,6 +21,19 @@ def data_integrity_check(data):
             })
 
 
-def generate_processing_tree():
-    for root, dirs, files in os.walk('.'):
-        pass
+def generate_processing_tree(project_root):
+    ret = {}
+    last_path = ''
+    child_ref = None
+    for path, lines in file_handler.projectfile_walk(project_root):
+        temp = {
+            'path': path,
+            'data': parser.process_lines(lines),
+            'children': []
+        }
+        if child_ref != None:
+            child_ref.append(temp)
+        else:
+            ret = temp
+            child_ref = ret['children']
+    return ret
