@@ -39,7 +39,7 @@ class FinishingState(TestCase):
                 }
             }
         }
-        parser.finish_processing(data, s)
+        parser._finish_processing(data, s)
         self.assertEqual(expected, data)
 
     def test__eof_in_post_state__data_will_be_closed(self):
@@ -59,7 +59,7 @@ class FinishingState(TestCase):
                 }
             }
         }
-        parser.finish_processing(data, s)
+        parser._finish_processing(data, s)
         self.assertEqual(expected, data)
 
     def test__alternative_commands_can_be_handled_by_the_finalizer(self):
@@ -85,35 +85,35 @@ class FinishingState(TestCase):
                 }
             }
         }
-        parser.finish_processing(data, s)
+        parser._finish_processing(data, s)
         self.assertEqual(expected, data)
 
     def test__eof_in_start_state__raises_error(self):
         data = {}
         s = state.start
         with self.assertRaises(Exception) as cm:
-            parser.finish_processing(data, s)
+            parser._finish_processing(data, s)
         assert_exception(self, cm, SyntaxError, error.PROJECTFILE_EMPTY_ERROR)
 
     def test__eof_in_before_commands_state__raises_error(self):
         data = {}
         s = state.before_commands
         with self.assertRaises(Exception) as cm:
-            parser.finish_processing(data, s)
+            parser._finish_processing(data, s)
         assert_exception(self, cm, SyntaxError, error.PROJECTFILE_NO_COMMAND_ERROR)
 
     def test__eof_in_main_comment_state__raises_error(self):
         data = {}
         s = state.main_comment
         with self.assertRaises(Exception) as cm:
-            parser.finish_processing(data, s)
+            parser._finish_processing(data, s)
         assert_exception(self, cm, SyntaxError, error.PROJECTFILE_NO_COMMAND_ERROR)
 
     def test__eof_in_variable_state__raises_error(self):
         data = {}
         s = state.variables
         with self.assertRaises(Exception) as cm:
-            parser.finish_processing(data, s)
+            parser._finish_processing(data, s)
         assert_exception(self, cm, SyntaxError, error.PROJECTFILE_NO_COMMAND_ERROR)
 
     def test__eof_in_command_state__raises_error(self):
@@ -126,7 +126,7 @@ class FinishingState(TestCase):
         }
         s = state.command
         with self.assertRaises(Exception) as cm:
-            parser.finish_processing(data, s)
+            parser._finish_processing(data, s)
         assert_exception(self, cm, SyntaxError,
                          error.PROJECTFILE_NO_COMMAND_IN_COMMAND_ERROR.format('unfinished-command'))
 
@@ -140,6 +140,6 @@ class FinishingState(TestCase):
         }
         s = state.command_comment
         with self.assertRaises(Exception) as cm:
-            parser.finish_processing(data, s)
+            parser._finish_processing(data, s)
         assert_exception(self, cm, SyntaxError,
                          error.PROJECTFILE_NO_COMMAND_IN_COMMAND_ERROR.format('unfinished-command'))
