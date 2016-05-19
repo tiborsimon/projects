@@ -25,18 +25,18 @@ class ProcessingTreeCreation(TestCase):
     def test__processing_tree_can_be_created_for_single_root_file(self, mock_parser, mock_file_handler):
         project_root = '.'
         dummy_file_content = ['line 1', 'line 2']
-        dummy_walk = [
+        dummy_walk_result = [
             (project_root, dummy_file_content)
         ]
-        dummy_data = {'dummy_data': True}
+        dummy_parsed_data = {'dummy_data': True}
 
-        mock_file_handler.projectfile_walk.return_value = dummy_walk
-        mock_parser.process_lines.return_value = dummy_data
+        mock_file_handler.projectfile_walk.return_value = dummy_walk_result
+        mock_parser.process_lines.return_value = dummy_parsed_data
 
         expected = [
             {
                 'path': project_root,
-                'data': dummy_data,
+                'data': dummy_parsed_data,
                 'children': []
             }
         ]
@@ -52,18 +52,18 @@ class ProcessingTreeCreation(TestCase):
     def test__processing_tree_can_be_created_for_single_non_root_file(self, mock_parser, mock_file_handler):
         project_root = '.'
         dummy_file_content = ['line 1', 'line 2']
-        dummy_walk = [
+        dummy_walk_result = [
             (os.path.join(project_root, 'A', 'B', 'C', 'D'), dummy_file_content)
         ]
-        dummy_data = {'dummy_data': True}
+        dummy_parsed_data = {'dummy_data': True}
 
-        mock_file_handler.projectfile_walk.return_value = dummy_walk
-        mock_parser.process_lines.return_value = dummy_data
+        mock_file_handler.projectfile_walk.return_value = dummy_walk_result
+        mock_parser.process_lines.return_value = dummy_parsed_data
 
         expected = [
             {
-                'path': dummy_walk[0][0],
-                'data': dummy_data,
+                'path': dummy_walk_result[0][0],
+                'data': dummy_parsed_data,
                 'children': []
             }
         ]
@@ -82,26 +82,26 @@ class ProcessingTreeCreation(TestCase):
             ['content root'],
             ['content A']
         ]
-        dummy_walk = [
+        dummy_walk_result = [
             (project_root, dummy_file_content[0]),
             (os.path.join(project_root, 'A'), dummy_file_content[1])
         ]
-        dummy_data = [
+        dummy_parsed_data = [
             {'dummy_data_root': True},
             {'dummy_data_A': True}
         ]
 
-        mock_file_handler.projectfile_walk.return_value = dummy_walk
-        mock_parser.process_lines.side_effect = dummy_data
+        mock_file_handler.projectfile_walk.return_value = dummy_walk_result
+        mock_parser.process_lines.side_effect = dummy_parsed_data
 
         expected = [
             {
-                'path': dummy_walk[0][0],
-                'data': dummy_data[0],
+                'path': dummy_walk_result[0][0],
+                'data': dummy_parsed_data[0],
                 'children': [
                     {
-                        'path': dummy_walk[1][0],
-                        'data': dummy_data[1],
+                        'path': dummy_walk_result[1][0],
+                        'data': dummy_parsed_data[1],
                         'children': []
                     }
                 ]
@@ -128,41 +128,41 @@ class ProcessingTreeCreation(TestCase):
             ['content AB'],
             ['content C']
         ]
-        dummy_walk = [
+        dummy_walk_result = [
             (project_root, dummy_file_content[0]),
             (os.path.join(project_root, 'A'), dummy_file_content[1]),
             (os.path.join(project_root, 'A', 'B'), dummy_file_content[2]),
             (os.path.join(project_root, 'C'), dummy_file_content[3])
         ]
-        dummy_data = [
+        dummy_parsed_data = [
             {'dummy_data_root': True},
             {'dummy_data_A': True},
             {'dummy_data_AB': True},
             {'dummy_data_C': True}
         ]
 
-        mock_file_handler.projectfile_walk.return_value = dummy_walk
-        mock_parser.process_lines.side_effect = dummy_data
+        mock_file_handler.projectfile_walk.return_value = dummy_walk_result
+        mock_parser.process_lines.side_effect = dummy_parsed_data
 
         expected = [
             {
                 'path': project_root,
-                'data': dummy_data[0],
+                'data': dummy_parsed_data[0],
                 'children': [
                     {
-                        'path': dummy_walk[1][0],
-                        'data': dummy_data[1],
+                        'path': dummy_walk_result[1][0],
+                        'data': dummy_parsed_data[1],
                         'children': [
                             {
-                                'path': dummy_walk[2][0],
-                                'data': dummy_data[2],
+                                'path': dummy_walk_result[2][0],
+                                'data': dummy_parsed_data[2],
                                 'children': []
                             }
                         ]
                     },
                     {
-                        'path': dummy_walk[3][0],
-                        'data': dummy_data[3],
+                        'path': dummy_walk_result[3][0],
+                        'data': dummy_parsed_data[3],
                         'children': []
                     }
                 ]
@@ -190,35 +190,35 @@ class ProcessingTreeCreation(TestCase):
             ['content AB'],
             ['content C']
         ]
-        dummy_walk = [
+        dummy_walk_result = [
             (os.path.join(project_root, 'A'), dummy_file_content[0]),
             (os.path.join(project_root, 'A', 'B'), dummy_file_content[1]),
             (os.path.join(project_root, 'C'), dummy_file_content[2])
         ]
-        dummy_data = [
+        dummy_parsed_data = [
             {'dummy_data_A': True},
             {'dummy_data_AB': True},
             {'dummy_data_C': True}
         ]
 
-        mock_file_handler.projectfile_walk.return_value = dummy_walk
-        mock_parser.process_lines.side_effect = dummy_data
+        mock_file_handler.projectfile_walk.return_value = dummy_walk_result
+        mock_parser.process_lines.side_effect = dummy_parsed_data
 
         expected = [
             {
-                'path': dummy_walk[0][0],
-                'data': dummy_data[0],
+                'path': dummy_walk_result[0][0],
+                'data': dummy_parsed_data[0],
                 'children': [
                     {
-                        'path': dummy_walk[1][0],
-                        'data': dummy_data[1],
+                        'path': dummy_walk_result[1][0],
+                        'data': dummy_parsed_data[1],
                         'children': []
                     }
                 ]
             },
             {
-                'path': dummy_walk[2][0],
-                'data': dummy_data[2],
+                'path': dummy_walk_result[2][0],
+                'data': dummy_parsed_data[2],
                 'children': []
             }
         ]
