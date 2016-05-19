@@ -25,20 +25,20 @@ def data_integrity_check(data):
 
 
 def generate_processing_tree(project_root):
-    ret = {}
-    stack = None
+    ret = []
+    stack = []
     for path, lines in file_handler.projectfile_walk(project_root):
         temp = {
             'path': path,
             'data': parser.process_lines(lines),
             'children': []
         }
-        if stack is None:
-            ret = temp
-            stack = [temp]
-        else:
-            while not path.startswith(stack[-1]['path']):
-                stack.pop()
+        while stack and not path.startswith(stack[-1]['path']):
+            stack.pop()
+        if stack:
             stack[-1]['children'].append(temp)
-            stack.append(temp)
+        else:
+            ret.append(temp)
+            stack = [temp]
+        stack.append(temp)
     return ret
