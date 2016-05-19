@@ -493,6 +493,12 @@ class VariableParser(TestCase):
             parse.variable(line)
         assert_exception(self, cm, SyntaxError, error.VARIABLE_QUOTE_BEFORE_ERROR)
 
+    def test__invalid_variable__should_raise_exception__unmatched_quote_3(self):
+        line = 'my_variable = \'valami#\''
+        with self.assertRaises(Exception) as cm:
+            parse.variable(line)
+        assert_exception(self, cm, SyntaxError, error.VARIABLE_QUOTE_AFTER_ERROR)
+
     def test__invalid_variable__should_raise_exception__unmatched_double_quote_1(self):
         line = 'my_variable = "valami'
         with self.assertRaises(Exception) as cm:
@@ -504,6 +510,12 @@ class VariableParser(TestCase):
         with self.assertRaises(Exception) as cm:
             parse.variable(line)
         assert_exception(self, cm, SyntaxError, error.VARIABLE_QUOTE_BEFORE_ERROR)
+
+    def test__invalid_variable__should_raise_exception__unmatched_double_quote_3(self):
+        line = 'my_variable = "valami#"'
+        with self.assertRaises(Exception) as cm:
+            parse.variable(line)
+        assert_exception(self, cm, SyntaxError, error.VARIABLE_QUOTE_AFTER_ERROR)
 
     def test__invalid_variable__should_raise_exception__commented_out_value_1(self):
         line = 'my_variable = #valami'

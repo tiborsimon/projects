@@ -461,6 +461,142 @@ class StateMachineParser(TestCase):
         result = parser.process_lines(lines)
         self.assertEqual(expected, result)
 
+    def test__full_parsing_with_comments_1(self):
+        lines = [
+            'from v1.2.3#comment',
+            '"""#comment',
+            'This is a test..#comment',
+            '"""#comment',
+            'a = 42#comment',
+            'b = 45#comment',
+            '#comment',
+            'command|com|c:#comment',
+            '  """#comment',
+            '  This is the command description.#comment',
+            '  vmi#comment',
+            '  """#comment',
+            '  echo "pre"#comment',
+            '  ===#comment',
+            '  echo "post"#comment',
+            '#comment',
+            'other_command|oth|oo|o: [command]#comment',
+            '  """#comment',
+            '  Another command..#comment',
+            '  """#comment',
+            '  echo "other"#comment',
+            '  echo "something"#comment',
+            '  ===#comment',
+            '  echo "post2"#comment',
+            '#comment'
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'description': 'This is a test..#comment',
+            'variables': {
+                'a': '42',
+                'b': '45'
+            },
+            'commands': {
+                'command': {
+                    'description': 'This is the command description.#comment vmi#comment',
+                    'pre': ['echo "pre"'],
+                    'post': ['echo "post"']
+                },
+                'com': {
+                    'alias': 'command'
+                },
+                'c': {
+                    'alias': 'command'
+                },
+                'other_command': {
+                    'dependencies': ['command'],
+                    'description': 'Another command..#comment',
+                    'pre': ['echo "other"', 'echo "something"'],
+                    'post': ['echo "post2"']
+                },
+                'oth': {
+                    'alias': 'other_command'
+                },
+                'oo': {
+                    'alias': 'other_command'
+                },
+                'o': {
+                    'alias': 'other_command'
+                }
+            }
+        }
+        self.maxDiff = None
+        result = parser.process_lines(lines)
+        self.assertEqual(expected, result)
+
+    def test__full_parsing_with_comments_2(self):
+        lines = [
+            'from v1.2.3  #comment',
+            '"""  #comment',
+            'This is a test..  #comment',
+            '"""  #comment',
+            'a = 42  #comment',
+            'b = 45  #comment',
+            '  #comment',
+            'command|com|c:  #comment',
+            '  """  #comment',
+            '  This is the command description.  #comment',
+            '  vmi  #comment',
+            '  """  #comment',
+            '  echo "pre"  #comment',
+            '  ===  #comment',
+            '  echo "post"  #comment',
+            '  #comment',
+            'other_command|oth|oo|o: [command]  #comment',
+            '  """  #comment',
+            '  Another command..  #comment',
+            '  """  #comment',
+            '  echo "other"  #comment',
+            '  echo "something"  #comment',
+            '  ===  #comment',
+            '  echo "post2"  #comment',
+            '  #comment'
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'description': 'This is a test..  #comment',
+            'variables': {
+                'a': '42',
+                'b': '45'
+            },
+            'commands': {
+                'command': {
+                    'description': 'This is the command description.  #comment vmi  #comment',
+                    'pre': ['echo "pre"'],
+                    'post': ['echo "post"']
+                },
+                'com': {
+                    'alias': 'command'
+                },
+                'c': {
+                    'alias': 'command'
+                },
+                'other_command': {
+                    'dependencies': ['command'],
+                    'description': 'Another command..  #comment',
+                    'pre': ['echo "other"', 'echo "something"'],
+                    'post': ['echo "post2"']
+                },
+                'oth': {
+                    'alias': 'other_command'
+                },
+                'oo': {
+                    'alias': 'other_command'
+                },
+                'o': {
+                    'alias': 'other_command'
+                }
+            }
+        }
+        self.maxDiff = None
+        result = parser.process_lines(lines)
+        self.assertEqual(expected, result)
+
 
 class StateMachineExceptionWrapping(TestCase):
     @mock.patch.object(state, 'start')
@@ -615,6 +751,19 @@ class ParserErrorCases(TestCase):
         expected_error = {
             'line': 2,
             'error': error.VARIABLE_QUOTE_AFTER_ERROR
+        }
+        with self.assertRaises(Exception) as cm:
+            parser.process_lines(lines)
+        assert_exception(self, cm, error.ProjectfileError, expected_error)
+
+    def test__variable_wrong_comment_placement(self):
+        lines = [
+            'from v1.2.3',
+            'variable = #4'
+        ]
+        expected_error = {
+            'line': 2,
+            'error': error.VARIABLE_SYNTAX_ERROR
         }
         with self.assertRaises(Exception) as cm:
             parser.process_lines(lines)
