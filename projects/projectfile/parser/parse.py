@@ -3,7 +3,7 @@ import re
 from projects.projectfile import error
 
 
-def parse_version(line):
+def version(line):
     m = re.match('^from\s+v?(\d+)\.(\d+)\.(\d+)\s*(#.*)?$', line)
     if m:
         return int(m.group(1)), int(m.group(2)), int(m.group(3))
@@ -16,7 +16,7 @@ def parse_version(line):
             return None
 
 
-def parse_line(line):
+def line(line):
     m = re.match('^(.*)$', line)
     if m:
         return m.group(1).strip()
@@ -24,14 +24,14 @@ def parse_line(line):
         return None
 
 
-def parse_empty_line(line):
+def empty_line(line):
     if re.match('^\s*(#.*)?$', line):
         return True
     else:
         return False
 
 
-def parse_indented_line(line):
+def indented_line(line):
     m = re.match('^\s+([^#]*)(#.*)?$', line)
     if m:
         ret = m.group(1).strip()
@@ -43,14 +43,14 @@ def parse_indented_line(line):
         return None
 
 
-def parse_comment_delimiter(line):
+def comment_delimiter(line):
     if re.match('\s*"""\s*(#.*)?$', line):
         return True
     else:
         return False
 
 
-def parse_variable(line):
+def variable(line):
     m = re.match('^([\w\.-]+)\s*=\s*([^#]*)(#.*)?$', line)
     if m:
         value = m.group(2).strip()
@@ -76,14 +76,14 @@ def parse_variable(line):
         return None
 
 
-def parse_command_divisor(line):
+def command_divisor(line):
     if re.match('\s*===\s*(#.*)?$', line):
         return True
     else:
         return False
 
 
-def parse_command_header(line):
+def command_header(line):
     if re.match('^[^#]*#[^#]*:.*', line):
         raise SyntaxError(error.COMMAND_HEADER_MISSING_COLON_ERROR)
     if re.match('^\s+.*:.*', line):
