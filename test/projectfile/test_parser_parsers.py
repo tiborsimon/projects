@@ -93,6 +93,24 @@ class VersionParser(TestCase):
             parse.parse_version(line)
         assert_exception(self, cm, SyntaxError, error.VERSION_FORMAT_ERROR)
 
+    def test__invalid_version__raise_exception_6(self):
+        line = 'from #v1.2.4'
+        with self.assertRaises(Exception) as cm:
+            parse.parse_version(line)
+        assert_exception(self, cm, SyntaxError, error.VERSION_FORMAT_ERROR)
+
+    def test__invalid_version__raise_exception_7(self):
+        line = 'from v#1.2.4'
+        with self.assertRaises(Exception) as cm:
+            parse.parse_version(line)
+        assert_exception(self, cm, SyntaxError, error.VERSION_FORMAT_ERROR)
+
+    def test__invalid_version__raise_exception_8(self):
+        line = 'from v1.2#.4'
+        with self.assertRaises(Exception) as cm:
+            parse.parse_version(line)
+        assert_exception(self, cm, SyntaxError, error.VERSION_FORMAT_ERROR)
+
     def test__not_version_related_input__returns_none(self):
         line = 'something'
         expected = None
@@ -193,6 +211,24 @@ class IndentedLineParser(TestCase):
         result = parse.parse_indented_line(line)
         self.assertEqual(expected, result)
 
+    def test__cant_tolerate_only_comment_1(self):
+        line = ' #comment'
+        expected = None
+        result = parse.parse_indented_line(line)
+        self.assertEqual(expected, result)
+
+    def test__cant_tolerate_only_comment_2(self):
+        line = '   #   comment'
+        expected = None
+        result = parse.parse_indented_line(line)
+        self.assertEqual(expected, result)
+
+    def test__cant_tolerate_only_comment_3(self):
+        line = '#comment'
+        expected = None
+        result = parse.parse_indented_line(line)
+        self.assertEqual(expected, result)
+
 
 class CommentDelimiterParser(TestCase):
     def test__delimiter_can_be_parsed__zero_indentation(self):
@@ -261,7 +297,7 @@ class CommentDelimiterParser(TestCase):
         result = parse.parse_comment_delimiter(line)
         self.assertEqual(expected, result)
 
-    def test__can_tolerate_comment_4(self):
+    def test__cant_tolerate_comment(self):
         line = '#"""'
         expected = False
         result = parse.parse_comment_delimiter(line)
@@ -409,6 +445,18 @@ class VariableParser(TestCase):
         result = parse.parse_variable(line)
         self.assertEqual(expected, result)
 
+    def test__completely_wrong_syntax_returns_none_1(self):
+        line = 'something'
+        expected = None
+        result = parse.parse_variable(line)
+        self.assertEqual(expected, result)
+
+    def test__completely_wrong_syntax_returns_none_2(self):
+        line = 'something # = variable'
+        expected = None
+        result = parse.parse_variable(line)
+        self.assertEqual(expected, result)
+
     def test__invalid_variable__indentation_should_raise_exception__basic_case(self):
         line = ' my_variable = valami'
         with self.assertRaises(Exception) as cm:
@@ -540,6 +588,24 @@ class CommandDivisorParser(TestCase):
     def test__command_divisor_can_tolerate_comment_3(self):
         line = '===  #   comment'
         expected = True
+        result = parse.parse_command_divisor(line)
+        self.assertEqual(expected, result)
+
+    def test__commented_out_divisor__returns_false_1(self):
+        line = '#==='
+        expected = False
+        result = parse.parse_command_divisor(line)
+        self.assertEqual(expected, result)
+
+    def test__commented_out_divisor__returns_false_2(self):
+        line = '#  ==='
+        expected = False
+        result = parse.parse_command_divisor(line)
+        self.assertEqual(expected, result)
+
+    def test__commented_out_divisor__returns_false_3(self):
+        line = '  #  ==='
+        expected = False
         result = parse.parse_command_divisor(line)
         self.assertEqual(expected, result)
 
@@ -928,8 +994,14 @@ class CommandHeaderParser(TestCase):
             parse.parse_command_header(line)
         assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
 
-    def test__invalid_command_header__raises_exception__comment_in_definition(self):
+    def test__invalid_command_header__raises_exception__comment_in_definition_1(self):
         line = 'command#:'
+        with self.assertRaises(Exception) as cm:
+            parse.parse_command_header(line)
+        assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_MISSING_COLON_ERROR)
+
+    def test__invalid_command_header__raises_exception__comment_in_definition_2(self):
+        line = '#command:'
         with self.assertRaises(Exception) as cm:
             parse.parse_command_header(line)
         assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_MISSING_COLON_ERROR)

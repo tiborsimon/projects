@@ -34,7 +34,11 @@ def parse_empty_line(line):
 def parse_indented_line(line):
     m = re.match('^\s+([^#]*)(#.*)?$', line)
     if m:
-        return m.group(1).strip()
+        ret = m.group(1).strip()
+        if len(ret) == 0:
+            return None
+        else:
+            return ret
     else:
         return None
 
