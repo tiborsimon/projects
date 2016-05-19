@@ -233,3 +233,35 @@ class ProcessingTreeCreation(TestCase):
         mock_parser.process_lines.assert_has_calls(process_lines_calls)
         mock_file_handler.projectfile_walk.assert_called_with(project_root)
         self.assertEqual(expected, result)
+
+
+class DataFinalizer(TestCase):
+    def test__simplest_case__can_be_handled(self):
+        input_data = [
+            {
+                'path': 'my_path',
+                'data': {
+                    'min-version': (1, 2, 3),
+                    'commands': {
+                        'command': {
+                            'pre': ['echo "hello"']
+                        }
+                    }
+                },
+                'children': []
+            }
+        ]
+
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': [
+                    'cd my_path',
+                    'echo "hello"'
+                ]
+            }
+        }
+
+        result = data_processor.finalize_data(input_data)
+
+        self.assertEqual(expected, result)

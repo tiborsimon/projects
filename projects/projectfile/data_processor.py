@@ -25,6 +25,10 @@ def data_integrity_check(data):
 
 
 def generate_processing_tree(project_root):
+    """Generates the preprocessed projectfile data tree.
+    :param project_root: root of the project.
+    :return:
+    """
     ret = []
     stack = []
     for path, lines in file_handler.projectfile_walk(project_root):
@@ -41,4 +45,15 @@ def generate_processing_tree(project_root):
             ret.append(temp)
             stack = [temp]
         stack.append(temp)
+    return ret
+
+
+def finalize_data(input_data):
+    commands = input_data[0]['data']['commands'].keys()
+    ret = {
+        'min-version': input_data[0]['data']['min-version'],
+        'commands': {
+            commands[0]: ['cd ' + input_data[0]['path']] + input_data[0]['data']['commands'][commands[0]]['pre']
+        }
+    }
     return ret

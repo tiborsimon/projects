@@ -36,5 +36,7 @@ def _finish_processing(data, st):
                 break
         raise SyntaxError(error.PROJECTFILE_NO_COMMAND_IN_COMMAND_ERROR.format(c))
 
+# TODO: handle variables
+
 
 
