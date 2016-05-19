@@ -45,6 +45,24 @@ class VersionParser(TestCase):
         result = parse.parse_version(line)
         self.assertEqual(expected, result)
 
+    def test__can_tolerate_comment_1(self):
+        line = 'from v1.2.3 #comment'
+        expected = (1, 2, 3)
+        result = parse.parse_version(line)
+        self.assertEqual(expected, result)
+
+    def test__can_tolerate_comment_2(self):
+        line = 'from v1.2.3 # comment'
+        expected = (1, 2, 3)
+        result = parse.parse_version(line)
+        self.assertEqual(expected, result)
+
+    def test__can_tolerate_comment_3(self):
+        line = 'from v1.2.3#comment'
+        expected = (1, 2, 3)
+        result = parse.parse_version(line)
+        self.assertEqual(expected, result)
+
     def test__invalid_version__raise_exception_1(self):
         line = ' from v1.2.3'
         with self.assertRaises(Exception) as cm:
@@ -113,6 +131,24 @@ class EmptyLineParser(TestCase):
         result = parse.parse_empty_line(line)
         self.assertEqual(expected, result)
 
+    def test__can_tolerate_comment_1(self):
+        line = '#comment'
+        expected = True
+        result = parse.parse_empty_line(line)
+        self.assertEqual(expected, result)
+
+    def test__can_tolerate_comment_2(self):
+        line = '    #comment'
+        expected = True
+        result = parse.parse_empty_line(line)
+        self.assertEqual(expected, result)
+
+    def test__can_tolerate_comment_3(self):
+        line = '    #    comment'
+        expected = True
+        result = parse.parse_empty_line(line)
+        self.assertEqual(expected, result)
+
 
 class IndentedLineParser(TestCase):
     def test__parse_indented_line_1(self):
@@ -136,6 +172,24 @@ class IndentedLineParser(TestCase):
     def test__parse_indented_line_4(self):
         line = 'valami'
         expected = None
+        result = parse.parse_indented_line(line)
+        self.assertEqual(expected, result)
+
+    def test__can_tolerate_comment_1(self):
+        line = ' valami#comment'
+        expected = 'valami'
+        result = parse.parse_indented_line(line)
+        self.assertEqual(expected, result)
+
+    def test__can_tolerate_comment_2(self):
+        line = ' valami  #comment'
+        expected = 'valami'
+        result = parse.parse_indented_line(line)
+        self.assertEqual(expected, result)
+
+    def test__can_tolerate_comment_3(self):
+        line = ' valami  #      comment'
+        expected = 'valami'
         result = parse.parse_indented_line(line)
         self.assertEqual(expected, result)
 
@@ -171,14 +225,44 @@ class CommentDelimiterParser(TestCase):
         result = parse.parse_comment_delimiter(line)
         self.assertEqual(expected, result)
 
-    def test__invalid_delimiter_returns_negative_number_1(self):
+    def test__invalid_delimiter_returns_false_1(self):
         line = '""'
         expected = False
         result = parse.parse_comment_delimiter(line)
         self.assertEqual(expected, result)
 
-    def test__invalid_delimiter_returns_negative_number_2(self):
+    def test__invalid_delimiter_returns_false_2(self):
         line = '" ""'
+        expected = False
+        result = parse.parse_comment_delimiter(line)
+        self.assertEqual(expected, result)
+
+    def test__invalid_delimiter_returns_false_3(self):
+        line = '"""something'
+        expected = False
+        result = parse.parse_comment_delimiter(line)
+        self.assertEqual(expected, result)
+
+    def test__can_tolerate_comment_1(self):
+        line = '"""#coment'
+        expected = True
+        result = parse.parse_comment_delimiter(line)
+        self.assertEqual(expected, result)
+
+    def test__can_tolerate_comment_2(self):
+        line = '"""  #coment'
+        expected = True
+        result = parse.parse_comment_delimiter(line)
+        self.assertEqual(expected, result)
+
+    def test__can_tolerate_comment_3(self):
+        line = '"""  #      coment'
+        expected = True
+        result = parse.parse_comment_delimiter(line)
+        self.assertEqual(expected, result)
+
+    def test__can_tolerate_comment_4(self):
+        line = '#"""'
         expected = False
         result = parse.parse_comment_delimiter(line)
         self.assertEqual(expected, result)
@@ -212,6 +296,12 @@ class LineParser(TestCase):
     def test__line_can_be_parsed_5(self):
         line = ' valami valami    '
         expected = 'valami valami'
+        result = parse.parse_line(line)
+        self.assertEqual(expected, result)
+
+    def test__comment_will_be_collected_as_well(self):
+        line = 'valami #comment'
+        expected = 'valami #comment'
         result = parse.parse_line(line)
         self.assertEqual(expected, result)
 
@@ -301,6 +391,24 @@ class VariableParser(TestCase):
         result = parse.parse_variable(line)
         self.assertEqual(expected, result)
 
+    def test__can_tolerate_comment_1(self):
+        line = 'my_variable = valami#comment'
+        expected = {'my_variable': 'valami'}
+        result = parse.parse_variable(line)
+        self.assertEqual(expected, result)
+
+    def test__can_tolerate_comment_2(self):
+        line = 'my_variable = valami   #comment'
+        expected = {'my_variable': 'valami'}
+        result = parse.parse_variable(line)
+        self.assertEqual(expected, result)
+
+    def test__can_tolerate_comment_3(self):
+        line = 'my_variable = valami   #    comment'
+        expected = {'my_variable': 'valami'}
+        result = parse.parse_variable(line)
+        self.assertEqual(expected, result)
+
     def test__invalid_variable__indentation_should_raise_exception__basic_case(self):
         line = ' my_variable = valami'
         with self.assertRaises(Exception) as cm:
@@ -349,6 +457,18 @@ class VariableParser(TestCase):
             parse.parse_variable(line)
         assert_exception(self, cm, SyntaxError, error.VARIABLE_QUOTE_BEFORE_ERROR)
 
+    def test__invalid_variable__should_raise_exception__commented_out_value_1(self):
+        line = 'my_variable = #valami'
+        with self.assertRaises(Exception) as cm:
+            parse.parse_variable(line)
+        assert_exception(self, cm, SyntaxError, error.VARIABLE_SYNTAX_ERROR)
+
+    def test__invalid_variable__should_raise_exception__commented_out_value_2(self):
+        line = 'my_variable =#valami'
+        with self.assertRaises(Exception) as cm:
+            parse.parse_variable(line)
+        assert_exception(self, cm, SyntaxError, error.VARIABLE_SYNTAX_ERROR)
+
 
 class CommandDivisorParser(TestCase):
     def test__command_divisor_can_be_parsed_1(self):
@@ -390,6 +510,36 @@ class CommandDivisorParser(TestCase):
     def test__command_divisor_can_be_parsed_7(self):
         line = '= =='
         expected = False
+        result = parse.parse_command_divisor(line)
+        self.assertEqual(expected, result)
+
+    def test__command_divisor_can_be_parsed_8(self):
+        line = '===valami'
+        expected = False
+        result = parse.parse_command_divisor(line)
+        self.assertEqual(expected, result)
+
+    def test__command_divisor_can_be_parsed_9(self):
+        line = '=== valami'
+        expected = False
+        result = parse.parse_command_divisor(line)
+        self.assertEqual(expected, result)
+
+    def test__command_divisor_can_tolerate_comment_1(self):
+        line = '===#comment'
+        expected = True
+        result = parse.parse_command_divisor(line)
+        self.assertEqual(expected, result)
+
+    def test__command_divisor_can_tolerate_comment_2(self):
+        line = '===  #comment'
+        expected = True
+        result = parse.parse_command_divisor(line)
+        self.assertEqual(expected, result)
+
+    def test__command_divisor_can_tolerate_comment_3(self):
+        line = '===  #   comment'
+        expected = True
         result = parse.parse_command_divisor(line)
         self.assertEqual(expected, result)
 
@@ -599,6 +749,53 @@ class CommandHeaderParser(TestCase):
         result = parse.parse_command_header(line)
         self.assertEqual(expected, result)
 
+    def test__valid_command_header__can_tolerate_comment_1(self):
+        line = 'command:#comment'
+        expected = {
+            'command': {
+                'done': False
+            }
+        }
+        result = parse.parse_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__valid_command_header__can_tolerate_comment_2(self):
+        line = 'command:    #comment'
+        expected = {
+            'command': {
+                'done': False
+            }
+        }
+        result = parse.parse_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__valid_command_header__can_tolerate_comment_3(self):
+        line = 'command:    #     comment'
+        expected = {
+            'command': {
+                'done': False
+            }
+        }
+        result = parse.parse_command_header(line)
+        self.assertEqual(expected, result)
+
+    def test__valid_command_header__can_tolerate_comment_4(self):
+        line = 'command|com|c:[dep,dep1]#comment'
+        expected = {
+            'command': {
+                'dependencies': ['dep', 'dep1'],
+                'done': False
+            },
+            'com': {
+                'alias': 'command'
+            },
+            'c': {
+                'alias': 'command'
+            }
+        }
+        result = parse.parse_command_header(line)
+        self.assertEqual(expected, result)
+
     def test__invalid_command_header__raises_exception__indentation_1(self):
         line = ' command:'
         with self.assertRaises(Exception) as cm:
@@ -690,37 +887,67 @@ class CommandHeaderParser(TestCase):
         assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
 
     def test__invalid_command_header__raises_exception__wrong_dependency_list_3(self):
-        line = 'command: ]'
+        line = 'command: [valami'
         with self.assertRaises(Exception) as cm:
             parse.parse_command_header(line)
         assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
 
     def test__invalid_command_header__raises_exception__wrong_dependency_list_4(self):
-        line = 'command: [,]'
+        line = 'command: ]'
         with self.assertRaises(Exception) as cm:
             parse.parse_command_header(line)
         assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
 
     def test__invalid_command_header__raises_exception__wrong_dependency_list_5(self):
-        line = 'command: [ ,]'
+        line = 'command: [,]'
         with self.assertRaises(Exception) as cm:
             parse.parse_command_header(line)
         assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
 
     def test__invalid_command_header__raises_exception__wrong_dependency_list_6(self):
-        line = 'command: [ ,  ]'
+        line = 'command: [ ,]'
         with self.assertRaises(Exception) as cm:
             parse.parse_command_header(line)
         assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
 
     def test__invalid_command_header__raises_exception__wrong_dependency_list_7(self):
-        line = 'command: [dep1, , dep2]'
+        line = 'command: [ ,  ]'
         with self.assertRaises(Exception) as cm:
             parse.parse_command_header(line)
         assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
 
     def test__invalid_command_header__raises_exception__wrong_dependency_list_8(self):
+        line = 'command: [dep1, , dep2]'
+        with self.assertRaises(Exception) as cm:
+            parse.parse_command_header(line)
+        assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
+
+    def test__invalid_command_header__raises_exception__wrong_dependency_list_9(self):
         line = 'command: [dep1,,dep2]'
         with self.assertRaises(Exception) as cm:
             parse.parse_command_header(line)
         assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
+
+    def test__invalid_command_header__raises_exception__comment_in_definition(self):
+        line = 'command#:'
+        with self.assertRaises(Exception) as cm:
+            parse.parse_command_header(line)
+        assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_MISSING_COLON_ERROR)
+
+    def test__invalid_command_header__raises_exception__comment_in_dependency_list_1(self):
+        line = 'command: [dep1,#dep2]'
+        with self.assertRaises(Exception) as cm:
+            parse.parse_command_header(line)
+        assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_SYNTAX_ERROR)
+
+    def test__invalid_command_header__raises_exception__comment_in_dependency_list_2(self):
+        line = 'command: [dep1,  #dep2]'
+        with self.assertRaises(Exception) as cm:
+            parse.parse_command_header(line)
+        assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_SYNTAX_ERROR)
+
+    def test__invalid_command_header__raises_exception__comment_in_dependency_list_3(self):
+        line = 'command: [dep1,  #           dep2]'
+        with self.assertRaises(Exception) as cm:
+            parse.parse_command_header(line)
+        assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_SYNTAX_ERROR)
