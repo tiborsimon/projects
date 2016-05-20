@@ -410,96 +410,90 @@ class ProcessingTreeCreation(TestCase):
         self.assertEqual(expected, result)
 
 
-# class DataFinalizer(TestCase):
-#     def test__only_pre(self):
-#         input_data = [
-#             {
-#                 'path': 'my_path',
-#                 'data': {
-#                     'min-version': (1, 2, 3),
-#                     'commands': {
-#                         'command': {
-#                             'pre': ['echo "pre"']
-#                         }
-#                     }
-#                 },
-#                 'children': []
-#             }
-#         ]
-#         expected = {
-#             'min-version': (1, 2, 3),
-#             'commands': {
-#                 'command': {
-#                     'script': [
-#                         'cd my_path',
-#                         'echo "pre"'
-#                     ]
-#                 }
-#             }
-#         }
-#         result = data_processor.finalize_data(input_data)
-#         self.assertEqual(expected, result)
-#
-#     def test__post_with_no_child(self):
-#         input_data = [
-#             {
-#                 'path': 'my_path',
-#                 'data': {
-#                     'min-version': (1, 2, 3),
-#                     'commands': {
-#                         'command': {
-#                             'pre': ['echo "pre"'],
-#                             'post': ['echo "post"']
-#                         }
-#                     }
-#                 },
-#                 'children': []
-#             }
-#         ]
-#         expected = {
-#             'min-version': (1, 2, 3),
-#             'commands': {
-#                 'command': {
-#                     'script': [
-#                         'cd my_path',
-#                         'echo "pre"',
-#                         'echo "post"'
-#                     ]
-#                 }
-#             }
-#         }
-#         result = data_processor.finalize_data(input_data)
-#         self.assertEqual(expected, result)
-#
-#     def test__description_handling__main_description(self):
-#         input_data = [
-#             {
-#                 'path': 'my_path',
-#                 'data': {
-#                     'min-version': (1, 2, 3),
-#                     'description': 'Some text..',
-#                     'commands': {
-#                         'command': {
-#                             'pre': ['echo "pre"'],
-#                             'post': ['echo "post"']
-#                         }
-#                     }
-#                 },
-#                 'children': []
-#             }
-#         ]
-#         expected = {
-#             'min-version': (1, 2, 3),
-#             'description': 'Some text..',
-#             'commands': {
-#                 'command': {
-#                     'script': [
-#                         'cd my_path',
-#                         'echo "pre"',
-#                         'echo "post"'
-#                     ]
-#                 }
-#             }
-#         }
-#         result = data_processor.finalize_data(input_data)
-#         self.assertEqual(expected, result)
+class DataFinalizer(TestCase):
+    def test__only_pre(self):
+        input_data = [
+            {
+                'path': 'my_path',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'command': {
+                        'pre': ['echo "pre"']
+                    }
+                },
+                'children': []
+            }
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'script': [
+                        'cd my_path',
+                        'echo "pre"'
+                    ]
+                }
+            }
+        }
+        result = data_processor.finalize_data(input_data)
+        self.assertEqual(expected, result)
+
+    def test__post_with_no_child(self):
+        input_data = [
+            {
+                'path': 'my_path',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'command': {
+                        'pre': ['echo "pre"'],
+                        'post': ['echo "post"']
+                    }
+                },
+                'children': []
+            }
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'script': [
+                        'cd my_path',
+                        'echo "pre"',
+                        'echo "post"'
+                    ]
+                }
+            }
+        }
+        result = data_processor.finalize_data(input_data)
+        self.assertEqual(expected, result)
+
+    def test__description_handling__main_description(self):
+        input_data = [
+            {
+                'path': 'my_path',
+                'min-version': (1, 2, 3),
+                'description': 'Some text..',
+                'commands': {
+                    'command': {
+                        'pre': ['echo "pre"'],
+                        'post': ['echo "post"']
+                    }
+                },
+                'children': []
+            }
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'description': 'Some text..',
+            'commands': {
+                'command': {
+                    'script': [
+                        'cd my_path',
+                        'echo "pre"',
+                        'echo "post"'
+                    ]
+                }
+            }
+        }
+        result = data_processor.finalize_data(input_data)
+        self.assertEqual(expected, result)
