@@ -31,20 +31,30 @@ def generate_processing_tree(project_root):
     """
     ret = []
     stack = []
+
+    def pop_stack_until_common_node(s, p):
+        while s and not p.startswith(s[-1]['path']):
+            s.pop()
+
+    def chain_data_to_last_element(s, t):
+        s[-1]['children'].append(t)
+        s.append(t)
+
+    def initialize_stack(r, t):
+        r.append(t)
+        return [t]
+
     for path, lines in file_handler.projectfile_walk(project_root):
         temp = {
             'path': path,
             'data': parser.process_lines(lines),
             'children': []
         }
-        while stack and not path.startswith(stack[-1]['path']):
-            stack.pop()
+        pop_stack_until_common_node(stack, path)
         if stack:
-            stack[-1]['children'].append(temp)
+            chain_data_to_last_element(stack, temp)
         else:
-            ret.append(temp)
-            stack = [temp]
-        stack.append(temp)
+            stack = initialize_stack(ret, temp)
     return ret
 
 
