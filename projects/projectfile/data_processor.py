@@ -49,7 +49,7 @@ def generate_processing_tree(project_root):
 
 
 def finalize_data(input_data):
-    commands = input_data[0]['data']['commands'].keys()
+    commands = list(input_data[0]['data']['commands'].keys())
     ret = {
         'min-version': input_data[0]['data']['min-version'],
         'commands': {
