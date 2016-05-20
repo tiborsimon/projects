@@ -417,7 +417,7 @@ class DataFinalizer(TestCase):
                 'path': 'my_path',
                 'min-version': (1, 2, 3),
                 'commands': {
-                    'command': {
+                    'my-command': {
                         'pre': ['echo "pre"']
                     }
                 },
@@ -427,10 +427,49 @@ class DataFinalizer(TestCase):
         expected = {
             'min-version': (1, 2, 3),
             'commands': {
-                'command': {
+                'my-command': {
                     'script': [
                         'cd my_path',
                         'echo "pre"'
+                    ]
+                }
+            }
+        }
+        result = data_processor.finalize_data(input_data)
+        self.assertEqual(expected, result)
+
+    def test__only_pre__in_two_parallel_folders_with_same_command__should_append_them(self):
+        input_data = [
+            {
+                'path': 'my_path_0',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'my-command': {
+                        'pre': ['echo "pre 0"']
+                    }
+                },
+                'children': []
+            },
+            {
+                'path': 'my_path_1',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'my-command': {
+                        'pre': ['echo "pre 1"']
+                    }
+                },
+                'children': []
+            }
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command': {
+                    'script': [
+                        'cd my_path_0',
+                        'echo "pre 0"',
+                        'cd my_path_1',
+                        'echo "pre 1"'
                     ]
                 }
             }
@@ -444,7 +483,7 @@ class DataFinalizer(TestCase):
                 'path': 'my_path',
                 'min-version': (1, 2, 3),
                 'commands': {
-                    'command': {
+                    'my-command': {
                         'pre': ['echo "pre"'],
                         'post': ['echo "post"']
                     }
@@ -455,10 +494,54 @@ class DataFinalizer(TestCase):
         expected = {
             'min-version': (1, 2, 3),
             'commands': {
-                'command': {
+                'my-command': {
                     'script': [
                         'cd my_path',
                         'echo "pre"',
+                        'echo "post"'
+                    ]
+                }
+            }
+        }
+        result = data_processor.finalize_data(input_data)
+        self.assertEqual(expected, result)
+
+    def test__post_with_child(self):
+        input_data = [
+            {
+                'path': 'my_path',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'my-command': {
+                        'pre': ['echo "pre"'],
+                        'post': ['echo "post"']
+                    }
+                },
+                'children': [
+                    {
+                        'path': 'my_path_child',
+                        'min-version': (1, 2, 3),
+                        'commands': {
+                            'my-command': {
+                                'pre': ['echo "pre child"'],
+                                'post': ['echo "post child"']
+                            }
+                        },
+                        'children': []
+                    }
+                ]
+            }
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command': {
+                    'script': [
+                        'cd my_path',
+                        'echo "pre"',
+                        'cd my_path_child',
+                        'echo "pre child"',
+                        'echo "post child"',
                         'echo "post"'
                     ]
                 }
@@ -474,7 +557,7 @@ class DataFinalizer(TestCase):
                 'min-version': (1, 2, 3),
                 'description': 'Some text..',
                 'commands': {
-                    'command': {
+                    'my-command': {
                         'pre': ['echo "pre"'],
                         'post': ['echo "post"']
                     }
@@ -486,7 +569,69 @@ class DataFinalizer(TestCase):
             'min-version': (1, 2, 3),
             'description': 'Some text..',
             'commands': {
-                'command': {
+                'my-command': {
+                    'script': [
+                        'cd my_path',
+                        'echo "pre"',
+                        'echo "post"'
+                    ]
+                }
+            }
+        }
+        result = data_processor.finalize_data(input_data)
+        self.assertEqual(expected, result)
+
+    def test__more_than_one_main_description__will_be_appended(self):
+        input_data = [
+            {
+                'path': 'my_path',
+                'min-version': (1, 2, 3),
+                'description': 'Some text..',
+                'commands': {
+                    'my-command': {
+                        'pre': ['echo "pre"'],
+                        'post': ['echo "post"']
+                    }
+                },
+                'children': []
+            }
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'description': 'Some text..',
+            'commands': {
+                'my-command': {
+                    'script': [
+                        'cd my_path',
+                        'echo "pre"',
+                        'echo "post"'
+                    ]
+                }
+            }
+        }
+        result = data_processor.finalize_data(input_data)
+        self.assertEqual(expected, result)
+
+    def test__description_handling__command_description(self):
+        input_data = [
+            {
+                'path': 'my_path',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'my-command': {
+                        'description': 'Some text..',
+                        'pre': ['echo "pre"'],
+                        'post': ['echo "post"']
+                    }
+                },
+                'children': []
+            }
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command': {
+                    'description': 'Some text..',
                     'script': [
                         'cd my_path',
                         'echo "pre"',

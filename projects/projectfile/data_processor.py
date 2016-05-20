@@ -64,23 +64,58 @@ def generate_processing_tree(project_root):
 
 
 def finalize_data(input_data):
-    ret = {}
-    node = input_data[0]
-    command_names = list(node['commands'].keys())
-    commands = {}
-    for c in command_names:
-        command = node['commands'][c]
-        commands[c] = {
-            'script': []
-        }
-        commands[c]['script'].append('cd ' + node['path'])
-        commands[c]['script'].extend(command['pre'])
-        if 'post' in command:
-            commands[c]['script'].extend(command['post'])
+    def get_current_command(_command_name, _commands, _node):
+        command = _node['commands'][_command_name]
+        if _command_name not in _commands:
+            _commands[_command_name] = {'script': []}
+        return command
 
-    ret['min-version'] = node['min-version']
-    ret['commands'] = commands
-    if 'description' in node:
-        ret['description'] = node['description']
+    def add_cd(_command_name, _commands, _node):
+        _commands[_command_name]['script'].append('cd ' + _node['path'])
 
+    def add_pre(_command_name, _command, _commands):
+        _commands[_command_name]['script'].extend(_command['pre'])
+
+    def add_post(_command_name, _command, _commands):
+        if 'post' in _command:
+            _commands[_command_name]['script'].extend(_command['post'])
+
+    def add_command_description(_command_name, _command, _commands):
+        if 'description' in _command:
+            _commands[_command_name]['description'] = _command['description']
+
+    def add_version(_node, _ret):
+        _ret['min-version'] = _node['min-version']
+
+    def add_main_description(_node, _ret):
+        if 'description' in _node:
+            _ret['description'] = _node['description']
+
+    def command_names(_node):
+        return list(_node['commands'].keys())
+
+    def process_children(_command_name, _commands, _node):
+        for child in _node['children']:
+            if _command_name in child['commands']:
+                process_command(_command_name, _commands, child)
+            else:
+                process_children(_command_name, _commands, child)
+
+    def process_command(_command_name, _commands, _node):
+        command = get_current_command(_command_name, _commands, _node)
+        add_command_description(_command_name, command, _commands)
+        add_cd(_command_name, _commands, _node)
+        add_pre(_command_name, command, _commands)
+        process_children(_command_name, _commands, _node)
+        add_post(_command_name, command, _commands)
+
+    ret = {'commands': {}}
+
+    commands = ret['commands']
+    for node in input_data:
+        for command_name in command_names(node):
+            process_command(command_name, commands, node)
+        add_version(node, ret)
+        add_main_description(node, ret)
     return ret
+
