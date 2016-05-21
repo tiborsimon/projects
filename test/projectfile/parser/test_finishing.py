@@ -143,3 +143,44 @@ class FinishingState(TestCase):
             parser._finish_processing(data, s)
         assert_exception(self, cm, SyntaxError,
                          error.PROJECTFILE_NO_COMMAND_IN_COMMAND_ERROR.format('unfinished-command'))
+
+
+class DataIntegrityTest(TestCase):
+    def test__dependecies_refers_to_existing_commands__raises_no_error(self):
+        data = {
+            'commands': {
+                'c1': {},
+                'c2': {
+                    'dependencies': ['c1']
+                }
+            }
+        }
+        parser._data_integrity_check(data)
+
+    def test__non_existing_dependency__raises_error(self):
+        data = {
+            'commands': {
+                'c1': {},
+                'c2': {
+                    'dependencies': ['c']
+                }
+            }
+        }
+        with self.assertRaises(Exception) as cm:
+            parser._data_integrity_check(data)
+        assert_exception(self, cm, error.ProjectfileError,
+                         {'error': error.PROJECTFILE_INVALID_DEPENDENCY.format('c', 'c2')})
+
+
+class Integration(TestCase):
+    @mock.patch.object(parser, '_parse_lines')
+    @mock.patch.object(parser, '_data_integrity_check')
+    def test__data_integrity_gets_called_by_parser(self, mock_checker, mock_parser):
+        mock_parser.return_value = 'something'
+        parser.process_lines(None)
+        mock_checker.assert_called_with('something')
+
+
+class Variables(TestCase):
+    def test__variables_can_be_resolved_in_pre(self):
+        pass

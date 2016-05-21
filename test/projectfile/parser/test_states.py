@@ -799,4 +799,3 @@ class PostState(TestCase):
         with self.assertRaises(Exception) as cm:
             state.post(data, line)
         assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_MISSING_COLON_ERROR)
-

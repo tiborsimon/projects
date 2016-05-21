@@ -37,7 +37,7 @@ class StateMachineParser(TestCase):
                 }
             }
         }
-        result = parser.process_lines(lines)
+        result = parser._parse_lines(lines)
         self.assertEqual(expected, result)
 
     def test__single_command_no_deps_more_commands(self):
@@ -57,7 +57,7 @@ class StateMachineParser(TestCase):
                 }
             }
         }
-        result = parser.process_lines(lines)
+        result = parser._parse_lines(lines)
         self.assertEqual(expected, result)
 
     def test__single_command_with_deps(self):
@@ -76,7 +76,7 @@ class StateMachineParser(TestCase):
                 }
             }
         }
-        result = parser.process_lines(lines)
+        result = parser._parse_lines(lines)
         self.assertEqual(expected, result)
 
     def test__more_commands_with_no_deps(self):
@@ -99,7 +99,7 @@ class StateMachineParser(TestCase):
                 }
             }
         }
-        result = parser.process_lines(lines)
+        result = parser._parse_lines(lines)
         self.assertEqual(expected, result)
 
     def test__single_command_with_only_post(self):
@@ -119,7 +119,7 @@ class StateMachineParser(TestCase):
                 }
             }
         }
-        result = parser.process_lines(lines)
+        result = parser._parse_lines(lines)
         self.assertEqual(expected, result)
 
     def test__single_command_with_pre_and_post(self):
@@ -141,7 +141,7 @@ class StateMachineParser(TestCase):
                 }
             }
         }
-        result = parser.process_lines(lines)
+        result = parser._parse_lines(lines)
         self.assertEqual(expected, result)
 
     def test__single_command_with_variable(self):
@@ -162,7 +162,7 @@ class StateMachineParser(TestCase):
                 }
             }
         }
-        result = parser.process_lines(lines)
+        result = parser._parse_lines(lines)
         self.assertEqual(expected, result)
 
     def test__single_command_with_variables(self):
@@ -187,7 +187,7 @@ class StateMachineParser(TestCase):
                 }
             }
         }
-        result = parser.process_lines(lines)
+        result = parser._parse_lines(lines)
         self.assertEqual(expected, result)
 
     def test__main_comment(self):
@@ -209,7 +209,7 @@ class StateMachineParser(TestCase):
                 }
             }
         }
-        result = parser.process_lines(lines)
+        result = parser._parse_lines(lines)
         self.assertEqual(expected, result)
 
     def test__main_comment_indentation_gets_ignored(self):
@@ -231,7 +231,7 @@ class StateMachineParser(TestCase):
                 }
             }
         }
-        result = parser.process_lines(lines)
+        result = parser._parse_lines(lines)
         self.assertEqual(expected, result)
 
     def test__main_comment__inserting_line_break(self):
@@ -255,7 +255,7 @@ class StateMachineParser(TestCase):
                 }
             }
         }
-        result = parser.process_lines(lines)
+        result = parser._parse_lines(lines)
         self.assertEqual(expected, result)
 
     def test__main_comment__appending_lines(self):
@@ -278,7 +278,7 @@ class StateMachineParser(TestCase):
                 }
             }
         }
-        result = parser.process_lines(lines)
+        result = parser._parse_lines(lines)
         self.assertEqual(expected, result)
 
     def test__command_comment(self):
@@ -300,7 +300,7 @@ class StateMachineParser(TestCase):
                 }
             }
         }
-        result = parser.process_lines(lines)
+        result = parser._parse_lines(lines)
         self.assertEqual(expected, result)
 
     def test__command_comment_indentation_gets_ignored_1(self):
@@ -322,7 +322,7 @@ class StateMachineParser(TestCase):
                 }
             }
         }
-        result = parser.process_lines(lines)
+        result = parser._parse_lines(lines)
         self.assertEqual(expected, result)
 
     def test__command_comment_indentation_gets_ignored_2(self):
@@ -344,7 +344,7 @@ class StateMachineParser(TestCase):
                 }
             }
         }
-        result = parser.process_lines(lines)
+        result = parser._parse_lines(lines)
         self.assertEqual(expected, result)
 
     def test__command_comment__inserting_line_break(self):
@@ -368,7 +368,7 @@ class StateMachineParser(TestCase):
                 }
             }
         }
-        result = parser.process_lines(lines)
+        result = parser._parse_lines(lines)
         self.assertEqual(expected, result)
 
     def test__command_comment__lines_appended_nicely(self):
@@ -391,7 +391,7 @@ class StateMachineParser(TestCase):
                 }
             }
         }
-        result = parser.process_lines(lines)
+        result = parser._parse_lines(lines)
         self.assertEqual(expected, result)
 
     def test__full_parsing(self):
@@ -458,7 +458,7 @@ class StateMachineParser(TestCase):
             }
         }
         self.maxDiff = None
-        result = parser.process_lines(lines)
+        result = parser._parse_lines(lines)
         self.assertEqual(expected, result)
 
     def test__full_parsing_with_comments_1(self):
@@ -526,7 +526,7 @@ class StateMachineParser(TestCase):
             }
         }
         self.maxDiff = None
-        result = parser.process_lines(lines)
+        result = parser._parse_lines(lines)
         self.assertEqual(expected, result)
 
     def test__full_parsing_with_comments_2(self):
@@ -594,7 +594,7 @@ class StateMachineParser(TestCase):
             }
         }
         self.maxDiff = None
-        result = parser.process_lines(lines)
+        result = parser._parse_lines(lines)
         self.assertEqual(expected, result)
 
 
@@ -608,7 +608,7 @@ class StateMachineExceptionWrapping(TestCase):
             'error': error_message
         }
         with self.assertRaises(Exception) as cm:
-            parser.process_lines([''])
+            parser._parse_lines([''])
         assert_exception(self, cm, error.ProjectfileError, expected_error)
 
 
@@ -626,7 +626,7 @@ class ParserErrorCases(TestCase):
             'error': error.COMMENT_DELIMITER_UNEXPECTED_ERROR
         }
         with self.assertRaises(Exception) as cm:
-            parser.process_lines(lines)
+            parser._parse_lines(lines)
         assert_exception(self, cm, error.ProjectfileError, expected_error)
 
     def test__unexpected_comment_delimiter_2(self):
@@ -642,7 +642,7 @@ class ParserErrorCases(TestCase):
             'error': error.COMMENT_DELIMITER_UNEXPECTED_ERROR
         }
         with self.assertRaises(Exception) as cm:
-            parser.process_lines(lines)
+            parser._parse_lines(lines)
         assert_exception(self, cm, error.ProjectfileError, expected_error)
 
     def test__unexpected_comment_delimiter_3(self):
@@ -660,7 +660,7 @@ class ParserErrorCases(TestCase):
             'error': error.COMMENT_DELIMITER_UNEXPECTED_ERROR
         }
         with self.assertRaises(Exception) as cm:
-            parser.process_lines(lines)
+            parser._parse_lines(lines)
         assert_exception(self, cm, error.ProjectfileError, expected_error)
 
     def test__unexpected_command_delimiter(self):
@@ -678,7 +678,7 @@ class ParserErrorCases(TestCase):
             'error': error.COMMAND_DELIMITER_UNEXPECTED_ERROR
         }
         with self.assertRaises(Exception) as cm:
-            parser.process_lines(lines)
+            parser._parse_lines(lines)
         assert_exception(self, cm, error.ProjectfileError, expected_error)
 
     def test__version_indentation_error(self):
@@ -690,7 +690,7 @@ class ParserErrorCases(TestCase):
             'error': error.VERSION_INDENTATION_ERROR
         }
         with self.assertRaises(Exception) as cm:
-            parser.process_lines(lines)
+            parser._parse_lines(lines)
         assert_exception(self, cm, error.ProjectfileError, expected_error)
 
     def test__invalid_version_format_error(self):
@@ -702,7 +702,7 @@ class ParserErrorCases(TestCase):
             'error': error.VERSION_FORMAT_ERROR
         }
         with self.assertRaises(Exception) as cm:
-            parser.process_lines(lines)
+            parser._parse_lines(lines)
         assert_exception(self, cm, error.ProjectfileError, expected_error)
 
     def test__version_missing_error(self):
@@ -714,7 +714,7 @@ class ParserErrorCases(TestCase):
             'error': error.VERSION_MISSING_ERROR
         }
         with self.assertRaises(Exception) as cm:
-            parser.process_lines(lines)
+            parser._parse_lines(lines)
         assert_exception(self, cm, error.ProjectfileError, expected_error)
 
     def test__variable_indentation_error(self):
@@ -727,7 +727,7 @@ class ParserErrorCases(TestCase):
             'error': error.VARIABLE_INDENTATION_ERROR
         }
         with self.assertRaises(Exception) as cm:
-            parser.process_lines(lines)
+            parser._parse_lines(lines)
         assert_exception(self, cm, error.ProjectfileError, expected_error)
 
     def test__variable_quote_before_error(self):
@@ -740,7 +740,7 @@ class ParserErrorCases(TestCase):
             'error': error.VARIABLE_QUOTE_BEFORE_ERROR
         }
         with self.assertRaises(Exception) as cm:
-            parser.process_lines(lines)
+            parser._parse_lines(lines)
         assert_exception(self, cm, error.ProjectfileError, expected_error)
 
     def test__variable_quote_after_error(self):
@@ -753,7 +753,7 @@ class ParserErrorCases(TestCase):
             'error': error.VARIABLE_QUOTE_AFTER_ERROR
         }
         with self.assertRaises(Exception) as cm:
-            parser.process_lines(lines)
+            parser._parse_lines(lines)
         assert_exception(self, cm, error.ProjectfileError, expected_error)
 
     def test__variable_wrong_comment_placement(self):
@@ -766,7 +766,7 @@ class ParserErrorCases(TestCase):
             'error': error.VARIABLE_SYNTAX_ERROR
         }
         with self.assertRaises(Exception) as cm:
-            parser.process_lines(lines)
+            parser._parse_lines(lines)
         assert_exception(self, cm, error.ProjectfileError, expected_error)
 
     def test_command_header_indentation_error(self):
@@ -779,7 +779,7 @@ class ParserErrorCases(TestCase):
             'error': error.COMMAND_HEADER_INDENTATION_ERROR
         }
         with self.assertRaises(Exception) as cm:
-            parser.process_lines(lines)
+            parser._parse_lines(lines)
         assert_exception(self, cm, error.ProjectfileError, expected_error)
 
     def test_command_missing_colon_error(self):
@@ -792,7 +792,7 @@ class ParserErrorCases(TestCase):
             'error': error.COMMAND_HEADER_MISSING_COLON_ERROR
         }
         with self.assertRaises(Exception) as cm:
-            parser.process_lines(lines)
+            parser._parse_lines(lines)
         assert_exception(self, cm, error.ProjectfileError, expected_error)
 
     def test_command_invalid_colon_error(self):
@@ -805,7 +805,7 @@ class ParserErrorCases(TestCase):
             'error': error.COMMAND_HEADER_COLON_ERROR
         }
         with self.assertRaises(Exception) as cm:
-            parser.process_lines(lines)
+            parser._parse_lines(lines)
         assert_exception(self, cm, error.ProjectfileError, expected_error)
 
     def test_command_invalid_alternative_error(self):
@@ -818,7 +818,7 @@ class ParserErrorCases(TestCase):
             'error': error.COMMAND_HEADER_INVALID_ALTERNATIVE
         }
         with self.assertRaises(Exception) as cm:
-            parser.process_lines(lines)
+            parser._parse_lines(lines)
         assert_exception(self, cm, error.ProjectfileError, expected_error)
 
     def test_command_empty_dependency_list_error(self):
@@ -831,7 +831,7 @@ class ParserErrorCases(TestCase):
             'error': error.COMMAND_HEADER_EMPTY_DEPENDENCY_LIST
         }
         with self.assertRaises(Exception) as cm:
-            parser.process_lines(lines)
+            parser._parse_lines(lines)
         assert_exception(self, cm, error.ProjectfileError, expected_error)
 
     def test_command_invalid_dependency_list_error(self):
@@ -844,7 +844,7 @@ class ParserErrorCases(TestCase):
             'error': error.COMMAND_HEADER_INVALID_DEPENDENCY_LIST
         }
         with self.assertRaises(Exception) as cm:
-            parser.process_lines(lines)
+            parser._parse_lines(lines)
         assert_exception(self, cm, error.ProjectfileError, expected_error)
 
     def test_command_syntax_error(self):
@@ -857,7 +857,7 @@ class ParserErrorCases(TestCase):
             'error': error.COMMAND_HEADER_SYNTAX_ERROR
         }
         with self.assertRaises(Exception) as cm:
-            parser.process_lines(lines)
+            parser._parse_lines(lines)
         assert_exception(self, cm, error.ProjectfileError, expected_error)
 
     def test_command_unexpected_unindented_line_error(self):
@@ -871,5 +871,5 @@ class ParserErrorCases(TestCase):
             'error': error.COMMAND_HEADER_UNEXPECTED_UNINDENTED_ERROR
         }
         with self.assertRaises(Exception) as cm:
-            parser.process_lines(lines)
+            parser._parse_lines(lines)
         assert_exception(self, cm, error.ProjectfileError, expected_error)

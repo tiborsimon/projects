@@ -6,28 +6,6 @@ from . import parser
 from . import file_handler
 
 
-def data_integrity_check(data):
-    """Checks if all command dependencies refers to and existing command. If not, a ProjectfileError
-    will be raised with the problematic dependency and it's command.
-
-    :param data: parsed raw data set.
-    :return: None
-    """
-    deps = []
-    for command in data['commands']:
-        if 'dependencies' in data['commands'][command]:
-            for d in data['commands'][command]['dependencies']:
-                deps.append({
-                    'd': d,
-                    'c': command
-                })
-    for d in deps:
-        if d['d'] not in data['commands']:
-            raise error.ProjectfileError({
-                'error': error.PROJECTFILE_INVALID_DEPENDENCY.format(d['d'], d['c'])
-            })
-
-
 def generate_processing_tree(project_root):
     """Generates the preprocessed Projectfile data tree. The generated data structure maps the
     Projectfile containing directory nodes. The data generation will be started from the given
@@ -236,12 +214,16 @@ def _process_children(command_buffer, node, ret):
         _delete_divisors(command_buffer)
 
 
+def create_working_pool(command_buffer, command_name):
+    if command_name not in command_buffer:
+        command_buffer[command_name] = {'script': []}
+    pool = command_buffer[command_name]
+    return pool
+
+
 def _process_commands(command_buffer, node):
     for command_name in _command_names(node):
-        if command_name not in command_buffer:
-            command_buffer[command_name] = {'script': []}
-
-        pool = command_buffer[command_name]
+        pool = create_working_pool(command_buffer, command_name)
         raw_command = node['commands'][command_name]
 
         _add_command_description(pool, raw_command)
