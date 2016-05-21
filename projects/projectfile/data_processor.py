@@ -63,59 +63,104 @@ def generate_processing_tree(project_root):
     return ret
 
 
+def _add_cd(pool, node):
+    try:
+        index = pool['script'].index('===')
+        pool['script'].remove('===')
+        pool['script'].insert(index, 'cd ' + node['path'])
+        index += 1
+        pool['script'].insert(index, '===')
+    except ValueError:
+        pool['script'].append('cd ' + node['path'])
+
+
+def _add_pre(pool, raw_command):
+    try:
+        index = pool['script'].index('===')
+        pool['script'].remove('===')
+        for line in raw_command['pre']:
+            pool['script'].insert(index, line)
+            index += 1
+        pool['script'].insert(index, '===')
+    except ValueError:
+        pool['script'].extend(raw_command['pre'])
+
+
+def _add_divisor(pool):
+    if '===' not in pool['script']:
+        pool['script'].append('===')
+
+
+def _add_post(pool, raw_command):
+    if 'post' in raw_command:
+        try:
+            index = pool['script'].index('===')
+            index += 1
+            for line in raw_command['post']:
+                pool['script'].insert(index, line)
+                index += 1
+        except ValueError:
+            pool['script'].extend(raw_command['post'])
+
+
+def _add_command_description(pool, raw_command):
+    if 'description' in raw_command:
+        pool['description'] = raw_command['description']
+
+
+def _add_version(node, ret):
+    ret['min-version'] = node['min-version']
+
+
+def _add_main_description(node, ret):
+    if 'description' in node:
+        ret['description'] = node['description']
+
+
+def _command_names(node):
+    return list(node['commands'].keys())
+
+
+def _delete_divisors(commands):
+    for name in commands:
+        command = commands[name]
+        command['script'] = filter(lambda l: l != '===', command['script'])
+
+
+def _process_children(command_buffer, node, ret):
+    if node['children']:
+        for child in node['children']:
+            _process_node(command_buffer, child, ret)
+    else:
+        _delete_divisors(command_buffer)
+
+
+def _process_commands(command_buffer, node):
+    for command_name in _command_names(node):
+        if command_name not in command_buffer:
+            command_buffer[command_name] = {'script': []}
+
+        pool = command_buffer[command_name]
+        raw_command = node['commands'][command_name]
+
+        _add_command_description(pool, raw_command)
+        _add_cd(pool, node)
+        _add_pre(pool, raw_command)
+        _add_divisor(pool)
+        _add_post(pool, raw_command)
+
+
+def _process_node(command_buffer, node, ret):
+    _process_commands(command_buffer, node)
+    _process_children(command_buffer, node, ret)
+    _add_version(node, ret)
+    _add_main_description(node, ret)
+
+
 def finalize_data(input_data):
-    def get_current_command(_command_name, _commands, _node):
-        command = _node['commands'][_command_name]
-        if _command_name not in _commands:
-            _commands[_command_name] = {'script': []}
-        return command
-
-    def add_cd(_command_name, _commands, _node):
-        _commands[_command_name]['script'].append('cd ' + _node['path'])
-
-    def add_pre(_command_name, _command, _commands):
-        _commands[_command_name]['script'].extend(_command['pre'])
-
-    def add_post(_command_name, _command, _commands):
-        if 'post' in _command:
-            _commands[_command_name]['script'].extend(_command['post'])
-
-    def add_command_description(_command_name, _command, _commands):
-        if 'description' in _command:
-            _commands[_command_name]['description'] = _command['description']
-
-    def add_version(_node, _ret):
-        _ret['min-version'] = _node['min-version']
-
-    def add_main_description(_node, _ret):
-        if 'description' in _node:
-            _ret['description'] = _node['description']
-
-    def command_names(_node):
-        return list(_node['commands'].keys())
-
-    def process_children(_command_name, _commands, _node):
-        for child in _node['children']:
-            if _command_name in child['commands']:
-                process_command(_command_name, _commands, child)
-            else:
-                process_children(_command_name, _commands, child)
-
-    def process_command(_command_name, _commands, _node):
-        command = get_current_command(_command_name, _commands, _node)
-        add_command_description(_command_name, command, _commands)
-        add_cd(_command_name, _commands, _node)
-        add_pre(_command_name, command, _commands)
-        process_children(_command_name, _commands, _node)
-        add_post(_command_name, command, _commands)
-
     ret = {'commands': {}}
+    command_buffer = ret['commands']
 
-    commands = ret['commands']
     for node in input_data:
-        for command_name in command_names(node):
-            process_command(command_name, commands, node)
-        add_version(node, ret)
-        add_main_description(node, ret)
+        _process_node(command_buffer, node, ret)
     return ret
-

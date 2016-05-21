@@ -410,15 +410,15 @@ class ProcessingTreeCreation(TestCase):
         self.assertEqual(expected, result)
 
 
-class DataFinalizer(TestCase):
+class FinalizingCommands(TestCase):
     def test__only_pre(self):
         input_data = [
             {
-                'path': 'my_path',
+                'path': 'path_A',
                 'min-version': (1, 2, 3),
                 'commands': {
                     'my-command': {
-                        'pre': ['echo "pre"']
+                        'pre': ['pre A']
                     }
                 },
                 'children': []
@@ -429,8 +429,8 @@ class DataFinalizer(TestCase):
             'commands': {
                 'my-command': {
                     'script': [
-                        'cd my_path',
-                        'echo "pre"'
+                        'cd path_A',
+                        'pre A'
                     ]
                 }
             }
@@ -441,21 +441,21 @@ class DataFinalizer(TestCase):
     def test__only_pre__in_two_parallel_folders_with_same_command__should_append_them(self):
         input_data = [
             {
-                'path': 'my_path_0',
+                'path': 'path_A',
                 'min-version': (1, 2, 3),
                 'commands': {
                     'my-command': {
-                        'pre': ['echo "pre 0"']
+                        'pre': ['pre A']
                     }
                 },
                 'children': []
             },
             {
-                'path': 'my_path_1',
+                'path': 'path_B',
                 'min-version': (1, 2, 3),
                 'commands': {
                     'my-command': {
-                        'pre': ['echo "pre 1"']
+                        'pre': ['pre B']
                     }
                 },
                 'children': []
@@ -466,10 +466,10 @@ class DataFinalizer(TestCase):
             'commands': {
                 'my-command': {
                     'script': [
-                        'cd my_path_0',
-                        'echo "pre 0"',
-                        'cd my_path_1',
-                        'echo "pre 1"'
+                        'cd path_A',
+                        'pre A',
+                        'cd path_B',
+                        'pre B'
                     ]
                 }
             }
@@ -480,12 +480,12 @@ class DataFinalizer(TestCase):
     def test__post_with_no_child(self):
         input_data = [
             {
-                'path': 'my_path',
+                'path': 'path_A',
                 'min-version': (1, 2, 3),
                 'commands': {
                     'my-command': {
-                        'pre': ['echo "pre"'],
-                        'post': ['echo "post"']
+                        'pre': ['pre A'],
+                        'post': ['post A']
                     }
                 },
                 'children': []
@@ -496,9 +496,9 @@ class DataFinalizer(TestCase):
             'commands': {
                 'my-command': {
                     'script': [
-                        'cd my_path',
-                        'echo "pre"',
-                        'echo "post"'
+                        'cd path_A',
+                        'pre A',
+                        'post A'
                     ]
                 }
             }
@@ -509,22 +509,22 @@ class DataFinalizer(TestCase):
     def test__post_with_child(self):
         input_data = [
             {
-                'path': 'my_path',
+                'path': 'path_A',
                 'min-version': (1, 2, 3),
                 'commands': {
                     'my-command': {
-                        'pre': ['echo "pre"'],
-                        'post': ['echo "post"']
+                        'pre': ['pre A'],
+                        'post': ['post A']
                     }
                 },
                 'children': [
                     {
-                        'path': 'my_path_child',
+                        'path': 'path_B',
                         'min-version': (1, 2, 3),
                         'commands': {
                             'my-command': {
-                                'pre': ['echo "pre child"'],
-                                'post': ['echo "post child"']
+                                'pre': ['pre B'],
+                                'post': ['post B']
                             }
                         },
                         'children': []
@@ -537,12 +537,12 @@ class DataFinalizer(TestCase):
             'commands': {
                 'my-command': {
                     'script': [
-                        'cd my_path',
-                        'echo "pre"',
-                        'cd my_path_child',
-                        'echo "pre child"',
-                        'echo "post child"',
-                        'echo "post"'
+                        'cd path_A',
+                        'pre A',
+                        'cd path_B',
+                        'pre B',
+                        'post B',
+                        'post A'
                     ]
                 }
             }
@@ -550,6 +550,192 @@ class DataFinalizer(TestCase):
         result = data_processor.finalize_data(input_data)
         self.assertEqual(expected, result)
 
+    def test__same_commands_with_children_and_parallel(self):
+        input_data = [
+            {
+                'path': 'path_A',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'my-command': {
+                        'pre': ['pre A'],
+                        'post': ['post A']
+                    }
+                },
+                'children': [
+                    {
+                        'path': 'path_B',
+                        'min-version': (1, 2, 3),
+                        'commands': {
+                            'my-command': {
+                                'pre': ['pre B'],
+                                'post': ['post B']
+                            }
+                        },
+                        'children': []
+                    }
+                ]
+            },
+            {
+                'path': 'path_C',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'my-command': {
+                        'pre': ['pre C'],
+                        'post': ['post C']
+                    }
+                },
+                'children': [
+                    {
+                        'path': 'path_D',
+                        'min-version': (1, 2, 3),
+                        'commands': {
+                            'my-command': {
+                                'pre': ['pre D'],
+                                'post': ['post D']
+                            }
+                        },
+                        'children': [
+                            {
+                                'path': 'path_E',
+                                'min-version': (1, 2, 3),
+                                'commands': {
+                                    'my-command': {
+                                        'pre': ['pre E'],
+                                        'post': ['post E']
+                                    }
+                                },
+                                'children': []
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command': {
+                    'script': [
+                        'cd path_A',
+                        'pre A',
+                        'cd path_B',
+                        'pre B',
+                        'post B',
+                        'post A',
+                        'cd path_C',
+                        'pre C',
+                        'cd path_D',
+                        'pre D',
+                        'cd path_E',
+                        'pre E',
+                        'post E',
+                        'post D',
+                        'post C'
+                    ]
+                }
+            }
+        }
+        result = data_processor.finalize_data(input_data)
+        self.assertEqual(expected, result)
+
+    def test__child_with_different_command(self):
+        input_data = [
+            {
+                'path': 'path_A',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'my-command-parent': {
+                        'pre': ['pre A'],
+                        'post': ['post A']
+                    }
+                },
+                'children': [
+                    {
+                        'path': 'path_B',
+                        'min-version': (1, 2, 3),
+                        'commands': {
+                            'my-command-child': {
+                                'pre': ['pre B'],
+                                'post': ['post B']
+                            }
+                        },
+                        'children': []
+                    }
+                ]
+            }
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command-parent': {
+                    'script': [
+                        'cd path_A',
+                        'pre A',
+                        'post A'
+                    ]
+                },
+                'my-command-child': {
+                    'script': [
+                        'cd path_B',
+                        'pre B',
+                        'post B',
+                    ]
+                }
+            }
+        }
+        result = data_processor.finalize_data(input_data)
+        self.assertEqual(expected, result)
+
+    def test__child_with_different_and_common_commands(self):
+        input_data = [
+            {
+                'path': 'path_A',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'my-command-parent': {
+                        'pre': ['pre A'],
+                        'post': ['post A']
+                    }
+                },
+                'children': [
+                    {
+                        'path': 'path_B',
+                        'min-version': (1, 2, 3),
+                        'commands': {
+                            'my-command-child': {
+                                'pre': ['pre B'],
+                                'post': ['post B']
+                            }
+                        },
+                        'children': []
+                    }
+                ]
+            }
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command-parent': {
+                    'script': [
+                        'cd path_A',
+                        'pre A',
+                        'post A'
+                    ]
+                },
+                'my-command-child': {
+                    'script': [
+                        'cd path_B',
+                        'pre B',
+                        'post B',
+                    ]
+                }
+            }
+        }
+        result = data_processor.finalize_data(input_data)
+        self.assertEqual(expected, result)
+
+
+class FinalizingComments(TestCase):
     def test__description_handling__main_description(self):
         input_data = [
             {
