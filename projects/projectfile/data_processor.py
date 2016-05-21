@@ -225,7 +225,7 @@ def _command_names(node):
 def _delete_divisors(commands):
     for name in commands:
         command = commands[name]
-        command['script'] = filter(lambda l: l != '===', command['script'])
+        command['script'] = [l for l in command['script'] if l != '===']
 
 
 def _process_children(command_buffer, node, ret):
