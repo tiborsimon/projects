@@ -692,9 +692,13 @@ class FinalizingCommands(TestCase):
                 'path': 'path_A',
                 'min-version': (1, 2, 3),
                 'commands': {
-                    'my-command-parent': {
+                    'command-A': {
                         'pre': ['pre A'],
                         'post': ['post A']
+                    },
+                    'command-common': {
+                        'pre': ['pre common A'],
+                        'post': ['post common A']
                     }
                 },
                 'children': [
@@ -702,9 +706,13 @@ class FinalizingCommands(TestCase):
                         'path': 'path_B',
                         'min-version': (1, 2, 3),
                         'commands': {
-                            'my-command-child': {
+                            'command-B': {
                                 'pre': ['pre B'],
                                 'post': ['post B']
+                            },
+                            'command-common': {
+                                'pre': ['pre common B'],
+                                'post': ['post common B']
                             }
                         },
                         'children': []
@@ -715,18 +723,28 @@ class FinalizingCommands(TestCase):
         expected = {
             'min-version': (1, 2, 3),
             'commands': {
-                'my-command-parent': {
+                'command-A': {
                     'script': [
                         'cd path_A',
                         'pre A',
                         'post A'
                     ]
                 },
-                'my-command-child': {
+                'command-B': {
                     'script': [
                         'cd path_B',
                         'pre B',
-                        'post B',
+                        'post B'
+                    ]
+                },
+                'command-common': {
+                    'script': [
+                        'cd path_A',
+                        'pre common A',
+                        'cd path_B',
+                        'pre common B',
+                        'post common B',
+                        'post common A'
                     ]
                 }
             }
@@ -735,8 +753,8 @@ class FinalizingCommands(TestCase):
         self.assertEqual(expected, result)
 
 
-class FinalizingComments(TestCase):
-    def test__description_handling__main_description(self):
+class FinalizingDescriptions(TestCase):
+    def test__description_handling__main_description_will_be_added(self):
         input_data = [
             {
                 'path': 'my_path',
@@ -751,54 +769,42 @@ class FinalizingComments(TestCase):
                 'children': []
             }
         ]
-        expected = {
-            'min-version': (1, 2, 3),
-            'description': 'Some text..',
-            'commands': {
-                'my-command': {
-                    'script': [
-                        'cd my_path',
-                        'echo "pre"',
-                        'echo "post"'
-                    ]
-                }
-            }
-        }
+        expected = 'Some text..'
         result = data_processor.finalize_data(input_data)
-        self.assertEqual(expected, result)
+        self.assertEqual(expected, result['description'])
 
     def test__more_than_one_main_description__will_be_appended(self):
         input_data = [
             {
-                'path': 'my_path',
+                'path': 'path_A',
                 'min-version': (1, 2, 3),
                 'description': 'Some text..',
                 'commands': {
-                    'my-command': {
-                        'pre': ['echo "pre"'],
-                        'post': ['echo "post"']
+                    'command_A': {
+                        'pre': ['pre A'],
+                        'post': ['post A']
+                    }
+                },
+                'children': []
+            },
+            {
+                'path': 'path_B',
+                'min-version': (1, 2, 3),
+                'description': 'Another main description..',
+                'commands': {
+                    'command_B': {
+                        'pre': ['pre B'],
+                        'post': ['post B']
                     }
                 },
                 'children': []
             }
         ]
-        expected = {
-            'min-version': (1, 2, 3),
-            'description': 'Some text..',
-            'commands': {
-                'my-command': {
-                    'script': [
-                        'cd my_path',
-                        'echo "pre"',
-                        'echo "post"'
-                    ]
-                }
-            }
-        }
+        expected = 'Some text..\n\nAnother main description..'
         result = data_processor.finalize_data(input_data)
-        self.assertEqual(expected, result)
+        self.assertEqual(expected, result['description'])
 
-    def test__description_handling__command_description(self):
+    def test__command_description_will_be_added(self):
         input_data = [
             {
                 'path': 'my_path',
@@ -813,18 +819,153 @@ class FinalizingComments(TestCase):
                 'children': []
             }
         ]
-        expected = {
-            'min-version': (1, 2, 3),
-            'commands': {
-                'my-command': {
-                    'description': 'Some text..',
-                    'script': [
-                        'cd my_path',
-                        'echo "pre"',
-                        'echo "post"'
-                    ]
-                }
-            }
-        }
+        expected = 'Some text..'
         result = data_processor.finalize_data(input_data)
-        self.assertEqual(expected, result)
+        self.assertEqual(expected, result['commands']['my-command']['description'])
+
+    def test__redefined_command_description_will_be_appended(self):
+        input_data = [
+            {
+                'path': 'path_A',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'command': {
+                        'description': 'Some text..',
+                        'pre': ['pre A'],
+                        'post': ['post A']
+                    }
+                },
+                'children': []
+            },
+            {
+                'path': 'path_B',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'command': {
+                        'description': 'Another main description..',
+                        'pre': ['pre B'],
+                        'post': ['post B']
+                    }
+                },
+                'children': []
+            }
+        ]
+        expected = 'Some text..\n\nAnother main description..'
+        result = data_processor.finalize_data(input_data)
+        self.assertEqual(expected, result['commands']['command']['description'])
+
+
+class FinalizeVersions(TestCase):
+    def test__single_version_finalizes_correctly(self):
+        input_data = [
+            {
+                'path': 'path_A',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'command': {
+                        'description': 'Some text..',
+                        'pre': ['pre A'],
+                        'post': ['post A']
+                    }
+                },
+                'children': []
+            }
+        ]
+        expected = (1, 2, 3)
+        result = data_processor.finalize_data(input_data)
+        self.assertEqual(expected, result['min-version'])
+
+    def test__redefined_parallel_versions__latest_should_be_kept(self):
+        input_data = [
+            {
+                'path': 'path_A',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'command': {
+                        'description': 'Some text..',
+                        'pre': ['pre A'],
+                        'post': ['post A']
+                    }
+                },
+                'children': []
+            },
+            {
+                'path': 'path_B',
+                'min-version': (2, 0, 0),
+                'commands': {
+                    'command': {
+                        'description': 'Some text..',
+                        'pre': ['pre B'],
+                        'post': ['post B']
+                    }
+                },
+                'children': []
+            }
+        ]
+        expected = (2, 0, 0)
+        result = data_processor.finalize_data(input_data)
+        self.assertEqual(expected, result['min-version'])
+
+    def test__redefined_parallel_versions__latest_should_be_kept__even_in_reverse_order(self):
+        input_data = [
+            {
+                'path': 'path_A',
+                'min-version': (2, 0, 0),
+                'commands': {
+                    'command': {
+                        'description': 'Some text..',
+                        'pre': ['pre A'],
+                        'post': ['post A']
+                    }
+                },
+                'children': []
+            },
+            {
+                'path': 'path_B',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'command': {
+                        'description': 'Some text..',
+                        'pre': ['pre B'],
+                        'post': ['post B']
+                    }
+                },
+                'children': []
+            }
+        ]
+        expected = (2, 0, 0)
+        result = data_processor.finalize_data(input_data)
+        self.assertEqual(expected, result['min-version'])
+
+    def test__redefined_version_works_with_child_nodes_as_well(self):
+        input_data = [
+            {
+                'path': 'path_A',
+                'min-version': (2, 0, 0),
+                'commands': {
+                    'command': {
+                        'description': 'Some text..',
+                        'pre': ['pre A'],
+                        'post': ['post A']
+                    }
+                },
+                'children': [
+                    {
+                        'path': 'path_B',
+                        'min-version': (1, 2, 3),
+                        'commands': {
+                            'command': {
+                                'description': 'Some text..',
+                                'pre': ['pre B'],
+                                'post': ['post B']
+                            }
+                        },
+                        'children': []
+                    }
+                ]
+            }
+        ]
+        expected = (2, 0, 0)
+        result = data_processor.finalize_data(input_data)
+        self.assertEqual(expected, result['min-version'])
+

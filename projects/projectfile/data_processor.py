@@ -1,14 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
-
 from . import error
 from . import parser
 from . import file_handler
 
 
 def data_integrity_check(data):
+    """Checks if all command dependencies refers to and existing command. If not, a ProjectfileError
+    will be raised with the problematic dependency and it's command.
+
+    :param data: parsed raw data set.
+    :return: None
+    """
     deps = []
     for command in data['commands']:
         if 'dependencies' in data['commands'][command]:
@@ -25,41 +29,128 @@ def data_integrity_check(data):
 
 
 def generate_processing_tree(project_root):
-    """Generates the preprocessed projectfile data tree.
-    :param project_root: root of the project.
-    :return:
-    """
+    """Generates the preprocessed Projectfile data tree. The generated data structure maps the
+    Projectfile containing directory nodes. The data generation will be started from the given
+    project root path. The function iteratively will parse the existing Projectfiles in the
+    directory structure based on the given pluggable walk-like path generator.
 
-    def create_node(_path, _raw_lines):
-        temp = {
-            'path': _path,
-            'children': []
+    Output data format:
+
+    processing_tree = [
+        {
+            'path': 'path for the first folder containing a Projectfile',
+            'min-version': (1, 2, 3),
+            'description': 'General description.',
+            'commands': {
+                'command_1': {
+                    'description': 'Command level description for command_1.',
+                    'pre': ['pre', 'command', 'list', ... ],
+                    'post': ['post', 'command', 'list', ... ]
+                },
+                'command_2': {
+                    'description': 'Command level description for command_2.',
+                    'pre': ['pre', 'command', 'list', ... ],
+                    'post': ['post', 'command', 'list', ... ]
+                },
+                ...
+            },
+            children: [
+                {
+                    # same dictionary as the outer one
+                },
+                {
+                    # same dictionary as the outer one
+                },
+                ...
+            ]
         }
-        temp.update(parser.process_lines(_raw_lines))
-        return temp
+    ]
 
-    def pop_stack_until_common_node(_stack, _path):
-        while _stack and not _path.startswith(_stack[-1]['path']):
-            _stack.pop()
-
-    def chain_data_to_last_element(_stack, _node):
-        _stack[-1]['children'].append(_node)
-        _stack.append(_node)
-
-    def initialize_stack(_ret, _node):
-        _ret.append(_node)
-        return [_node]
-
+    :param project_root: root of the project.
+    :return: generated processing tree
+    """
     ret = []
     stack = []
 
     for path, lines in file_handler.projectfile_walk(project_root):
-        node = create_node(path, lines)
-        pop_stack_until_common_node(stack, path)
+        node = _create_node(path, lines)
+        _pop_stack_until_common_node(stack, path)
         if stack:
-            chain_data_to_last_element(stack, node)
+            _chain_data_to_last_element(stack, node)
         else:
-            stack = initialize_stack(ret, node)
+            stack = _initialize_stack(ret, node)
+    return ret
+
+
+def _create_node(path, raw_lines):
+    temp = {
+        'path': path,
+        'children': []
+    }
+    temp.update(parser.process_lines(raw_lines))
+    return temp
+
+
+def _pop_stack_until_common_node(stack, path):
+    while stack and not path.startswith(stack[-1]['path']):
+        stack.pop()
+
+
+def _chain_data_to_last_element(stack, node):
+    stack[-1]['children'].append(node)
+    stack.append(node)
+
+
+def _initialize_stack(ret, node):
+    ret.append(node)
+    return [node]
+
+
+def finalize_data(input_data):
+    """Flattens out passed preprocessed data tree and generates the final usage ready
+    data structure. The function will select the latest version specified in the
+    Projectfiles as the minimum required software version. If there are multiple
+    Projectfiles specifying the same description, the individual descriptions will be
+    appended together with a line break.
+
+    Output data format:
+
+    data = {
+        'min-version': (1, 2, 3),
+        'description': 'General description.',
+        'commands': {
+            'command_1': {
+                'description': 'Command level description for command_1.',
+                'script': [
+                    'flattened',
+                    'out command',
+                    'list for',
+                    'command_1',
+                    ...
+                ]
+            },
+            'command_2': {
+                'description': 'Command level description for command_2.',
+                'script': [
+                    'flattened',
+                    'out command',
+                    'list for',
+                    'command_2',
+                    ...
+                ]
+            },
+            ...
+        }
+    }
+
+    :param input_data: preprocessed data tree
+    :return: final data structure
+    """
+    ret = {'commands': {}}
+    command_buffer = ret['commands']
+
+    for node in input_data:
+        _process_node(command_buffer, node, ret)
     return ret
 
 
@@ -105,16 +196,26 @@ def _add_post(pool, raw_command):
 
 def _add_command_description(pool, raw_command):
     if 'description' in raw_command:
-        pool['description'] = raw_command['description']
+        if 'description' in pool:
+            pool['description'] += '\n\n' + raw_command['description']
+        else:
+            pool['description'] = raw_command['description']
 
 
 def _add_version(node, ret):
-    ret['min-version'] = node['min-version']
+    if 'min-version' in ret:
+        if ret['min-version'] < node['min-version']:
+            ret['min-version'] = node['min-version']
+    else:
+        ret['min-version'] = node['min-version']
 
 
 def _add_main_description(node, ret):
     if 'description' in node:
-        ret['description'] = node['description']
+        if 'description' in ret:
+            ret['description'] += '\n\n' + node['description']
+        else:
+            ret['description'] = node['description']
 
 
 def _command_names(node):
@@ -155,12 +256,3 @@ def _process_node(command_buffer, node, ret):
     _process_children(command_buffer, node, ret)
     _add_version(node, ret)
     _add_main_description(node, ret)
-
-
-def finalize_data(input_data):
-    ret = {'commands': {}}
-    command_buffer = ret['commands']
-
-    for node in input_data:
-        _process_node(command_buffer, node, ret)
-    return ret
