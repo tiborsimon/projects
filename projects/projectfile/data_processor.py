@@ -8,9 +8,9 @@ from . import file_handler
 
 def generate_processing_tree(project_root):
     """Generates the preprocessed Projectfile data tree. The generated data structure maps the
-    Projectfile containing directory nodes. The data generation will be started from the given
-    project root path. The function iteratively will parse the existing Projectfiles in the
-    directory structure based on the given pluggable walk-like path generator.
+    Projectfile-containing directories hierarchy. The data generation will be started from the given
+    project root path. The function iteratively will parse the existing Projectfiles one by one based
+    on the given pluggable walk-like path generator.
 
     Output data format:
 
@@ -18,15 +18,17 @@ def generate_processing_tree(project_root):
         {
             'path': 'path for the first folder containing a Projectfile',
             'min-version': (1, 2, 3),
-            'description': 'General description.',
+            'description': 'Optional general description.',
+            'variables': {
+                'variable_1: {
+                    'value': '42',
+                    'path': 'path for the first folder containing a Projectfile'
+                },
+                ...
+            }
             'commands': {
                 'command_1': {
                     'description': 'Command level description for command_1.',
-                    'pre': ['pre', 'command', 'list', ... ],
-                    'post': ['post', 'command', 'list', ... ]
-                },
-                'command_2': {
-                    'description': 'Command level description for command_2.',
                     'pre': ['pre', 'command', 'list', ... ],
                     'post': ['post', 'command', 'list', ... ]
                 },
@@ -47,26 +49,30 @@ def generate_processing_tree(project_root):
     :param project_root: root of the project.
     :return: generated processing tree
     """
-    ret = []
+    data = []
     stack = []
 
-    for path, lines in file_handler.projectfile_walk(project_root):
+    walk_data = file_handler.projectfile_walk(project_root)
+
+    # TODO: implement pluggable walk_data creation
+
+    for path, lines in walk_data:
         node = _create_node(path, lines)
         _pop_stack_until_common_node(stack, path)
         if stack:
             _chain_data_to_last_element(stack, node)
         else:
-            stack = _initialize_stack(ret, node)
-    return ret
+            stack = _initialize_stack(data, node)
+    return data
 
 
 def _create_node(path, raw_lines):
-    temp = {
+    node = {
         'path': path,
         'children': []
     }
-    temp.update(parser.process_lines(raw_lines))
-    return temp
+    node.update(parser.process_lines(raw_lines))
+    return node
 
 
 def _pop_stack_until_common_node(stack, path):
@@ -79,8 +85,8 @@ def _chain_data_to_last_element(stack, node):
     stack.append(node)
 
 
-def _initialize_stack(ret, node):
-    ret.append(node)
+def _initialize_stack(data, node):
+    data.append(node)
     return [node]
 
 
@@ -124,12 +130,12 @@ def finalize_data(input_data):
     :param input_data: preprocessed data tree
     :return: final data structure
     """
-    ret = {'commands': {}}
-    command_buffer = ret['commands']
+    data = {'commands': {}}
+    command_buffer = data['commands']
 
     for node in input_data:
-        _process_node(command_buffer, node, ret)
-    return ret
+        _process_node(command_buffer, node, data)
+    return data
 
 
 def _add_cd(pool, node):
@@ -180,20 +186,20 @@ def _add_command_description(pool, raw_command):
             pool['description'] = raw_command['description']
 
 
-def _add_version(node, ret):
-    if 'min-version' in ret:
-        if ret['min-version'] < node['min-version']:
-            ret['min-version'] = node['min-version']
+def _add_version(node, data):
+    if 'min-version' in data:
+        if data['min-version'] < node['min-version']:
+            data['min-version'] = node['min-version']
     else:
-        ret['min-version'] = node['min-version']
+        data['min-version'] = node['min-version']
 
 
-def _add_main_description(node, ret):
+def _add_main_description(node, data):
     if 'description' in node:
-        if 'description' in ret:
-            ret['description'] += '\n\n' + node['description']
+        if 'description' in data:
+            data['description'] += '\n\n' + node['description']
         else:
-            ret['description'] = node['description']
+            data['description'] = node['description']
 
 
 def _command_names(node):
@@ -206,10 +212,10 @@ def _delete_divisors(commands):
         command['script'] = [l for l in command['script'] if l != '===']
 
 
-def _process_children(command_buffer, node, ret):
+def _process_children(command_buffer, node, data):
     if node['children']:
         for child in node['children']:
-            _process_node(command_buffer, child, ret)
+            _process_node(command_buffer, child, data)
     else:
         _delete_divisors(command_buffer)
 
@@ -233,37 +239,59 @@ def _process_commands(command_buffer, node):
         _add_post(pool, raw_command)
 
 
-def _add_variables(node, ret):
+def _add_variables(node, data):
     if 'variables' in node:
-        if 'variables' not in ret:
-            ret['variables'] = {}
+        if 'variables' not in data:
+            data['variables'] = {}
         for name in node['variables']:
-            if name in ret['variables']:
+            if name in data['variables']:
                 raise error.ProjectfileError({
-                    'error': error.VARIABLE_REDEFINED_ERROR.format(name, ret['variables'][name]['path'], node['path'])
+                    'error': error.VARIABLE_REDEFINED_ERROR.format(name, data['variables'][name]['path'], node['path'])
                 })
             else:
-                ret['variables'][name] = {
+                data['variables'][name] = {
                     'value': node['variables'][name],
                     'path': node['path']
                 }
 
 
-def _process_node(command_buffer, node, ret):
+def _process_node(command_buffer, node, data):
     _process_commands(command_buffer, node)
-    _process_children(command_buffer, node, ret)
-    _add_version(node, ret)
-    _add_main_description(node, ret)
-    _add_variables(node, ret)
+    _process_children(command_buffer, node, data)
+    _add_version(node, data)
+    _add_main_description(node, data)
+    _add_variables(node, data)
 
 
 def process_variables(data):
+    """This function will replace all variables in all commands and descriptions. After the replacement
+    it will delete the 'variables' part of the data.
+    """
     for command_name in data['commands']:
-        temp_lines = []
-        for line in data['commands'][command_name]['script']:
-            line = line
-            for var_name in data['variables']:
-                line = line.replace(var_name, data['variables'][var_name]['value'])
-            temp_lines.append(line)
-        data['commands'][command_name]['script'] = temp_lines
+        command = data['commands'][command_name]
+        _apply_variables_to_command_description(command, data)
+        _apply_variables_to_command_lines(command, data)
+    _apply_variables_to_main_description(data)
     del data['variables']
+
+
+def _apply_variables_to_command_description(command, data):
+    if 'description' in command:
+        for var_name in data['variables']:
+            command['description'] = command['description'].replace(var_name, data['variables'][var_name]['value'])
+
+
+def _apply_variables_to_command_lines(command, data):
+    temp_lines = []
+    for line in command['script']:
+        line = line
+        for var_name in data['variables']:
+            line = line.replace(var_name, data['variables'][var_name]['value'])
+        temp_lines.append(line)
+    command['script'] = temp_lines
+
+
+def _apply_variables_to_main_description(data):
+    if 'description' in data:
+        for var_name in data['variables']:
+            data['description'] = data['description'].replace(var_name, data['variables'][var_name]['value'])

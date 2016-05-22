@@ -1109,7 +1109,7 @@ class AppendVariables(TestCase):
 
 
 class VariableSubstitution(TestCase):
-    def test__variable_can_be_substituted(self):
+    def test__variable_can_be_substituted_to_commands(self):
         data = {
             'variables': {
                 'var_a': {
@@ -1138,7 +1138,7 @@ class VariableSubstitution(TestCase):
         result = data_processor.process_variables(data)
         self.assertEqual(expected, data)
 
-    def test__multiple_variables_can_be_substituted(self):
+    def test__multiple_variables_can_be_substituted_to_commands(self):
         self.maxDiff = None
         data = {
             'variables': {
@@ -1185,6 +1185,93 @@ class VariableSubstitution(TestCase):
         result = data_processor.process_variables(data)
         self.assertEqual(expected, data)
 
+    def test__multiple_variables_can_be_substituted_to_main_description(self):
+        self.maxDiff = None
+        data = {
+            'variables': {
+                'var_a': {
+                    'value': 'aaa'
+                },
+                'var_b': {
+                    'value': 'bbb'
+                }
+            },
+            'min-version': (1, 2, 3),
+            'description': 'var_a ... var_b',
+            'commands': {
+                'command': {
+                    'script': [
+                        'cd var_a',
+                        'echo var_b'
+                    ]
+                }
+            }
+        }
+        expected = {
+            'min-version': (1, 2, 3),
+            'description': 'aaa ... bbb',
+            'commands': {
+                'command': {
+                    'script': [
+                        'cd aaa',
+                        'echo bbb'
+                    ]
+                }
+            }
+        }
+        result = data_processor.process_variables(data)
+        self.assertEqual(expected, data)
+
+    def test__multiple_variables_can_be_substituted_to_command_descriptions(self):
+        self.maxDiff = None
+        data = {
+            'variables': {
+                'var_a': {
+                    'value': 'aaa'
+                },
+                'var_b': {
+                    'value': 'bbb'
+                }
+            },
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'description': 'var_a ... var_b',
+                    'script': [
+                        'cd var_a',
+                        'echo var_b'
+                    ]
+                },
+                'other_command': {
+                    'description': 'var_b ... var_a',
+                    'script': [
+                        'cd var_b',
+                        'echo var_a'
+                    ]
+                }
+            }
+        }
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'description': 'aaa ... bbb',
+                    'script': [
+                        'cd aaa',
+                        'echo bbb'
+                    ]
+                },
+                'other_command': {
+                    'description': 'bbb ... aaa',
+                    'script': [
+                        'cd bbb',
+                        'echo aaa'
+                    ]
+                }
+            }
+        }
+        result = data_processor.process_variables(data)
+        self.assertEqual(expected, data)
 
 
 

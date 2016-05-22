@@ -4,10 +4,6 @@ from . import defs
 from . import error
 
 
-def get_file_content(file_path):
-    pass
-
-
 def projectfile_walk(project_root):
     result = []
     for root, dirs, files in walk(project_root):
