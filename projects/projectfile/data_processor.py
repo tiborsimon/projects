@@ -255,3 +255,15 @@ def _process_node(command_buffer, node, ret):
     _add_version(node, ret)
     _add_main_description(node, ret)
     _add_variables(node, ret)
+
+
+def process_variables(data):
+    for command_name in data['commands']:
+        temp_lines = []
+        for line in data['commands'][command_name]['script']:
+            line = line
+            for var_name in data['variables']:
+                line = line.replace(var_name, data['variables'][var_name]['value'])
+            temp_lines.append(line)
+        data['commands'][command_name]['script'] = temp_lines
+    del data['variables']

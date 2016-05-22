@@ -1108,6 +1108,83 @@ class AppendVariables(TestCase):
         })
 
 
+class VariableSubstitution(TestCase):
+    def test__variable_can_be_substituted(self):
+        data = {
+            'variables': {
+                'var_a': {
+                    'value': 'aaa'
+                }
+            },
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'script': [
+                        'cd var_a'
+                    ]
+                }
+            }
+        }
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'script': [
+                        'cd aaa'
+                    ]
+                }
+            }
+        }
+        result = data_processor.process_variables(data)
+        self.assertEqual(expected, data)
+
+    def test__multiple_variables_can_be_substituted(self):
+        self.maxDiff = None
+        data = {
+            'variables': {
+                'var_a': {
+                    'value': 'aaa'
+                },
+                'var_b': {
+                    'value': 'bbb'
+                }
+            },
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'script': [
+                        'cd var_a',
+                        'echo var_b'
+                    ]
+                },
+                'other_command': {
+                    'script': [
+                        'cd var_b',
+                        'echo var_a'
+                    ]
+                }
+            }
+        }
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'script': [
+                        'cd aaa',
+                        'echo bbb'
+                    ]
+                },
+                'other_command': {
+                    'script': [
+                        'cd bbb',
+                        'echo aaa'
+                    ]
+                }
+            }
+        }
+        result = data_processor.process_variables(data)
+        self.assertEqual(expected, data)
+
 
 
 
