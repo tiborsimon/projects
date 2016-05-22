@@ -63,10 +63,3 @@ def _data_integrity_check(data):
             raise error.ProjectfileError({
                 'error': error.PROJECTFILE_INVALID_DEPENDENCY.format(d['d'], d['c'])
             })
-
-
-def _resolve_variables(data):
-    pass
-
-
-

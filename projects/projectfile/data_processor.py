@@ -233,8 +233,25 @@ def _process_commands(command_buffer, node):
         _add_post(pool, raw_command)
 
 
+def _add_variables(node, ret):
+    if 'variables' in node:
+        if 'variables' not in ret:
+            ret['variables'] = {}
+        for name in node['variables']:
+            if name in ret['variables']:
+                raise error.ProjectfileError({
+                    'error': error.VARIABLE_REDEFINED_ERROR.format(name, ret['variables'][name]['path'], node['path'])
+                })
+            else:
+                ret['variables'][name] = {
+                    'value': node['variables'][name],
+                    'path': node['path']
+                }
+
+
 def _process_node(command_buffer, node, ret):
     _process_commands(command_buffer, node)
     _process_children(command_buffer, node, ret)
     _add_version(node, ret)
     _add_main_description(node, ret)
+    _add_variables(node, ret)

@@ -179,8 +179,3 @@ class Integration(TestCase):
         mock_parser.return_value = 'something'
         parser.process_lines(None)
         mock_checker.assert_called_with('something')
-
-
-class Variables(TestCase):
-    def test__variables_can_be_resolved_in_pre(self):
-        pass

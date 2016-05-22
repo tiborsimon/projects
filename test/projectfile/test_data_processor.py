@@ -15,7 +15,10 @@ try:
 except ImportError:
     builtin_module = 'builtins'
 
+from test.helpers import *
+
 from projects.projectfile import data_processor
+from projects.projectfile import error
 
 
 def update_expected_with_parsed_data(update_data, expected):
@@ -968,4 +971,143 @@ class FinalizeVersions(TestCase):
         expected = (2, 0, 0)
         result = data_processor.finalize_data(input_data)
         self.assertEqual(expected, result['min-version'])
+
+
+class AppendVariables(TestCase):
+    def test__variables_appended_in_parallel_arrangement(self):
+        input_data = [
+            {
+                'path': 'path_A',
+                'min-version': (2, 0, 0),
+                'variables': {
+                    'variable-a': 'aaa'
+                },
+                'commands': {
+                    'command': {
+                        'description': 'Some text..',
+                        'pre': ['pre A'],
+                        'post': ['post A']
+                    }
+                },
+                'children': []
+            },
+            {
+                'path': 'path_B',
+                'min-version': (1, 2, 3),
+                'variables': {
+                    'variable-b': 'bbb'
+                },
+                'commands': {
+                    'command': {
+                        'description': 'Some text..',
+                        'pre': ['pre B'],
+                        'post': ['post B']
+                    }
+                },
+                'children': []
+            }
+        ]
+        expected = {
+            'variable-a': {
+                'value': 'aaa',
+                'path': 'path_A'
+            },
+            'variable-b': {
+                'value': 'bbb',
+                'path': 'path_B'
+            }
+        }
+        result = data_processor.finalize_data(input_data)
+        self.assertEqual(expected, result['variables'])
+
+    def test__variables_appended_in_child_arrangement(self):
+        input_data = [
+            {
+                'path': 'path_A',
+                'min-version': (2, 0, 0),
+                'variables': {
+                    'variable-a': 'aaa'
+                },
+                'commands': {
+                    'command': {
+                        'description': 'Some text..',
+                        'pre': ['pre A'],
+                        'post': ['post A']
+                    }
+                },
+                'children': [
+                    {
+                        'path': 'path_B',
+                        'min-version': (1, 2, 3),
+                        'variables': {
+                            'variable-b': 'bbb'
+                        },
+                        'commands': {
+                            'command': {
+                                'description': 'Some text..',
+                                'pre': ['pre B'],
+                                'post': ['post B']
+                            }
+                        },
+                        'children': []
+                    }
+                ]
+            }
+        ]
+        expected = {
+            'variable-a': {
+                'value': 'aaa',
+                'path': 'path_A'
+            },
+            'variable-b': {
+                'value': 'bbb',
+                'path': 'path_B'
+            }
+        }
+        result = data_processor.finalize_data(input_data)
+        self.assertEqual(expected, result['variables'])
+
+    def test__redefined_variable__raises_error(self):
+        input_data = [
+            {
+                'path': 'path_A',
+                'min-version': (2, 0, 0),
+                'variables': {
+                    'variable-a': 'aaa'
+                },
+                'commands': {
+                    'command': {
+                        'description': 'Some text..',
+                        'pre': ['pre A'],
+                        'post': ['post A']
+                    }
+                },
+                'children': [
+                    {
+                        'path': 'path_B',
+                        'min-version': (1, 2, 3),
+                        'variables': {
+                            'variable-a': 'bbb'
+                        },
+                        'commands': {
+                            'command': {
+                                'description': 'Some text..',
+                                'pre': ['pre B'],
+                                'post': ['post B']
+                            }
+                        },
+                        'children': []
+                    }
+                ]
+            }
+        ]
+        with self.assertRaises(Exception) as cm:
+            result = data_processor.finalize_data(input_data)
+        assert_exception(self, cm, error.ProjectfileError, {
+            'error': error.VARIABLE_REDEFINED_ERROR.format('variable-a', 'path_B', 'path_A')
+        })
+
+
+
+
 
