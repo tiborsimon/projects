@@ -71,7 +71,15 @@ def _create_node(path, raw_lines):
         'path': path,
         'children': []
     }
-    node.update(parser.process_lines(raw_lines))
+    try:
+        node.update(parser.process_lines(raw_lines))
+    except error.ProjectfileError as e:
+        try:
+            msg = e.message
+        except AttributeError:
+            msg = e.msg
+        msg.update({'path': path})
+        raise error.ProjectfileError(msg)
     return node
 
 
@@ -246,7 +254,8 @@ def _add_variables(node, data):
         for name in node['variables']:
             if name in data['variables']:
                 raise error.ProjectfileError({
-                    'error': error.VARIABLE_REDEFINED_ERROR.format(name, data['variables'][name]['path'], node['path'])
+                    'error': error.VARIABLE_REDEFINED_ERROR.format(name, data['variables'][name]['path'], node['path']),
+                    'path': node['path']
                 })
             else:
                 data['variables'][name] = {
@@ -266,6 +275,9 @@ def _process_node(command_buffer, node, data):
 def process_variables(data):
     """This function will replace all variables in all commands and descriptions. After the replacement
     it will delete the 'variables' part of the data.
+
+    :param data: Finalized data structure. the processing will be applied in place.
+    :return: None
     """
     for command_name in data['commands']:
         command = data['commands'][command_name]

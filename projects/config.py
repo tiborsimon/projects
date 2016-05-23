@@ -41,7 +41,6 @@ class ConfigError(Exception):
 def get():
     """ Only API function for the config module.
 
-
     :return: {dict}     loaded validated configuration.
     """
     config = {}

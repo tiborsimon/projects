@@ -1104,7 +1104,8 @@ class AppendVariables(TestCase):
         with self.assertRaises(Exception) as cm:
             result = data_processor.finalize_data(input_data)
         assert_exception(self, cm, error.ProjectfileError, {
-            'error': error.VARIABLE_REDEFINED_ERROR.format('variable-a', 'path_B', 'path_A')
+            'error': error.VARIABLE_REDEFINED_ERROR.format('variable-a', 'path_B', 'path_A'),
+            'path': 'path_A'
         })
 
 
