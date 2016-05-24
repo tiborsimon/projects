@@ -279,12 +279,13 @@ def process_variables(data):
     :param data: Finalized data structure. the processing will be applied in place.
     :return: None
     """
-    for command_name in data['commands']:
-        command = data['commands'][command_name]
-        _apply_variables_to_command_description(command, data)
-        _apply_variables_to_command_lines(command, data)
-    _apply_variables_to_main_description(data)
-    del data['variables']
+    if 'variables' in data:
+        for command_name in data['commands']:
+            command = data['commands'][command_name]
+            _apply_variables_to_command_description(command, data)
+            _apply_variables_to_command_lines(command, data)
+        _apply_variables_to_main_description(data)
+        del data['variables']
 
 
 def _apply_variables_to_command_description(command, data):
