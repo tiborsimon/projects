@@ -755,6 +755,41 @@ class FinalizingCommands(TestCase):
         result = data_processor.finalize_data(input_data)
         self.assertEqual(expected, result)
 
+    def test__single_file_single_command__alternative_presents(self):
+        input_data = [
+            {
+                'path': 'path_A',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'command': {
+                        'pre': ['pre A'],
+                        'post': ['post A']
+                    },
+                    'c': {
+                        'alias': 'command'
+                    }
+                },
+                'children': []
+            }
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'script': [
+                        'cd path_A',
+                        'pre A',
+                        'post A'
+                    ]
+                },
+                'c': {
+                    'alias': 'command'
+                }
+            }
+        }
+        result = data_processor.finalize_data(input_data)
+        self.assertEqual(expected, result)
+
 
 class FinalizingDescriptions(TestCase):
     def test__description_handling__main_description_will_be_added(self):

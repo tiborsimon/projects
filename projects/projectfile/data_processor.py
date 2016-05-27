@@ -217,7 +217,8 @@ def _command_names(node):
 def _delete_divisors(commands):
     for name in commands:
         command = commands[name]
-        command['script'] = [l for l in command['script'] if l != '===']
+        if 'script' in command:
+            command['script'] = [l for l in command['script'] if l != '===']
 
 
 def _process_children(command_buffer, node, data):
@@ -228,7 +229,7 @@ def _process_children(command_buffer, node, data):
         _delete_divisors(command_buffer)
 
 
-def create_working_pool(command_buffer, command_name):
+def get_working_pool(command_buffer, command_name):
     if command_name not in command_buffer:
         command_buffer[command_name] = {'script': []}
     pool = command_buffer[command_name]
@@ -237,9 +238,13 @@ def create_working_pool(command_buffer, command_name):
 
 def _process_commands(command_buffer, node):
     for command_name in _command_names(node):
-        pool = create_working_pool(command_buffer, command_name)
+        pool = get_working_pool(command_buffer, command_name)
         raw_command = node['commands'][command_name]
 
+        if 'alias' in raw_command:
+            pool['alias'] = raw_command['alias']
+            del pool['script']
+            return
         _add_command_description(pool, raw_command)
         _add_cd(pool, node)
         _add_pre(pool, raw_command)
