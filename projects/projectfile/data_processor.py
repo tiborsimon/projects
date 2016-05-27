@@ -243,7 +243,8 @@ def _process_commands(command_buffer, node):
 
         if 'alias' in raw_command:
             pool['alias'] = raw_command['alias']
-            del pool['script']
+            if 'script' in pool:
+                del pool['script']
             continue
         _add_command_description(pool, raw_command)
         _add_cd(pool, node)

@@ -791,6 +791,273 @@ class FinalizingCommands(TestCase):
         self.assertEqual(expected, result)
 
 
+    def test__alternative_presents_in_child(self):
+        input_data = [
+            {
+                'path': 'path_A',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'command': {
+                        'pre': ['pre A'],
+                        'post': ['post A']
+                    }
+                },
+                'children': [
+                    {
+                        'path': 'path_B',
+                        'min-version': (1, 2, 3),
+                        'commands': {
+                            'command': {
+                                'pre': ['pre B'],
+                                'post': ['post B']
+                            },
+                            'c': {
+                                'alias': 'command'
+                            }
+                        },
+                        'children': []
+                    }
+                ]
+            }
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'script': [
+                        'cd path_A',
+                        'pre A',
+                        'cd path_B',
+                        'pre B',
+                        'post B',
+                        'post A'
+                    ]
+                },
+                'c': {
+                    'alias': 'command'
+                }
+            }
+        }
+        result = data_processor.finalize_data(input_data)
+        self.assertEqual(expected, result)
+
+    def test__two_alternatives_in_two_master_and_childl(self):
+        input_data = [
+            {
+                'path': 'path_A',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'command': {
+                        'pre': ['pre A'],
+                        'post': ['post A']
+                    },
+                    'ca': {
+                        'alias': 'command'
+                    }
+                },
+                'children': [
+                    {
+                        'path': 'path_B',
+                        'min-version': (1, 2, 3),
+                        'commands': {
+                            'command': {
+                                'pre': ['pre B'],
+                                'post': ['post B']
+                            },
+                            'cb': {
+                                'alias': 'command'
+                            }
+                        },
+                        'children': []
+                    }
+                ]
+            }
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'script': [
+                        'cd path_A',
+                        'pre A',
+                        'cd path_B',
+                        'pre B',
+                        'post B',
+                        'post A'
+                    ]
+                },
+                'ca': {
+                    'alias': 'command'
+                },
+                'cb': {
+                    'alias': 'command'
+                }
+            }
+        }
+        result = data_processor.finalize_data(input_data)
+        self.assertEqual(expected, result)
+
+    def test__two_alternatives_in_two_separate_nodes(self):
+        input_data = [
+            {
+                'path': 'path_A',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'command': {
+                        'pre': ['pre A'],
+                        'post': ['post A']
+                    },
+                    'ca': {
+                        'alias': 'command'
+                    }
+                },
+                'children': []
+            },
+            {
+                'path': 'path_B',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'command': {
+                        'pre': ['pre B'],
+                        'post': ['post B']
+                    },
+                    'cb': {
+                        'alias': 'command'
+                    }
+                },
+                'children': []
+            }
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'script': [
+                        'cd path_A',
+                        'pre A',
+                        'post A',
+                        'cd path_B',
+                        'pre B',
+                        'post B',
+                    ]
+                },
+                'ca': {
+                    'alias': 'command'
+                },
+                'cb': {
+                    'alias': 'command'
+                }
+            }
+        }
+        result = data_processor.finalize_data(input_data)
+        self.assertEqual(expected, result)
+
+    def test__alternative_redefined_in_separate_node__should_be_tolerated(self):
+        input_data = [
+            {
+                'path': 'path_A',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'command': {
+                        'pre': ['pre A'],
+                        'post': ['post A']
+                    },
+                    'c': {
+                        'alias': 'command'
+                    }
+                },
+                'children': []
+            },
+            {
+                'path': 'path_B',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'command': {
+                        'pre': ['pre B'],
+                        'post': ['post B']
+                    },
+                    'c': {
+                        'alias': 'command'
+                    }
+                },
+                'children': []
+            }
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'script': [
+                        'cd path_A',
+                        'pre A',
+                        'post A',
+                        'cd path_B',
+                        'pre B',
+                        'post B'
+                    ]
+                },
+                'c': {
+                    'alias': 'command'
+                }
+            }
+        }
+        result = data_processor.finalize_data(input_data)
+        self.assertEqual(expected, result)
+
+    def test__alternative_redefined_in_child__should_be_tolerated(self):
+        input_data = [
+            {
+                'path': 'path_A',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'command': {
+                        'pre': ['pre A'],
+                        'post': ['post A']
+                    },
+                    'c': {
+                        'alias': 'command'
+                    }
+                },
+                'children': [
+                    {
+                        'path': 'path_B',
+                        'min-version': (1, 2, 3),
+                        'commands': {
+                            'command': {
+                                'pre': ['pre B'],
+                                'post': ['post B']
+                            },
+                            'c': {
+                                'alias': 'command'
+                            }
+                        },
+                        'children': []
+                    }
+                ]
+            }
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'script': [
+                        'cd path_A',
+                        'pre A',
+                        'cd path_B',
+                        'pre B',
+                        'post B',
+                        'post A'
+                    ]
+                },
+                'c': {
+                    'alias': 'command'
+                }
+            }
+        }
+        result = data_processor.finalize_data(input_data)
+        self.assertEqual(expected, result)
+
+
 class FinalizingDescriptions(TestCase):
     def test__description_handling__main_description_will_be_added(self):
         input_data = [
