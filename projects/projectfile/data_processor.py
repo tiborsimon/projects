@@ -238,6 +238,11 @@ def get_working_pool(command_buffer, command_name):
     return pool
 
 
+def _add_dependencies(pool, raw_commad):
+    if 'dependencies' in raw_commad:
+        pool['dependencies'] = raw_commad['dependencies']
+
+
 def _process_commands(command_buffer, node):
     for command_name in _command_names(node):
         pool = get_working_pool(command_buffer, command_name)
@@ -249,6 +254,7 @@ def _process_commands(command_buffer, node):
                 del pool['script']
             continue
         _add_command_description(pool, raw_command)
+        _add_dependencies(pool, raw_command)
         _add_cd(pool, node)
         _add_pre(pool, raw_command)
         _add_divisor(pool)
@@ -270,7 +276,6 @@ def _add_variables(node, data):
                     'value': node['variables'][name],
                     'path': node['path']
                 }
-
 
 
 def _process_node(command_buffer, node, data):

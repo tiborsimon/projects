@@ -36,7 +36,7 @@ def update_expected_with_parsed_data(update_data, expected):
 
 
 
-class HelperFunctions(TestCase):
+class HelperFunctionsForTestCases(TestCase):
     def test__processing_tree_result__case_1(self):
         input_data = [
             {'dummy_data': True}
@@ -156,7 +156,7 @@ class HelperFunctions(TestCase):
         update_expected_with_parsed_data(input_data, data)
         self.assertEqual(expected, data)
 
-    def test__processing_tree_result__case_4(self):
+    def test__processing_tree_result__case_5(self):
         input_data = [
             {'dummy_data_0': True},
             {'dummy_data_1': True},
@@ -1504,11 +1504,10 @@ class VariableSubstitution(TestCase):
                 }
             }
         }
-        result = data_processor.process_variables(data)
+        data_processor.process_variables(data)
         self.assertEqual(expected, data)
 
     def test__multiple_variables_can_be_substituted_to_commands(self):
-        self.maxDiff = None
         data = {
             'variables': {
                 'var_a': {
@@ -1551,11 +1550,10 @@ class VariableSubstitution(TestCase):
                 }
             }
         }
-        result = data_processor.process_variables(data)
+        data_processor.process_variables(data)
         self.assertEqual(expected, data)
 
     def test__multiple_variables_can_be_substituted_to_main_description(self):
-        self.maxDiff = None
         data = {
             'variables': {
                 'var_a': {
@@ -1588,7 +1586,7 @@ class VariableSubstitution(TestCase):
                 }
             }
         }
-        result = data_processor.process_variables(data)
+        data_processor.process_variables(data)
         self.assertEqual(expected, data)
 
     def test__multiple_variables_can_be_substituted_to_command_descriptions(self):
@@ -1638,8 +1636,36 @@ class VariableSubstitution(TestCase):
                 }
             }
         }
-        result = data_processor.process_variables(data)
+        data_processor.process_variables(data)
         self.assertEqual(expected, data)
 
 
+class DependencyAddition(TestCase):
+    def test__dependencies_can_be_added(self):
+        input_data = [
+            {
+                'path': 'path_B',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'command_A': {
+                        'pre': ['pre B']
+                    }
+                },
+                'children': []
+            },
+            {
+                'path': 'path_B',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'command_B': {
+                        'dependencies': 'command_A',
+                        'pre': ['pre B']
+                    }
+                },
+                'children': []
+            }
+        ]
+        expected = 'command_A'
+        result = data_processor.finalize_data(input_data)
+        self.assertEqual(expected, result['commands']['command_B']['dependencies'])
 

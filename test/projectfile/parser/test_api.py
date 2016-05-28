@@ -21,8 +21,8 @@ from projects.projectfile.parser import state
 from projects.projectfile import parser
 
 
-class StateMachineParser(TestCase):
-    def test__single_command_no_deps(self):
+class LinesProcessing(TestCase):
+    def test__single_command_no_dependencies(self):
         lines = [
             'from v1.2.3',
             '',
@@ -40,7 +40,7 @@ class StateMachineParser(TestCase):
         result = parser._parse_lines(lines)
         self.assertEqual(expected, result)
 
-    def test__single_command_no_deps_more_commands(self):
+    def test__single_command_no_dependencies_more_commands(self):
         lines = [
             'from v1.2.3',
             '',
@@ -60,7 +60,7 @@ class StateMachineParser(TestCase):
         result = parser._parse_lines(lines)
         self.assertEqual(expected, result)
 
-    def test__single_command_with_deps(self):
+    def test__single_command_with_dependencies(self):
         lines = [
             'from v1.2.3',
             '',
@@ -79,7 +79,7 @@ class StateMachineParser(TestCase):
         result = parser._parse_lines(lines)
         self.assertEqual(expected, result)
 
-    def test__more_commands_with_no_deps(self):
+    def test__more_commands_with_no_dependencies(self):
         lines = [
             'from v1.2.3',
             '',
@@ -598,7 +598,7 @@ class StateMachineParser(TestCase):
         self.assertEqual(expected, result)
 
 
-class StateMachineExceptionWrapping(TestCase):
+class LineProcessingExceptionWrapping(TestCase):
     @mock.patch.object(state, 'start')
     def test__line_numbers_prepended_to_exception_message(self, mock_state):
         error_message = 'Some error'
