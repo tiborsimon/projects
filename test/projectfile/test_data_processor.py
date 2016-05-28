@@ -1412,6 +1412,72 @@ class AppendVariables(TestCase):
 
 
 class VariableSubstitution(TestCase):
+    def test__substitution_function_recognize_variable_with_short_syntax(self):
+        line = '$magic'
+        variables = {
+            'magic': {
+                'value': '42'
+            }
+        }
+        expected = '42'
+        result = data_processor._substitute_variables(line, variables)
+        self.assertEqual(expected, result)
+
+    def test__substitution_function_recognize_variable_with_long_syntax(self):
+        line = '${magic}'
+        variables = {
+            'magic': {
+                'value': '42'
+            }
+        }
+        expected = '42'
+        result = data_processor._substitute_variables(line, variables)
+        self.assertEqual(expected, result)
+
+    def test__substitution_function_recognize_variable_with_short_syntax__in_text(self):
+        line = '...$magic...'
+        variables = {
+            'magic': {
+                'value': '42'
+            }
+        }
+        expected = '...42...'
+        result = data_processor._substitute_variables(line, variables)
+        self.assertEqual(expected, result)
+
+    def test__substitution_function_recognize_variable_with_long_syntax__in_text(self):
+        line = '...${magic}...'
+        variables = {
+            'magic': {
+                'value': '42'
+            }
+        }
+        expected = '...42...'
+        result = data_processor._substitute_variables(line, variables)
+        self.assertEqual(expected, result)
+
+    def test__missing_escapement__no_substitution(self):
+        line = '...{magic}...'
+        variables = {
+            'magic': {
+                'value': '42'
+            }
+        }
+        expected = '...{magic}...'
+        result = data_processor._substitute_variables(line, variables)
+        self.assertEqual(expected, result)
+
+    def test__missing_escapement__no_substitution_case_2(self):
+        line = '...magic...'
+        variables = {
+            'magic': {
+                'value': '42'
+            }
+        }
+        expected = '...magic...'
+        result = data_processor._substitute_variables(line, variables)
+        self.assertEqual(expected, result)
+
     def test__variable_can_be_substituted_to_commands(self):
         data = {
             'variables': {
@@ -1423,7 +1489,7 @@ class VariableSubstitution(TestCase):
             'commands': {
                 'command': {
                     'script': [
-                        'cd var_a'
+                        'cd $var_a'
                     ]
                 }
             }
@@ -1456,14 +1522,14 @@ class VariableSubstitution(TestCase):
             'commands': {
                 'command': {
                     'script': [
-                        'cd var_a',
-                        'echo var_b'
+                        'cd ${var_a}',
+                        'echo ${var_b}'
                     ]
                 },
                 'other_command': {
                     'script': [
-                        'cd var_b',
-                        'echo var_a'
+                        'cd $var_b',
+                        'echo $var_a'
                     ]
                 }
             }
@@ -1500,12 +1566,12 @@ class VariableSubstitution(TestCase):
                 }
             },
             'min-version': (1, 2, 3),
-            'description': 'var_a ... var_b',
+            'description': '$var_a ... $var_b',
             'commands': {
                 'command': {
                     'script': [
-                        'cd var_a',
-                        'echo var_b'
+                        'cd $var_a',
+                        'echo $var_b'
                     ]
                 }
             }
@@ -1526,7 +1592,6 @@ class VariableSubstitution(TestCase):
         self.assertEqual(expected, data)
 
     def test__multiple_variables_can_be_substituted_to_command_descriptions(self):
-        self.maxDiff = None
         data = {
             'variables': {
                 'var_a': {
@@ -1539,17 +1604,17 @@ class VariableSubstitution(TestCase):
             'min-version': (1, 2, 3),
             'commands': {
                 'command': {
-                    'description': 'var_a ... var_b',
+                    'description': '$var_a ... $var_b',
                     'script': [
-                        'cd var_a',
-                        'echo var_b'
+                        'cd $var_a',
+                        'echo $var_b'
                     ]
                 },
                 'other_command': {
-                    'description': 'var_b ... var_a',
+                    'description': '$var_b ... $var_a',
                     'script': [
-                        'cd var_b',
-                        'echo var_a'
+                        'cd $var_b',
+                        'echo $var_a'
                     ]
                 }
             }

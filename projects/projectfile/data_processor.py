@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import re
+
 from . import error
 from . import parser
 from . import file_handler
@@ -270,6 +272,7 @@ def _add_variables(node, data):
                 }
 
 
+
 def _process_node(command_buffer, node, data):
     _process_commands(command_buffer, node)
     _process_children(command_buffer, node, data)
@@ -288,6 +291,8 @@ def process_variables(data):
     if 'variables' in data:
         for command_name in data['commands']:
             command = data['commands'][command_name]
+            if 'alias' in command:
+                continue
             _apply_variables_to_command_description(command, data)
             _apply_variables_to_command_lines(command, data)
         _apply_variables_to_main_description(data)
@@ -296,21 +301,24 @@ def process_variables(data):
 
 def _apply_variables_to_command_description(command, data):
     if 'description' in command:
-        for var_name in data['variables']:
-            command['description'] = command['description'].replace(var_name, data['variables'][var_name]['value'])
+        command['description'] = _substitute_variables(command['description'], data['variables'])
 
 
 def _apply_variables_to_command_lines(command, data):
     temp_lines = []
     for line in command['script']:
-        line = line
-        for var_name in data['variables']:
-            line = line.replace(var_name, data['variables'][var_name]['value'])
+        line = _substitute_variables(line, data['variables'])
         temp_lines.append(line)
     command['script'] = temp_lines
 
 
 def _apply_variables_to_main_description(data):
     if 'description' in data:
-        for var_name in data['variables']:
-            data['description'] = data['description'].replace(var_name, data['variables'][var_name]['value'])
+        data['description'] = _substitute_variables(data['description'], data['variables'])
+
+
+def _substitute_variables(line, variables):
+    for var_name in variables:
+        line = line.replace('$' + var_name, variables[var_name]['value'])
+        line = line.replace('${' + var_name + '}', variables[var_name]['value'])
+    return line
