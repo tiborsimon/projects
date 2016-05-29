@@ -76,12 +76,9 @@ def _create_node(path, raw_lines):
     try:
         node.update(parser.process_lines(raw_lines))
     except error.ProjectfileError as e:
-        try:
-            msg = e.message
-        except AttributeError:
-            msg = e.msg
-        msg.update({'path': path})
-        raise error.ProjectfileError(msg)
+        message = e.args[0]
+        message.update({'path': path})
+        raise error.ProjectfileError(message)
     return node
 
 

@@ -15,13 +15,10 @@ def _parse_lines(lines):
         try:
             state_function = state_function(data, lines[i])
         except SyntaxError as e:
-            try:
-                msg = e.message
-            except AttributeError:
-                msg = e.msg
+            message = e.args[0]
             raise error.ProjectfileError({
                 'line': i + 1,
-                'error': msg
+                'error': message
             })
     _finish_processing(data, state_function)
     return data
