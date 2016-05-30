@@ -22,7 +22,7 @@ VARIABLE_INDENTATION_ERROR = 'Variables cannot be indented!'
 VARIABLE_QUOTE_BEFORE_ERROR = 'No matching quote found at the beginning of value!'
 VARIABLE_QUOTE_AFTER_ERROR = 'No matching quote found at the end of value!'
 VARIABLE_SYNTAX_ERROR = 'Invalid variable format! It should be "my-variable = 42".'
-VARIABLE_REDEFINED_ERROR = 'Variable "{}" defined in the Projectfile located in "{}" is redefined in the Projectfile located in {}!'
+VARIABLE_REDEFINED_ERROR = 'Variable "{}" was redefined in the Projectfile located in "{}". Original definition was located in "{}"!'
 
 COMMAND_HEADER_INDENTATION_ERROR = 'Command header cannot be indented!'
 COMMAND_HEADER_MISSING_COLON_ERROR = 'Missing colon after command name!'

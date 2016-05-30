@@ -755,6 +755,70 @@ class FinalizingCommands(TestCase):
         result = data_processor.finalize_data(input_data)
         self.assertEqual(expected, result)
 
+    def test__root_with_two_children(self):
+        input_data = [
+            {
+                'path': 'path_root',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'command': {
+                        'pre': ['pre root'],
+                        'post': ['post root']
+                    }
+                },
+                'children': [
+                    {
+                        'path': 'path_A',
+                        'min-version': (1, 2, 3),
+                        'commands': {
+                            'command': {
+                                'pre': ['pre A'],
+                                'post': ['post A']
+                            }
+                        },
+                        'children': []
+                    },
+                    {
+                        'path': 'path_B',
+                        'min-version': (1, 2, 3),
+                        'commands': {
+                            'command': {
+                                'pre': ['pre B'],
+                                'post': ['post B']
+                            }
+                        },
+                        'children': []
+                    }
+
+                ]
+            }
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'script': [
+                        'cd path_root',
+                        'pre root',
+                        'cd path_A',
+                        'pre A',
+                        'post A',
+                        'cd path_B',
+                        'pre B',
+                        'post B',
+                        'post root'
+                    ]
+                }
+            }
+        }
+        result = data_processor.finalize_data(input_data)
+        self.maxDiff = None
+        from pprint import pprint
+        pprint(result)
+        self.assertEqual(expected, result)
+
+
+class AlternativeHandling(TestCase):
     def test__single_file_single_command__alternative_presents(self):
         input_data = [
             {
@@ -1078,7 +1142,7 @@ class FinalizingDescriptions(TestCase):
         result = data_processor.finalize_data(input_data)
         self.assertEqual(expected, result['description'])
 
-    def test__more_than_one_main_description__will_be_appended(self):
+    def test__more_than_one_main_description__will_be_appended__separate_nodes(self):
         input_data = [
             {
                 'path': 'path_A',
@@ -1106,6 +1170,38 @@ class FinalizingDescriptions(TestCase):
             }
         ]
         expected = 'Some text..\n\nAnother main description..'
+        result = data_processor.finalize_data(input_data)
+        self.assertEqual(expected, result['description'])
+
+    def test__more_than_one_main_description__will_be_appended__child(self):
+        input_data = [
+            {
+                'path': 'path_A',
+                'min-version': (1, 2, 3),
+                'description': 'Root',
+                'commands': {
+                    'command_A': {
+                        'pre': ['pre A'],
+                        'post': ['post A']
+                    }
+                },
+                'children': [
+                    {
+                        'path': 'path_B',
+                        'min-version': (1, 2, 3),
+                        'description': 'Child',
+                        'commands': {
+                            'command_B': {
+                                'pre': ['pre B'],
+                                'post': ['post B']
+                            }
+                        },
+                        'children': []
+                    }
+                ]
+            }
+        ]
+        expected = 'Root\n\nChild'
         result = data_processor.finalize_data(input_data)
         self.assertEqual(expected, result['description'])
 
@@ -1406,8 +1502,8 @@ class AppendVariables(TestCase):
         with self.assertRaises(Exception) as cm:
             result = data_processor.finalize_data(input_data)
         assert_exception(self, cm, error.ProjectfileError, {
-            'error': error.VARIABLE_REDEFINED_ERROR.format('variable-a', 'path_B', 'path_A'),
-            'path': 'path_A'
+            'error': error.VARIABLE_REDEFINED_ERROR.format('variable-a', 'path_A', 'path_B'),
+            'path': 'path_B'
         })
 
 

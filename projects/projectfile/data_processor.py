@@ -142,16 +142,14 @@ def finalize_data(input_data):
 
     for node in input_data:
         _process_node(command_buffer, node, data)
+    # _delete_divisors(command_buffer)
     return data
 
 
 def _add_cd(pool, node):
     try:
         index = pool['script'].index('===')
-        pool['script'].remove('===')
         pool['script'].insert(index, 'cd ' + node['path'])
-        index += 1
-        pool['script'].insert(index, '===')
     except ValueError:
         pool['script'].append('cd ' + node['path'])
 
@@ -159,17 +157,15 @@ def _add_cd(pool, node):
 def _add_pre(pool, raw_command):
     try:
         index = pool['script'].index('===')
-        pool['script'].remove('===')
         for line in raw_command['pre']:
             pool['script'].insert(index, line)
             index += 1
-        pool['script'].insert(index, '===')
     except ValueError:
         pool['script'].extend(raw_command['pre'])
 
 
-def _add_divisor(pool):
-    if '===' not in pool['script']:
+def _add_divisor(pool, node):
+    if node['children']:
         pool['script'].append('===')
 
 
@@ -213,19 +209,23 @@ def _command_names(node):
     return list(node['commands'].keys())
 
 
-def _delete_divisors(commands):
+def _pop_divisors(commands):
     for name in commands:
         command = commands[name]
         if 'script' in command:
-            command['script'] = [l for l in command['script'] if l != '===']
+            try:
+                index = command['script'].index('===')
+                del command['script'][index]
+            except ValueError:
+                pass
 
 
 def _process_children(command_buffer, node, data):
     if node['children']:
         for child in node['children']:
             _process_node(command_buffer, child, data)
-    else:
-        _delete_divisors(command_buffer)
+        else:
+            _pop_divisors(command_buffer)
 
 
 def get_working_pool(command_buffer, command_name):
@@ -254,7 +254,7 @@ def _process_commands(command_buffer, node):
         _add_dependencies(pool, raw_command)
         _add_cd(pool, node)
         _add_pre(pool, raw_command)
-        _add_divisor(pool)
+        _add_divisor(pool, node)
         _add_post(pool, raw_command)
 
 
@@ -277,10 +277,11 @@ def _add_variables(node, data):
 
 def _process_node(command_buffer, node, data):
     _process_commands(command_buffer, node)
-    _process_children(command_buffer, node, data)
     _add_version(node, data)
     _add_main_description(node, data)
     _add_variables(node, data)
+    _process_children(command_buffer, node, data)
+
 
 
 def process_variables(data):
