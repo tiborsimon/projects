@@ -813,8 +813,6 @@ class FinalizingCommands(TestCase):
         }
         result = data_processor.finalize_data(input_data)
         self.maxDiff = None
-        from pprint import pprint
-        pprint(result)
         self.assertEqual(expected, result)
 
 

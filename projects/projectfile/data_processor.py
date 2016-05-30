@@ -164,8 +164,11 @@ def _add_pre(pool, raw_command):
         pool['script'].extend(raw_command['pre'])
 
 
-def _add_divisor(pool, node):
-    if node['children']:
+def _add_divisor(pool):
+    try:
+        index = pool['script'].index('===')
+        pool['script'].insert(index, '===')
+    except ValueError:
         pool['script'].append('===')
 
 
@@ -226,6 +229,8 @@ def _process_children(command_buffer, node, data):
             _process_node(command_buffer, child, data)
         else:
             _pop_divisors(command_buffer)
+    else:
+        _pop_divisors(command_buffer)
 
 
 def get_working_pool(command_buffer, command_name):
@@ -254,7 +259,7 @@ def _process_commands(command_buffer, node):
         _add_dependencies(pool, raw_command)
         _add_cd(pool, node)
         _add_pre(pool, raw_command)
-        _add_divisor(pool, node)
+        _add_divisor(pool)
         _add_post(pool, raw_command)
 
 
