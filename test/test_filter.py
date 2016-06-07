@@ -30,14 +30,14 @@ class FilterTestsAPI(TestCase):
             'abc'
         ]
         f = filter.Filter(init)
-        key = 'd'
         expected = [
             {
                 'string': init[0],
                 'selection': ()
             }
         ]
-        result = f.add_key(key)
+        f.add_key('d')
+        result = f.filter()
         self.assertEqual(expected, result)
 
     def test__result_for_one_line_with_one_match(self):
@@ -45,7 +45,6 @@ class FilterTestsAPI(TestCase):
             'abcd'
         ]
         f = filter.Filter(init)
-        key = 'c'
         expected = [
             {
                 'string': init[0],
@@ -54,7 +53,8 @@ class FilterTestsAPI(TestCase):
                 )
             }
         ]
-        result = f.add_key(key)
+        f.add_key('c')
+        result = f.filter()
         self.assertEqual(expected, result)
 
     def test__result_for_one_line_with_two_matches(self):
@@ -62,7 +62,6 @@ class FilterTestsAPI(TestCase):
             'abcdc'
         ]
         f = filter.Filter(init)
-        key = 'cd'
         expected = [
             {
                 'string': init[0],
@@ -72,7 +71,9 @@ class FilterTestsAPI(TestCase):
                 )
             }
         ]
-        result = f.add_key(key)
+        f.add_key('c')
+        f.add_key('d')
+        result = f.filter()
         self.assertEqual(expected, result)
 
     def test__sorting_works_for_two_items(self):
@@ -81,7 +82,6 @@ class FilterTestsAPI(TestCase):
             'abc'
         ]
         f = filter.Filter(init)
-        key = 'a'
         expected = [
             {
                 'string': init[1],
@@ -94,7 +94,8 @@ class FilterTestsAPI(TestCase):
                 'selection': ()
             }
         ]
-        result = f.add_key(key)
+        f.add_key('a')
+        result = f.filter()
         self.assertEqual(expected, result)
 
     def test__sorting_works_for_three_items(self):
@@ -104,7 +105,6 @@ class FilterTestsAPI(TestCase):
             'b_g_dgae'
         ]
         f = filter.Filter(init)
-        key = 'ae'
         expected = [
             {
                 'string': init[1],
@@ -129,7 +129,32 @@ class FilterTestsAPI(TestCase):
             }
 
         ]
-        result = f.add_key(key)
+        f.add_key('a')
+        f.add_key('e')
+        result = f.filter()
+        self.assertEqual(expected, result)
+
+    def test__adding_then_removing_keys(self):
+        init = [
+            'abcdc'
+        ]
+        f = filter.Filter(init)
+        expected = [
+            {
+                'string': init[0],
+                'selection': (
+                    (2, 3),
+                    (3, 4)
+                )
+            }
+        ]
+        f.add_key('a')
+        f.remove_key()
+        f.add_key('c')
+        f.add_key('d')
+        f.add_key('k')
+        f.remove_key()
+        result = f.filter()
         self.assertEqual(expected, result)
 
 

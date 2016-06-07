@@ -22,36 +22,53 @@ def weight_item(item):
     item['weight'] = int(weight_string, 2)
 
 
+def sort_structure(data):
+    for item in data:
+        weight_item(item)
+    data = sorted(data, key=lambda k: k['weight'], reverse=True)
+    for item in data:
+        del item['weight']
+    return data
+
+
+def generate_data_structure_for_search_string(pattern, search_string):
+    p = re.compile(pattern)
+    ret = []
+    for line in search_string:
+        m = p.search(line)
+        selection = m.regs[1:] if m else ()
+        ret.append({
+            'string': line,
+            'selection': selection
+        })
+    return ret
+
+
+def filter_data(keys, data):
+    pattern = _get_pattern(keys)
+    data = generate_data_structure_for_search_string(pattern, data)
+    sorted_data = sort_structure(data)
+    return sorted_data
+
+
 class Filter(object):
     def __init__(self, data):
-        self.lines = data
+        self.data = data
         self.keys = ''
 
-    def generate_data_structure(self, key):
-        self.keys += key
-        pattern = re.compile(_get_pattern(self.keys))
-
-        ret = []
-
-        for line in self.lines:
-            m = pattern.search(line)
-            selection = m.regs[1:] if m else ()
-            ret.append({
-                'string': line,
-                'selection': selection
-            })
-        return ret
-
     def add_key(self, key):
-        data = self.generate_data_structure(key)
-        sorted_data = self.sort_structure(data)
-        return sorted_data
+        self.keys += key
 
-    def sort_structure(self, data):
-        for item in data:
-            weight_item(item)
-        data = sorted(data, key=lambda k: k['weight'], reverse=True)
-        for item in data:
-            del item['weight']
-        return data
+    def remove_key(self):
+        if len(self.keys) == 0:
+            pass
+        elif len(self.keys) == 1:
+            self.keys = ''
+        else:
+            self.keys = self.keys[:-1]
+
+    def filter(self):
+        return filter_data(self.keys, self.data)
+
+
 
