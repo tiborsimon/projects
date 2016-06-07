@@ -33,7 +33,7 @@ class FilterTestsAPI(TestCase):
         key = 'd'
         expected = [
             {
-                'line': init[0],
+                'string': init[0],
                 'selection': ()
             }
         ]
@@ -48,7 +48,7 @@ class FilterTestsAPI(TestCase):
         key = 'c'
         expected = [
             {
-                'line': init[0],
+                'string': init[0],
                 'selection': (
                     (2,3),
                 )
@@ -65,7 +65,7 @@ class FilterTestsAPI(TestCase):
         key = 'cd'
         expected = [
             {
-                'line': init[0],
+                'string': init[0],
                 'selection': (
                     (2,3),
                     (3,4)
@@ -74,6 +74,64 @@ class FilterTestsAPI(TestCase):
         ]
         result = f.add_key(key)
         self.assertEqual(expected, result)
+
+    def test__sorting_works_for_two_items(self):
+        init = [
+            'def',
+            'abc'
+        ]
+        f = filter.Filter(init)
+        key = 'a'
+        expected = [
+            {
+                'string': init[1],
+                'selection': (
+                    (0,1),
+                )
+            },
+            {
+                'string': init[0],
+                'selection': ()
+            }
+        ]
+        result = f.add_key(key)
+        self.assertEqual(expected, result)
+
+    def test__sorting_works_for_three_items(self):
+        init = [
+            'b_c_faef',
+            'b_a_deef',
+            'b_g_dgae'
+        ]
+        f = filter.Filter(init)
+        key = 'ae'
+        expected = [
+            {
+                'string': init[1],
+                'selection': (
+                    (2,3),
+                    (5,6)
+                )
+            },
+            {
+                'string': init[0],
+                'selection': (
+                    (5,6),
+                    (6,7)
+                )
+            },
+            {
+                'string': init[2],
+                'selection': (
+                    (6,7),
+                    (7,8)
+                )
+            }
+
+        ]
+        result = f.add_key(key)
+        self.assertEqual(expected, result)
+
 
 class SearchPatternGeneration(TestCase):
     def test__pattern_generation_1(self):
@@ -88,48 +146,87 @@ class SearchPatternGeneration(TestCase):
         result = filter._get_pattern(keys)
         self.assertEqual(expected, result)
 
-class SortAlgorithm(TestCase):
-    def test__one_long_line__first_character_match__returns_zero(self):
+
+class WeightStringGeneration(TestCase):
+    def test__generate_weigth_conversion_sring_from_positions_case_1(self):
         item = {
-            'line': 'a',
+            'string': 'a',
             'selection': (
                 (0,1),
             )
         }
-        expected = 0
-        filter.weight_item(item)
-        self.assertEqual(expected, item['weight'])
+        expected = '1'
+        result = filter.weight_string_for_item(item)
+        self.assertEqual(expected, result)
 
-    def test__two_long_line__all_character_match__returns_zero(self):
+    def test__generate_weigth_conversion_sring_from_positions_case_2(self):
         item = {
-            'line': 'aa',
+            'string': 'aa',
+            'selection': (
+                (0,1),
+            )
+        }
+        expected = '10'
+        result = filter.weight_string_for_item(item)
+        self.assertEqual(expected, result)
+
+    def test__generate_weigth_conversion_sring_from_positions_case_3(self):
+        item = {
+            'string': 'aa',
             'selection': (
                 (0,2),
             )
         }
-        expected = 0
-        filter.weight_item(item)
-        self.assertEqual(expected, item['weight'])
+        expected = '11'
+        result = filter.weight_string_for_item(item)
+        self.assertEqual(expected, result)
 
-    def test__three_long_line__all_character_match__returns_zero(self):
+    def test__generate_weigth_conversion_sring_from_positions_case_4(self):
         item = {
-            'line': 'aaa',
+            'string': 'aabbc',
             'selection': (
-                (0,3),
+                (0,1),
+                (2,3),
             )
         }
-        expected = 0
-        filter.weight_item(item)
-        self.assertEqual(expected, item['weight'])
+        expected = '10100'
+        result = filter.weight_string_for_item(item)
+        self.assertEqual(expected, result)
 
-    def test__three_long_line__first_two_characters_match__returns_zero(self):
+    def test__generate_weigth_conversion_sring_from_positions_case_5(self):
         item = {
-            'line': 'aaa',
+            'string': 'aabbc',
             'selection': (
-                (0,2),
+                (0,1),
+                (2,5),
             )
         }
-        expected = 1
-        filter.weight_item(item)
+        expected = '10111'
+        result = filter.weight_string_for_item(item)
+        self.assertEqual(expected, result)
+
+
+class ItemWeighting(TestCase):
+    def test__weight_can_converted_to_number_case_1(self):
+        item = {
+            'string': 'aa',
+            'selection': (
+                (0,1),
+            )
+        }
+        expected = 2
+        result = filter.weight_item(item)
+        self.assertEqual(expected, item['weight'])
+
+    def test__weight_can_converted_to_number_case_2(self):
+        item = {
+            'string': 'aabbc',
+            'selection': (
+                (0,1),
+                (2,5),
+            )
+        }
+        expected = 23
+        result = filter.weight_item(item)
         self.assertEqual(expected, item['weight'])
 

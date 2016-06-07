@@ -9,8 +9,17 @@ def _get_pattern(keys):
     return ret
 
 
+def weight_string_for_item(item):
+    buffer = list('0'*len(item['string']))
+    for s in item['selection']:
+        for i in range(s[0], s[1]):
+            buffer[i] = '1'
+    return ''.join(buffer)
+
+
 def weight_item(item):
-    item['weight'] = 0
+    weight_string = weight_string_for_item(item)
+    item['weight'] = int(weight_string, 2)
 
 
 class Filter(object):
@@ -18,7 +27,7 @@ class Filter(object):
         self.lines = data
         self.keys = ''
 
-    def generate_data_stucture(self, key):
+    def generate_data_structure(self, key):
         self.keys += key
         pattern = re.compile(_get_pattern(self.keys))
 
@@ -28,11 +37,21 @@ class Filter(object):
             m = pattern.search(line)
             selection = m.regs[1:] if m else ()
             ret.append({
-                'line': line,
+                'string': line,
                 'selection': selection
             })
         return ret
 
     def add_key(self, key):
-        structure = self.generate_data_stucture(key)
-        return structure
+        data = self.generate_data_structure(key)
+        sorted_data = self.sort_structure(data)
+        return sorted_data
+
+    def sort_structure(self, data):
+        for item in data:
+            weight_item(item)
+        data = sorted(data, key=lambda k: k['weight'], reverse=True)
+        for item in data:
+            del item['weight']
+        return data
+
