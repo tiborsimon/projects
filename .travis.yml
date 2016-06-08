@@ -8,4 +8,7 @@ python:
   - "3.5-dev"
   - "nightly"
 # mock is already installed on travis
-script: "python -m unittest discover"
+script:
+  - python -m unittest discover
+after_success:
+  - coveralls
