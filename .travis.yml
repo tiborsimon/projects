@@ -8,9 +8,12 @@ python:
   - "3.5-dev"
   - "nightly"
 # mock is already installed on travis
-install:  
+install:
+  - pip install -r requirements.txt
   - pip install python-coveralls
+  - pip install coverage
+  - pip install nose
 script:
-  - python -m unittest discover
+  - nosetests --with-coverage
 after_success:
   - coveralls
