@@ -134,6 +134,39 @@ class FilterTestsAPI(TestCase):
         result = f.filter()
         self.assertEqual(expected, result)
 
+    def test__equal_weight_sorted_by_alphabet(self):
+        init = [
+            'a_d',
+            'a_b',
+            'a_c'
+        ]
+        f = filter.Filter(init)
+        expected = [
+            {
+                'string': init[1],
+                'selection': (
+                    (0, 1),
+                )
+            },
+            {
+                'string': init[2],
+                'selection': (
+                    (0, 1),
+                )
+            },
+            {
+                'string': init[0],
+                'selection': (
+                    (0, 1),
+                )
+            },
+
+        ]
+        f.add_key('a')
+        result = f.filter()
+        self.assertEqual(expected, result)
+
+
     def test__adding_then_removing_keys(self):
         init = [
             'abcdc'

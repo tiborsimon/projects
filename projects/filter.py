@@ -25,7 +25,8 @@ def weight_item(item):
 def sort_structure(data):
     for item in data:
         weight_item(item)
-    data = sorted(data, key=lambda k: k['weight'], reverse=True)
+    data.sort(key=lambda k: k['string'])
+    data.sort(key=lambda k: k['weight'], reverse=True)
     for item in data:
         del item['weight']
     return data
