@@ -32,6 +32,32 @@ def sort_structure(data):
     return data
 
 
+def merge_neighbour_selections(data):
+    for node in data:
+        merged = []
+        last = ()
+        if len(node['selection']) < 2:
+            return
+        for s in node['selection']:
+            if last:
+                if last[1] == s[0]:
+                    new_s = (last[0], s[1])
+                    if merged:
+                        merged.pop()
+                    merged.append(new_s)
+                    last = new_s
+                else:
+                    if not merged:
+                        merged.append(last)
+                    elif merged[-1] != last:
+                        merged.append(last)
+                    merged.append(s)
+                    last = s
+            else:
+                last = s
+        node['selection'] = tuple(merged)
+
+
 def generate_data_structure_for_search_string(pattern, search_string):
     p = re.compile(pattern)
     ret = []
@@ -42,14 +68,57 @@ def generate_data_structure_for_search_string(pattern, search_string):
             'string': line,
             'selection': selection
         })
+    merge_neighbour_selections(ret)
     return ret
+
+
+def transform_data(data):
+    ret = []
+    for item in data:
+        node = []
+        if item['selection']:
+            index = 0
+            line = item['string']
+            for s in item['selection']:
+                if s[0] == 0:
+                    node.append({
+                        'string': line[:s[1]],
+                        'highlight': True
+                    })
+                else:
+                    node.append({
+                        'string': line[index-index:s[0]-index],
+                        'highlight': False
+                    })
+                    node.append({
+                        'string': line[s[0]-index:s[1]-index],
+                        'highlight': True
+                    })
+                line = line[s[1]-index:]
+                index = s[1]
+
+            else:
+                if line:
+                    node.append({
+                        'string': line,
+                        'highlight': False
+                    })
+        else:
+            node.append({
+                'string': item['string'],
+                'highlight': False
+            })
+        ret.append(node)
+    return ret
+
 
 
 def filter_data(keys, data):
     pattern = _get_pattern(keys)
     data = generate_data_structure_for_search_string(pattern, data)
     sorted_data = sort_structure(data)
-    return sorted_data
+    final_data = transform_data(sorted_data)
+    return final_data
 
 
 class Filter(object):

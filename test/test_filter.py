@@ -25,16 +25,18 @@ class FilterTestsAPI(TestCase):
         ]
         f = filter.Filter(input)
 
-    def test__no_match_returns_empty_selection(self):
+    def test__no_match_returns__whole_string__without_highlight(self):
         init = [
             'abc'
         ]
         f = filter.Filter(init)
         expected = [
-            {
-                'string': init[0],
-                'selection': ()
-            }
+            [
+                {
+                    'string': 'abc',
+                    'highlight': False
+                }
+            ]
         ]
         f.add_key('d')
         result = f.filter()
@@ -46,12 +48,20 @@ class FilterTestsAPI(TestCase):
         ]
         f = filter.Filter(init)
         expected = [
-            {
-                'string': init[0],
-                'selection': (
-                    (2,3),
-                )
-            }
+            [
+                {
+                    'string': 'ab',
+                    'highlight': False
+                },
+                {
+                    'string': 'c',
+                    'highlight': True
+                },
+                {
+                    'string': 'd',
+                    'highlight': False
+                }
+            ]
         ]
         f.add_key('c')
         result = f.filter()
@@ -63,13 +73,20 @@ class FilterTestsAPI(TestCase):
         ]
         f = filter.Filter(init)
         expected = [
-            {
-                'string': init[0],
-                'selection': (
-                    (2,3),
-                    (3,4)
-                )
-            }
+            [
+                {
+                    'string': 'ab',
+                    'highlight': False
+                },
+                {
+                    'string': 'cd',
+                    'highlight': True
+                },
+                {
+                    'string': 'c',
+                    'highlight': False
+                }
+            ]
         ]
         f.add_key('c')
         f.add_key('d')
@@ -83,16 +100,22 @@ class FilterTestsAPI(TestCase):
         ]
         f = filter.Filter(init)
         expected = [
-            {
-                'string': init[1],
-                'selection': (
-                    (0,1),
-                )
-            },
-            {
-                'string': init[0],
-                'selection': ()
-            }
+            [
+                {
+                    'string': 'a',
+                    'highlight': True
+                },
+                {
+                    'string': 'bc',
+                    'highlight': False
+                }
+            ],
+            [
+                {
+                    'string': 'def',
+                    'highlight': False
+                }
+            ]
         ]
         f.add_key('a')
         result = f.filter()
@@ -106,28 +129,52 @@ class FilterTestsAPI(TestCase):
         ]
         f = filter.Filter(init)
         expected = [
-            {
-                'string': init[1],
-                'selection': (
-                    (2,3),
-                    (5,6)
-                )
-            },
-            {
-                'string': init[0],
-                'selection': (
-                    (5,6),
-                    (6,7)
-                )
-            },
-            {
-                'string': init[2],
-                'selection': (
-                    (6,7),
-                    (7,8)
-                )
-            }
-
+            [
+                {
+                    'string': 'b_',
+                    'highlight': False
+                },
+                {
+                    'string': 'a',
+                    'highlight': True
+                },
+                {
+                    'string': '_d',
+                    'highlight': False
+                },
+                {
+                    'string': 'e',
+                    'highlight': True
+                },
+                {
+                    'string': 'ef',
+                    'highlight': False
+                }
+            ],
+            [
+                {
+                    'string': 'b_c_f',
+                    'highlight': False
+                },
+                {
+                    'string': 'ae',
+                    'highlight': True
+                },
+                {
+                    'string': 'f',
+                    'highlight': False
+                }
+            ],
+            [
+                {
+                    'string': 'b_g_dg',
+                    'highlight': False
+                },
+                {
+                    'string': 'ae',
+                    'highlight': True
+                }
+            ]
         ]
         f.add_key('a')
         f.add_key('e')
@@ -142,25 +189,36 @@ class FilterTestsAPI(TestCase):
         ]
         f = filter.Filter(init)
         expected = [
-            {
-                'string': init[1],
-                'selection': (
-                    (0, 1),
-                )
-            },
-            {
-                'string': init[2],
-                'selection': (
-                    (0, 1),
-                )
-            },
-            {
-                'string': init[0],
-                'selection': (
-                    (0, 1),
-                )
-            },
-
+            [
+                {
+                    'string': 'a',
+                    'highlight': True
+                },
+                {
+                    'string': '_b',
+                    'highlight': False
+                }
+            ],
+            [
+                {
+                    'string': 'a',
+                    'highlight': True
+                },
+                {
+                    'string': '_c',
+                    'highlight': False
+                }
+            ],
+            [
+                {
+                    'string': 'a',
+                    'highlight': True
+                },
+                {
+                    'string': '_d',
+                    'highlight': False
+                }
+            ]
         ]
         f.add_key('a')
         result = f.filter()
@@ -173,13 +231,20 @@ class FilterTestsAPI(TestCase):
         ]
         f = filter.Filter(init)
         expected = [
-            {
-                'string': init[0],
-                'selection': (
-                    (2, 3),
-                    (3, 4)
-                )
-            }
+            [
+                {
+                    'string': 'ab',
+                    'highlight': False
+                },
+                {
+                    'string': 'cd',
+                    'highlight': True
+                },
+                {
+                    'string': 'c',
+                    'highlight': False
+                }
+            ]
         ]
         f.add_key('a')
         f.remove_key()
@@ -288,3 +353,332 @@ class ItemWeighting(TestCase):
         result = filter.weight_item(item)
         self.assertEqual(expected, item['weight'])
 
+
+class Transformation(TestCase):
+    def test__transformation_with_no_selection__returns_the_whole_line(self):
+        data = [
+            {
+                'string': 'abc',
+                'selection': ()
+            }
+        ]
+        expected = [
+            [
+                {
+                    'string': 'abc',
+                    'highlight': False
+                }
+            ]
+        ]
+        result = filter.transform_data(data)
+        self.assertEqual(expected, result)
+
+    def test__transformation_with_single_selection_in_the_front(self):
+        data = [
+            {
+                'string': 'abc',
+                'selection': (
+                    (0, 1),
+                )
+            }
+        ]
+        expected = [
+            [
+                {
+                    'string': 'a',
+                    'highlight': True
+                },
+                {
+                    'string': 'bc',
+                    'highlight': False
+                }
+            ]
+        ]
+        result = filter.transform_data(data)
+        self.assertEqual(expected, result)
+
+    def test__transformation_with_single_selection_in_the_middle(self):
+        data = [
+            {
+                'string': 'abc',
+                'selection': (
+                    (1, 2),
+                )
+            }
+        ]
+        expected = [
+            [
+                {
+                    'string': 'a',
+                    'highlight': False
+                },
+                {
+                    'string': 'b',
+                    'highlight': True
+                },
+                {
+                    'string': 'c',
+                    'highlight': False
+                }
+            ]
+        ]
+        result = filter.transform_data(data)
+        self.assertEqual(expected, result)
+
+    def test__transformation_with_single_selection_in_the_end(self):
+        data = [
+            {
+                'string': 'abc',
+                'selection': (
+                    (2, 3),
+                )
+            }
+        ]
+        expected = [
+            [
+                {
+                    'string': 'ab',
+                    'highlight': False
+                },
+                {
+                    'string': 'c',
+                    'highlight': True
+                }
+            ]
+        ]
+        result = filter.transform_data(data)
+        self.assertEqual(expected, result)
+
+    def test__transformation_with_full_word_selected(self):
+        data = [
+            {
+                'string': 'abc',
+                'selection': (
+                    (0, 3),
+                )
+            }
+        ]
+        expected = [
+            [
+                {
+                    'string': 'abc',
+                    'highlight': True
+                }
+            ]
+        ]
+        result = filter.transform_data(data)
+        self.assertEqual(expected, result)
+
+    def test__transformation_with_two_selections(self):
+        data = [
+            {
+                'string': 'abcdef',
+                'selection': (
+                    (1, 2),
+                    (3, 5),
+                )
+            }
+        ]
+        expected = [
+            [
+                {
+                    'string': 'a',
+                    'highlight': False
+                },
+                {
+                    'string': 'b',
+                    'highlight': True
+                },
+                {
+                    'string': 'c',
+                    'highlight': False
+                },
+                {
+                    'string': 'de',
+                    'highlight': True
+                },
+                {
+                    'string': 'f',
+                    'highlight': False
+                }
+            ]
+        ]
+        result = filter.transform_data(data)
+        self.assertEqual(expected, result)
+
+
+class SelectionMerge(TestCase):
+    def test__no_selection_no_merge_needed(self):
+        data = [
+            {
+                'string': 'abc',
+                'selection': ()
+            }
+        ]
+        expected = [
+            {
+                'string': 'abc',
+                'selection': ()
+            }
+        ]
+        filter.merge_neighbour_selections(data)
+        self.assertEqual(expected, data)
+
+    def test__single_selection_no_merge_needed(self):
+        data = [
+            {
+                'string': 'abc',
+                'selection': (
+                    (1, 2),
+                )
+            }
+        ]
+        expected = [
+            {
+                'string': 'abc',
+                'selection': (
+                    (1, 2),
+                )
+            }
+        ]
+        filter.merge_neighbour_selections(data)
+        self.assertEqual(expected, data)
+
+    def test__two_no_mergable_selections(self):
+        data = [
+            {
+                'string': 'abc',
+                'selection': (
+                    (1, 2),
+                    (5, 6)
+                )
+            }
+        ]
+        expected = [
+            {
+                'string': 'abc',
+                'selection': (
+                    (1, 2),
+                    (5, 6)
+                )
+            }
+        ]
+        filter.merge_neighbour_selections(data)
+        self.assertEqual(expected, data)
+
+    def test__structure_with_selections_next_to_each_other_will_merged(self):
+        data = [
+            {
+                'string': 'abc',
+                'selection': (
+                    (0, 1),
+                    (1, 2)
+                )
+            }
+        ]
+        expected = [
+            {
+                'string': 'abc',
+                'selection': (
+                    (0, 2),
+                )
+            }
+        ]
+        filter.merge_neighbour_selections(data)
+        self.assertEqual(expected, data)
+
+    def test__item_before_the_merge(self):
+        data = [
+            {
+                'string': 'abc',
+                'selection': (
+                    (0, 1),
+                    (2, 3),
+                    (3, 4)
+                )
+            }
+        ]
+        expected = [
+            {
+                'string': 'abc',
+                'selection': (
+                    (0, 1),
+                    (2, 4),
+                )
+            }
+        ]
+        filter.merge_neighbour_selections(data)
+        self.assertEqual(expected, data)
+
+    def test__item_after_the_merge(self):
+        data = [
+            {
+                'string': 'abc',
+                'selection': (
+                    (0, 1),
+                    (1, 2),
+                    (3, 4)
+                )
+            }
+        ]
+        expected = [
+            {
+                'string': 'abc',
+                'selection': (
+                    (0, 2),
+                    (3, 4),
+                )
+            }
+        ]
+        filter.merge_neighbour_selections(data)
+        self.assertEqual(expected, data)
+
+    def test__multiple_merges(self):
+        data = [
+            {
+                'string': 'abc',
+                'selection': (
+                    (0, 1),
+                    (1, 2),
+                    (3, 4),
+                    (6, 7),
+                    (7, 8)
+                )
+            }
+        ]
+        expected = [
+            {
+                'string': 'abc',
+                'selection': (
+                    (0, 2),
+                    (3, 4),
+                    (6, 8)
+                )
+            }
+        ]
+        filter.merge_neighbour_selections(data)
+        self.assertEqual(expected, data)
+
+    def test__chaining_merges(self):
+        data = [
+            {
+                'string': 'abc',
+                'selection': (
+                    (0, 1),
+                    (1, 2),
+                    (2, 3),
+                    (3, 4),
+                    (4, 5)
+                )
+            }
+        ]
+        expected = [
+            {
+                'string': 'abc',
+                'selection': (
+                    (0, 5),
+                )
+            }
+        ]
+        filter.merge_neighbour_selections(data)
+        self.assertEqual(expected, data)
