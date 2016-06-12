@@ -223,100 +223,42 @@ class SearchPatternGeneration(TestCase):
         self.assertEqual(expected, result)
 
 
-class WeightStringGeneration(TestCase):
-    def test__generate_weigth_conversion_sring_from_positions_case_1(self):
-        item = {
-            'string': 'a',
-            'selection': (
-                (0,1),
-            )
-        }
-        expected = '1'
-        result = filter.weight_string_for_item(item)
-        self.assertEqual(expected, result)
-
-    def test__generate_weigth_conversion_sring_from_positions_case_2(self):
-        item = {
-            'string': 'aa',
-            'selection': (
-                (0,1),
-            )
-        }
-        expected = '10'
-        result = filter.weight_string_for_item(item)
-        self.assertEqual(expected, result)
-
-    def test__generate_weigth_conversion_sring_from_positions_case_3(self):
-        item = {
-            'string': 'aa',
-            'selection': (
-                (0,2),
-            )
-        }
-        expected = '11'
-        result = filter.weight_string_for_item(item)
-        self.assertEqual(expected, result)
-
-    def test__generate_weigth_conversion_sring_from_positions_case_4(self):
-        item = {
-            'string': 'aabbc',
-            'selection': (
-                (0,1),
-                (2,3),
-            )
-        }
-        expected = '10100'
-        result = filter.weight_string_for_item(item)
-        self.assertEqual(expected, result)
-
-    def test__generate_weigth_conversion_sring_from_positions_case_5(self):
-        item = {
-            'string': 'aabbc',
-            'selection': (
-                (0,1),
-                (2,5),
-            )
-        }
-        expected = '10111'
-        result = filter.weight_string_for_item(item)
-        self.assertEqual(expected, result)
-
-
 class ItemWeighting(TestCase):
     def test__no_match_results_zero_weight(self):
-        weight_string = '0'
+        item = {
+            'string': 'abc',
+            'selection': ()
+        }
+        expected = 100000000000
+        filter.weight_item(item)
+        self.assertEqual(expected, item['weight'])
+
+    def test__single_in_the_first_character__returns_zero(self):
+        item = {
+            'string': 'abc',
+            'selection': ((0,1),)
+        }
         expected = 0
-        result = filter.generate_weight(weight_string)
-        self.assertEqual(expected, result)
+        filter.weight_item(item)
+        self.assertEqual(expected, item['weight'])
 
-    def test__no_match_results_zero_weight_regardless_of_the_lenght(self):
-        weight_string = '00000000000000000000000000000000000000000000000000'
-        expected = 0
-        result = filter.generate_weight(weight_string)
-        self.assertEqual(expected, result)
+    def test__single_match_in_the_second_position(self):
+        item = {
+            'string': 'abc',
+            'selection': ((1, 2),)
+        }
+        expected = 1
+        filter.weight_item(item)
+        self.assertEqual(expected, item['weight'])
 
-
-
-
-    # def test__weight_can_converted_to_number_case_1(self):
-
-    #     # binary 10 = 2
-    #     expected = 2/2   # 2 / len(2)
-    #     filter.weight_item(item)
-    #     self.assertEqual(expected, item['weight'])
-    #
-    # def test__weight_can_converted_to_number_case_2(self):
-    #     item = {
-    #         'string': 'aabbc',
-    #         'selection': (
-    #             (0,1),
-    #             (2,5),
-    #         )
-    #     }
-    #     # binary 10111 = 23
-    #     expected = 23/5  # 23 / len(string)
-    #     filter.weight_item(item)
-    #     self.assertEqual(expected, item['weight'])
+    def test__single_match_in_the_tenth_position(self):
+        item = {
+            'string': 'abc',
+            'selection': ((9, 10),)
+        }
+        expected = 9
+        filter.weight_item(item)
+        self.assertEqual(expected, item['weight'])
 
 
 class Transformation(TestCase):

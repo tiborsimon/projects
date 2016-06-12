@@ -3,7 +3,6 @@ import re
 
 def _get_pattern_list(keys):
     ret = []
-    template = '({0})'
     for i in reversed(range(1, len(keys)+1)):
         temp = ['']
         for j in range(len(keys)):
@@ -17,32 +16,29 @@ def _get_pattern_list(keys):
     return ret
 
 
-def weight_string_for_item(item):
-    buffer = list('0'*len(item['string']))
-    for s in item['selection']:
-        for i in range(s[0], s[1]):
-            buffer[i] = '1'
-    return ''.join(buffer)
-
-
-def generate_weight(weight_string):
-    if '1' not in weight_string:
-        return 0
+def weight_for_item(item):
+    return item['selection'][0][0]
 
 
 def weight_item(item):
-    weight_string = weight_string_for_item(item)
-    item['weight'] = int(weight_string, 2)/len(item['string'])
+    if item['selection']:
+        item['weight'] = weight_for_item(item)
+    else:
+        item['weight'] = 100000000000
 
 
 def sort_structure(data):
-    for item in data:
-        weight_item(item)
+    weight_it(data)
     data.sort(key=lambda k: k['string'])
-    data.sort(key=lambda k: k['weight'], reverse=True)
+    data.sort(key=lambda k: k['weight'])
     for item in data:
         del item['weight']
     return data
+
+
+def weight_it(data):
+    for item in data:
+        weight_item(item)
 
 
 def merge_neighbour_selections(data):
