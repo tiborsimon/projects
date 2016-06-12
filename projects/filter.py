@@ -37,7 +37,7 @@ def merge_neighbour_selections(data):
         merged = []
         last = ()
         if len(node['selection']) < 2:
-            return
+            continue
         for s in node['selection']:
             if last:
                 if last[1] == s[0]:

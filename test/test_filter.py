@@ -684,3 +684,122 @@ class SelectionMerge(TestCase):
         ]
         filter.merge_neighbour_selections(data)
         self.assertEqual(expected, data)
+
+    def test__multiple_nodes_can_processed_no_yes(self):
+        data = [
+            {
+                'string': 'no',
+                'selection': ()
+            },
+            {
+                'string': 'yes',
+                'selection': (
+                    (0, 1),
+                    (1, 2)
+                )
+            }
+        ]
+        expected = [
+            {
+                'string': 'no',
+                'selection': ()
+            },
+            {
+                'string': 'yes',
+                'selection': (
+                    (0, 2),
+                )
+            }
+        ]
+        filter.merge_neighbour_selections(data)
+        self.assertEqual(expected, data)
+
+    def test__multiple_nodes_can_processed_yes_no(self):
+        data = [
+            {
+                'string': 'yes',
+                'selection': (
+                    (0, 1),
+                    (1, 2)
+                )
+            },
+            {
+                'string': 'no',
+                'selection': ()
+            }
+
+        ]
+        expected = [
+            {
+                'string': 'yes',
+                'selection': (
+                    (0, 2),
+                )
+            },
+            {
+                'string': 'no',
+                'selection': ()
+            }
+        ]
+        filter.merge_neighbour_selections(data)
+        self.assertEqual(expected, data)
+
+    def test__multiple_nodes_can_processed_yes_yes(self):
+        data = [
+            {
+                'string': 'yes',
+                'selection': (
+                    (0, 1),
+                    (1, 2)
+                )
+            },
+            {
+                'string': 'yes',
+                'selection': (
+                    (0, 1),
+                    (1, 2)
+                )
+            }
+
+        ]
+        expected = [
+            {
+                'string': 'yes',
+                'selection': (
+                    (0, 2),
+                )
+            },
+            {
+                'string': 'yes',
+                'selection': (
+                    (0, 2),
+                )
+            }
+        ]
+        filter.merge_neighbour_selections(data)
+        self.assertEqual(expected, data)
+
+    def test__multiple_nodes_can_processed_no_no(self):
+        data = [
+            {
+                'string': 'no',
+                'selection': ()
+            },
+            {
+                'string': 'no',
+                'selection': ()
+            }
+
+        ]
+        expected = [
+            {
+                'string': 'no',
+                'selection': ()
+            },
+            {
+                'string': 'no',
+                'selection': ()
+            }
+        ]
+        filter.merge_neighbour_selections(data)
+        self.assertEqual(expected, data)
