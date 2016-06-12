@@ -23,7 +23,6 @@ def exit_on_q(key):
     else:
         f.add_key(key)
     fl = f.filter()
-    print(fl)
     s = generate_gui_string(fl, 'text', 'highlight')
     txt.set_text(s)
     if key in ('esc',):

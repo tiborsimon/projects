@@ -121,66 +121,6 @@ class FilterTestsAPI(TestCase):
         result = f.filter()
         self.assertEqual(expected, result)
 
-    def test__sorting_works_for_three_items(self):
-        init = [
-            'b_c_faef',
-            'b_a_deef',
-            'b_g_dgae'
-        ]
-        f = filter.Filter(init)
-        expected = [
-            [
-                {
-                    'string': 'b_',
-                    'highlight': False
-                },
-                {
-                    'string': 'a',
-                    'highlight': True
-                },
-                {
-                    'string': '_d',
-                    'highlight': False
-                },
-                {
-                    'string': 'e',
-                    'highlight': True
-                },
-                {
-                    'string': 'ef',
-                    'highlight': False
-                }
-            ],
-            [
-                {
-                    'string': 'b_c_f',
-                    'highlight': False
-                },
-                {
-                    'string': 'ae',
-                    'highlight': True
-                },
-                {
-                    'string': 'f',
-                    'highlight': False
-                }
-            ],
-            [
-                {
-                    'string': 'b_g_dg',
-                    'highlight': False
-                },
-                {
-                    'string': 'ae',
-                    'highlight': True
-                }
-            ]
-        ]
-        f.add_key('a')
-        f.add_key('e')
-        result = f.filter()
-        self.assertEqual(expected, result)
-
     def test__equal_weight_sorted_by_alphabet(self):
         init = [
             'a_d',
@@ -258,15 +198,28 @@ class FilterTestsAPI(TestCase):
 
 class SearchPatternGeneration(TestCase):
     def test__pattern_generation_1(self):
-        keys = 'c'
-        expected = '[^c]*(c)'
-        result = filter._get_pattern(keys)
+        keys = 'a'
+        expected = ['(a)']
+        result = filter._get_pattern_list(keys)
         self.assertEqual(expected, result)
 
     def test__pattern_generation_2(self):
-        keys = 'cde'
-        expected = '[^c]*(c)[^d]*(d)[^e]*(e)'
-        result = filter._get_pattern(keys)
+        keys = 'ab'
+        expected = [
+            '(ab)',
+            '(a)(b)'
+        ]
+        result = filter._get_pattern_list(keys)
+        self.assertEqual(expected, result)
+
+    def test__pattern_generation_3(self):
+        keys = 'abc'
+        expected = [
+            '(abc)',
+            '(ab)(c)',
+            '(a)(b)(c)'
+        ]
+        result = filter._get_pattern_list(keys)
         self.assertEqual(expected, result)
 
 
@@ -330,30 +283,40 @@ class WeightStringGeneration(TestCase):
 
 
 class ItemWeighting(TestCase):
-    def test__weight_can_converted_to_number_case_1(self):
-        item = {
-            'string': 'aa',
-            'selection': (
-                (0,1),
-            )
-        }
-        # binary 10 = 2
-        expected = 2/2   # 2 / len(2)
-        filter.weight_item(item)
-        self.assertEqual(expected, item['weight'])
+    def test__no_match_results_zero_weight(self):
+        weight_string = '0'
+        expected = 0
+        result = filter.generate_weight(weight_string)
+        self.assertEqual(expected, result)
 
-    def test__weight_can_converted_to_number_case_2(self):
-        item = {
-            'string': 'aabbc',
-            'selection': (
-                (0,1),
-                (2,5),
-            )
-        }
-        # binary 10111 = 23
-        expected = 23/5  # 23 / len(string)
-        filter.weight_item(item)
-        self.assertEqual(expected, item['weight'])
+    def test__no_match_results_zero_weight_regardless_of_the_lenght(self):
+        weight_string = '00000000000000000000000000000000000000000000000000'
+        expected = 0
+        result = filter.generate_weight(weight_string)
+        self.assertEqual(expected, result)
+
+
+
+
+    # def test__weight_can_converted_to_number_case_1(self):
+
+    #     # binary 10 = 2
+    #     expected = 2/2   # 2 / len(2)
+    #     filter.weight_item(item)
+    #     self.assertEqual(expected, item['weight'])
+    #
+    # def test__weight_can_converted_to_number_case_2(self):
+    #     item = {
+    #         'string': 'aabbc',
+    #         'selection': (
+    #             (0,1),
+    #             (2,5),
+    #         )
+    #     }
+    #     # binary 10111 = 23
+    #     expected = 23/5  # 23 / len(string)
+    #     filter.weight_item(item)
+    #     self.assertEqual(expected, item['weight'])
 
 
 class Transformation(TestCase):

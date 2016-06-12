@@ -1,11 +1,19 @@
 import re
 
 
-def _get_pattern(keys):
-    ret = ''
-    template = '[^{0}]*({0})'
-    for key in keys:
-        ret += template.format(key)
+def _get_pattern_list(keys):
+    ret = []
+    template = '({0})'
+    for i in reversed(range(1, len(keys)+1)):
+        temp = ['']
+        for j in range(len(keys)):
+            if j < i:
+                temp[0] += keys[j]
+            else:
+                temp.append(keys[j])
+        for k in range(len(temp)):
+            temp[k] = '({})'.format(temp[k])
+        ret.append(''.join(temp))
     return ret
 
 
@@ -15,6 +23,11 @@ def weight_string_for_item(item):
         for i in range(s[0], s[1]):
             buffer[i] = '1'
     return ''.join(buffer)
+
+
+def generate_weight(weight_string):
+    if '1' not in weight_string:
+        return 0
 
 
 def weight_item(item):
@@ -58,16 +71,25 @@ def merge_neighbour_selections(data):
         node['selection'] = tuple(merged)
 
 
-def generate_data_structure_for_search_string(pattern, search_string):
-    p = re.compile(pattern)
+def generate_data_structure_for_search_string(patterns, search_string):
     ret = []
     for line in search_string:
-        m = p.search(line)
-        selection = m.regs[1:] if m else ()
-        ret.append({
-            'string': line,
-            'selection': selection
-        })
+        for pattern in patterns:
+            p = re.compile(pattern)
+            selections = []
+            for m in p.finditer(line):
+                selections.extend(m.regs[1:])
+            if selections:
+                ret.append({
+                    'string': line,
+                    'selection': tuple(selections)
+                })
+                break
+        else:
+            ret.append({
+                'string': line,
+                'selection': ()
+            })
     merge_neighbour_selections(ret)
     return ret
 
@@ -113,7 +135,7 @@ def transform_data(data):
 
 
 def filter_data(keys, data):
-    pattern = _get_pattern(keys)
+    pattern = _get_pattern_list(keys)
     data = generate_data_structure_for_search_string(pattern, data)
     sorted_data = sort_structure(data)
     final_data = transform_data(sorted_data)
