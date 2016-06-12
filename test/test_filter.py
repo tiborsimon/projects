@@ -337,8 +337,9 @@ class ItemWeighting(TestCase):
                 (0,1),
             )
         }
-        expected = 2
-        result = filter.weight_item(item)
+        # binary 10 = 2
+        expected = 2/2   # 2 / len(2)
+        filter.weight_item(item)
         self.assertEqual(expected, item['weight'])
 
     def test__weight_can_converted_to_number_case_2(self):
@@ -349,8 +350,9 @@ class ItemWeighting(TestCase):
                 (2,5),
             )
         }
-        expected = 23
-        result = filter.weight_item(item)
+        # binary 10111 = 23
+        expected = 23/5  # 23 / len(string)
+        filter.weight_item(item)
         self.assertEqual(expected, item['weight'])
 
 

@@ -19,7 +19,7 @@ def weight_string_for_item(item):
 
 def weight_item(item):
     weight_string = weight_string_for_item(item)
-    item['weight'] = int(weight_string, 2)
+    item['weight'] = int(weight_string, 2)/len(item['string'])
 
 
 def sort_structure(data):
@@ -110,7 +110,6 @@ def transform_data(data):
             })
         ret.append(node)
     return ret
-
 
 
 def filter_data(keys, data):
