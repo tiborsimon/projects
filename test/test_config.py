@@ -86,9 +86,12 @@ class Validation(TestCase):
 
     def test__invalid_key__raises_syntax_error(self):
         invalid_config = {
-            'projects-path': '~/projects',
-            'selection-mode-index-not-fuzzy': True,
-            'invalid-key': 42
+            'mandatory': {
+                'projects-path': '~/projects'
+            },
+            'optional': {
+                'invalid-key': 42
+            }
         }
         with self.assertRaises(Exception) as cm:
             config._validate(invalid_config)
@@ -96,7 +99,9 @@ class Validation(TestCase):
 
     def test__invalid_value__raises_value_error(self):
         invalid_config = {
-            'projects-path': 42
+            'mandatory': {
+                'projects-path': 42
+            }
         }
         with self.assertRaises(Exception) as cm:
             config._validate(invalid_config)
@@ -125,12 +130,10 @@ class Creation(TestCase):
 
     @mock.patch.object(config, 'yaml', autospec=True)
     def test__yaml_file_is_written_with_the_full_configuration(self, mock_yaml):
-        full_config = config._default_config.copy()
-        full_config.update(config._optional_config)
         mock_open = mock.mock_open()
         with mock.patch(open_mock_string, mock_open):
             config._create_default_config()
-        mock_yaml.safe_dump.assert_called_with(full_config, mock_open.return_value)
+        mock_yaml.safe_dump.assert_called_with(config._default_config, mock_open.return_value)
 
 
 class Getter(TestCase):

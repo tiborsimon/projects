@@ -74,13 +74,14 @@ _INVALID_KEY_ERROR = 'Invalid key "{{}}" in config file ({}).'.format(_CONFIG_FI
 _INVALID_VALUE_ERROR = 'Invalid value for key "{{}}" in config file ({}).'.format(_CONFIG_FILE)
 
 _default_config = {
-    'projects-path': '~/projects'
-}
-
-_optional_config = {
-    'number-color': 'yellow',
-    'highlight-color': 'yellow',
-    'plugins': []
+    'mandatory': {
+        'projects-path': '~/projects'
+    },
+    'optional': {
+        'number-color': 'yellow',
+        'highlight-color': 'yellow',
+        'plugins': []
+    }
 }
 
 
@@ -109,15 +110,18 @@ def _validate(config):
     :param config: {dict} config to validate
     :return: None
     """
-    for mandatory_key in _default_config.keys():
-        if mandatory_key not in config:
+    for mandatory_key in _default_config['mandatory'].keys():
+        if mandatory_key not in config['mandatory']:
             raise KeyError(mandatory_key)
-    full_config = _default_config.copy()
-    full_config.update(_optional_config)
-    for key in config.keys():
-        if key not in full_config:
+    for key in config['mandatory'].keys():
+        if key not in _default_config['mandatory']:
             raise SyntaxError(key)
-        elif not isinstance(config[key], full_config[key].__class__):
+        elif not isinstance(config['mandatory'][key], _default_config['mandatory'][key].__class__):
+            raise ValueError(key)
+    for key in config['optional'].keys():
+        if key not in _default_config['optional']:
+            raise SyntaxError(key)
+        elif not isinstance(config['optional'][key], _default_config['optional'][key].__class__):
             raise ValueError(key)
 
 
@@ -128,8 +132,6 @@ def _create_default_config():
     :return: None
     """
     config_path = _get_config_path()
-    full_config = _default_config.copy()
-    full_config.update(_optional_config)
     with open(config_path, 'w+') as f:
-        yaml.safe_dump(full_config, f)
+        yaml.safe_dump(_default_config, f)
 
