@@ -31,7 +31,7 @@ Raises:
 """
 
 import os
-import json
+import yaml
 
 
 class ConfigError(Exception):
@@ -97,7 +97,7 @@ def _load_config():
     """
     config_path = _get_config_path()
     with open(config_path, 'r') as f:
-        return json.load(f)
+        return yaml.safe_load(f)
 
 
 def _validate(config):
@@ -131,4 +131,5 @@ def _create_default_config():
     full_config = _default_config.copy()
     full_config.update(_optional_config)
     with open(config_path, 'w+') as f:
-        json.dump(f, full_config)
+        yaml.safe_dump(full_config, f)
+

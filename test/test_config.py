@@ -29,24 +29,24 @@ class Path(TestCase):
 
 class Loading(TestCase):
 
-    @mock.patch.object(config, 'json', autospec=True)
+    @mock.patch.object(config, 'yaml', autospec=True)
     @mock.patch.object(config, 'os', autospec=True)
-    def test__config_path_required_correctly(self, mock_os, mock_json):
+    def test__config_path_required_correctly(self, mock_os, mock_yaml):
         with mock.patch(open_mock_string):
             config._load_config()
         mock_os.path.expanduser.assert_called_with(config._CONFIG_FILE)
 
-    @mock.patch.object(config, 'json', autospec=True)
+    @mock.patch.object(config, 'yaml', autospec=True)
     @mock.patch.object(config, '_get_config_path', autospec=True)
-    def test__config_file_is_opened_from_the_right_path(self, mock_path, mock_json):
+    def test__config_file_is_opened_from_the_right_path(self, mock_path, mock_yaml):
         dummy_config_path = '/config/path'
         mock_path.return_value = dummy_config_path
         with mock.patch(open_mock_string) as mock_open:
             config._load_config()
             mock_open.assert_called_with(dummy_config_path, 'r')
 
-    @mock.patch.object(config, 'json', autospec=True)
-    def test__file_not_found__raises_error(self, mock_json):
+    @mock.patch.object(config, 'yaml', autospec=True)
+    def test__file_not_found__raises_error(self, mock_yaml):
         error_message = 'file not found'
         mock_open = mock.MagicMock(side_effect = IOError(error_message))
         with self.assertRaises(Exception) as cm:
@@ -54,18 +54,18 @@ class Loading(TestCase):
                 config._load_config()
         assert_exception(self, cm, IOError, error_message)
 
-    @mock.patch.object(config, 'json', autospec=True)
-    def test__parsed_config_file_is_returned(self, mock_json):
+    @mock.patch.object(config, 'yaml', autospec=True)
+    def test__parsed_config_file_is_returned(self, mock_yaml):
         dummy_config = {'dummy': 'config'}
-        mock_json.load.return_value = dummy_config
+        mock_yaml.safe_load.return_value = dummy_config
         with mock.patch(open_mock_string):
             result = config._load_config()
         self.assertEqual(dummy_config, result)
 
-    @mock.patch.object(config, 'json', autospec=True)
-    def test__invalid_json_syntax__raises_error(self, mock_json):
-        error_message = 'json invalid'
-        mock_json.load.side_effect = SyntaxError(error_message)
+    @mock.patch.object(config, 'yaml', autospec=True)
+    def test__invalid_yaml_syntax__raises_error(self, mock_yaml):
+        error_message = 'yaml invalid'
+        mock_yaml.safe_load.side_effect = SyntaxError(error_message)
         with self.assertRaises(Exception) as cm:
             with mock.patch(open_mock_string):
                 config._load_config()
@@ -106,8 +106,8 @@ class Validation(TestCase):
 class Creation(TestCase):
 
     @mock.patch.object(config, '_get_config_path', autospec=True)
-    @mock.patch.object(config, 'json', autospec=True)
-    def test__config_is_written_to_the_right_place(self, mock_json, mock_path):
+    @mock.patch.object(config, 'yaml', autospec=True)
+    def test__config_is_written_to_the_right_place(self, mock_yaml, mock_path):
         dummy_path = '/config/path'
         mock_path.return_value = dummy_path
         with mock.patch(open_mock_string) as mock_open:
@@ -115,22 +115,22 @@ class Creation(TestCase):
             mock_open.assert_called_with(dummy_path, 'w+')
 
     @mock.patch.object(config, '_get_config_path', autospec=True)
-    @mock.patch.object(config, 'json', autospec=True)
-    def test__file_cannot_be_written__raises_error(self, mock_json, mock_path):
+    @mock.patch.object(config, 'yaml', autospec=True)
+    def test__file_cannot_be_written__raises_error(self, mock_yaml, mock_path):
         with mock.patch(open_mock_string) as mock_open:
             mock_open.side_effect = IOError()
             with self.assertRaises(Exception) as cm:
                 config._create_default_config()
             assert_exception_type(self, cm, IOError)
 
-    @mock.patch.object(config, 'json', autospec=True)
-    def test__json_file_is_written_with_the_full_configuration(self, mock_json):
+    @mock.patch.object(config, 'yaml', autospec=True)
+    def test__yaml_file_is_written_with_the_full_configuration(self, mock_yaml):
         full_config = config._default_config.copy()
         full_config.update(config._optional_config)
         mock_open = mock.mock_open()
         with mock.patch(open_mock_string, mock_open):
             config._create_default_config()
-        mock_json.dump.assert_called_with(mock_open.return_value, full_config)
+        mock_yaml.safe_dump.assert_called_with(full_config, mock_open.return_value)
 
 
 class Getter(TestCase):
@@ -160,7 +160,7 @@ class Getter(TestCase):
         assert_exception(self, cm, config.ConfigError, config._FILE_CREATION_ERROR.format(error_message))
 
     @mock.patch.object(config, '_load_config', autospec=True)
-    def test__invalid_json_syntax__raises_config_error(self, mock_load):
+    def test__invalid_yaml_syntax__raises_config_error(self, mock_load):
         error_message = 'Some syntax error..'
         mock_load.side_effect = SyntaxError(error_message)
         with self.assertRaises(Exception) as cm:

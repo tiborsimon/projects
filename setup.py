@@ -28,6 +28,6 @@ setup(name='projects',
       author_email='tibor@tiborsimon.io',
       license='MIT',
       packages=['projects'],
-      scripts=['bin/p', 'bin/pw'],
+      scripts=['bin/p'],
       include_package_data=True,
       zip_safe=False)
