@@ -84,7 +84,18 @@ class Validation(TestCase):
             config._validate(dummy_config)
         assert_exception_type(self, cm, KeyError)
 
-    def test__invalid_key__raises_syntax_error(self):
+    def test__invalid_mandatory_key__raises_syntax_error(self):
+        invalid_config = {
+            'mandatory': {
+                'projects-path': '~/projects',
+                'invalid_key': 42
+            }
+        }
+        with self.assertRaises(Exception) as cm:
+            config._validate(invalid_config)
+        assert_exception_type(self, cm, SyntaxError)
+
+    def test__invalid_optional_key__raises_syntax_error(self):
         invalid_config = {
             'mandatory': {
                 'projects-path': '~/projects'
@@ -97,11 +108,25 @@ class Validation(TestCase):
             config._validate(invalid_config)
         assert_exception_type(self, cm, SyntaxError)
 
-    def test__invalid_value__raises_value_error(self):
+    def test__invalid_mandatory_value__raises_value_error(self):
         invalid_config = {
             'mandatory': {
                 'projects-path': 42
             }
+        }
+        with self.assertRaises(Exception) as cm:
+            config._validate(invalid_config)
+        assert_exception_type(self, cm, ValueError)
+
+    def test__invalid_optional_value__raises_value_error(self):
+        invalid_config = {
+            'mandatory': {
+                'projects-path': '~/projects'
+            },
+            'optional': {
+                'number-color': 42
+            }
+
         }
         with self.assertRaises(Exception) as cm:
             config._validate(invalid_config)
