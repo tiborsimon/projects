@@ -1,13 +1,16 @@
 
 
-def generate_gui_string(data, normal_palette, highlight_palette):
+def generate_gui_string(data, index, normal_palette, highlight_palette, index_palette):
     ret = []
     for item in data:
         for piece in item:
             if piece['highlight']:
                 a = (highlight_palette, piece['string'])
             else:
-                a = (normal_palette, piece['string'])
+                if data.index(item) == index:
+                    a = (index_palette, piece['string'])
+                else:
+                    a = (normal_palette, piece['string'])
             ret.append(a)
         ret.append((normal_palette, '\n'))
     return ret
