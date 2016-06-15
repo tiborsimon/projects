@@ -9,7 +9,7 @@ setup(name='projects',
       version='0.1.1',
       description='The extensible project manager',
       long_description=readme(),
-      test_suite = 'test',
+      test_suite='test',
       classifiers=[
             'Development Status :: 2 - Pre-Alpha',
             'Topic :: Utilities',

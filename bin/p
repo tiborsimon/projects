@@ -1,26 +1,3 @@
 #!/usr/bin/env bash
 
-RED='_'
-GREEN='_'
-YELLOW='_'
-BLUE='_'
-MAGENTA='_'
-CYAN='_'
-WHITE='_'
-BOLD='_'
-RESET='_'
-
-if RED=$(tput setaf 1); then
-    GREEN=$(tput setaf 2)
-    YELLOW=$(tput setaf 3)
-    BLUE=$(tput setaf 4)
-    MAGENTA=$(tput setaf 5)
-    CYAN=$(tput setaf 6)
-    WHITE=$(tput setaf 7)
-    BOLD=$(tput bold)
-    RESET=$(tput sgr0)
-fi
-
-python -m projects ${RED} ${GREEN} ${YELLOW} ${BLUE} ${MAGENTA} ${CYAN} ${WHITE} ${BOLD} ${RESET} $(pwd) $@
-
-cd ~
+python -m projects $(pwd) $@

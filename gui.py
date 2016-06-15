@@ -2,40 +2,38 @@ import urwid
 from projects.filter import Filter
 from projects.gui import generate_gui_string
 
-ll = [
-    'projects',
-    'matlab-library-system',
-    'intervallum',
-    'skillmath',
-    'optimal-position',
-    'site',
-    'something',
-    'regular-army-knife'
-]
 
-f = Filter(ll)
+def select_project(project_list):
+    f = Filter(project_list)
+
+    def refresh_list():
+        fl = f.filter()
+        s = generate_gui_string(fl, 'text', 'highlight')
+        txt.set_text(s)
+
+    def exit_on_q(key):
+        if key in ('Q',):
+            raise urwid.ExitMainLoop()
+        key = key.lower()
+        if key in ('delete', 'backspace'):
+            f.remove_key()
+        else:
+            f.add_key(key)
+        refresh_list()
 
 
-def exit_on_q(key):
-    key = key.lower()
-    if key in ('delete', 'backspace'):
-        f.remove_key()
-    else:
-        f.add_key(key)
-    fl = f.filter()
-    s = generate_gui_string(fl, 'text', 'highlight')
-    txt.set_text(s)
-    if key in ('esc',):
-        raise urwid.ExitMainLoop()
+    palette = [
+        ('text', 'light gray', 'black'),
+        ('highlight', 'black', 'yellow'),
+        ('bg', 'black', 'dark blue')]
 
-palette = [
-    ('text', 'light gray', 'black'),
-    ('highlight', 'black', 'yellow'),
-    ('bg', 'black', 'dark blue')]
+    edit = urwid.Edit()
+    txt = urwid.Text([('text', 'a'), ('highlight', 'b'), ('text', 'c'), ('text', '\n')], align='left')
+    pile = urwid.Pile([edit, txt])
+    fill = urwid.Filler(pile)
 
-txt = urwid.Text([('text', 'a'), ('highlight', 'b'), ('text', 'c'), ('text', '\n')], align='left')
-map1 = urwid.AttrMap(txt, 'streak')
-fill = urwid.Filler(map1)
-pad = urwid.Padding(fill, align='center', width=30)
-loop = urwid.MainLoop(pad, palette, unhandled_input=exit_on_q)
-loop.run()
+    refresh_list()
+    pad = urwid.Padding(fill, align='center', width=30)
+    box = urwid.LineBox(pad, title="Projects")
+    loop = urwid.MainLoop(box, palette, unhandled_input=exit_on_q)
+    loop.run()

@@ -1,20 +1,19 @@
-import sys
 from projects import config
 from projects import paths
+import gui
 
-def main():
-    print(sys.argv)
+
+def main(args):
     try:
         conf = config.get()
-        print(conf)
         if paths.inside_project(conf['projects-path']):
-            print('Inside')
-            pass
+            print('ok')
+            gui.start(paths.list_dir_for_path(conf['projects-path']))
         else:
-            print('Outside')
+            # start project selection
+            gui.select_project(paths.list_dir_for_path(conf['projects-path']))
             pass
-    except Exception as e:
-        print(e)
 
-if __name__ == '__main__':
-    main()
+    except Exception as e:
+        # print(e)
+        pass

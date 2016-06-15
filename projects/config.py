@@ -63,7 +63,11 @@ def get():
         raise ConfigError(_INVALID_KEY_ERROR.format(e.args[0]))
     except ValueError as e:
         raise ConfigError(_INVALID_VALUE_ERROR.format(e.args[0]))
-    return config
+
+    ret = {}
+    ret.update(config['mandatory'])
+    ret.update(config['optional'])
+    return ret
 
 
 _CONFIG_FILE = '~/.prc'

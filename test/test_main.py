@@ -14,8 +14,8 @@ try:
 except ImportError:
     open_mock_string = 'builtins.open'
 
-from projects import p
-from projects import config
+# from projects import p
+# from projects import config
 
 
 # class Config(TestCase):

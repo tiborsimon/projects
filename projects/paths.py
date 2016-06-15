@@ -3,8 +3,10 @@
 
 import os
 
+
 def list_dir_for_path(path):
-    return os.listdir(os.path.expanduser(path))
+    dirs = os.listdir(os.path.expanduser(path))
+    return [d for d in dirs if not d.startswith('.')]
 
 
 def inside_project(projects_path):
