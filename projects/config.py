@@ -64,10 +64,7 @@ def get():
     except ValueError as e:
         raise ConfigError(_INVALID_VALUE_ERROR.format(e.args[0]))
 
-    ret = {}
-    ret.update(config['mandatory'])
-    ret.update(config['optional'])
-    return ret
+    return config
 
 
 _CONFIG_FILE = '~/.prc'
@@ -78,15 +75,21 @@ _INVALID_KEY_ERROR = 'Invalid key "{{}}" in config file ({}).'.format(_CONFIG_FI
 _INVALID_VALUE_ERROR = 'Invalid value for key "{{}}" in config file ({}).'.format(_CONFIG_FILE)
 
 _default_config = {
-    'mandatory': {
-        'projects-path': '~/projects'
-    },
-    'optional': {
-        'number-color': 'yellow',
-        'highlight-color': 'yellow',
-        'plugins': []
-    }
+    'projects-path': '~/projects',
+    'number-color': 'yellow',
+    'highlight-color': 'yellow',
+    'plugins': []
 }
+
+_mandatory_keys = [
+    'projects-path'
+]
+
+_optional_keys = [
+    'number-color',
+    'highlight-color',
+    'plugins'
+]
 
 
 def _get_config_path():
@@ -114,18 +117,13 @@ def _validate(config):
     :param config: {dict} config to validate
     :return: None
     """
-    for mandatory_key in _default_config['mandatory'].keys():
-        if mandatory_key not in config['mandatory']:
+    for mandatory_key in _mandatory_keys:
+        if mandatory_key not in config:
             raise KeyError(mandatory_key)
-    for key in config['mandatory'].keys():
-        if key not in _default_config['mandatory']:
+    for key in config.keys():
+        if key not in _mandatory_keys and key not in _optional_keys:
             raise SyntaxError(key)
-        elif not isinstance(config['mandatory'][key], _default_config['mandatory'][key].__class__):
-            raise ValueError(key)
-    for key in config['optional'].keys():
-        if key not in _default_config['optional']:
-            raise SyntaxError(key)
-        elif not isinstance(config['optional'][key], _default_config['optional'][key].__class__):
+        if not isinstance(config[key], _default_config[key].__class__):
             raise ValueError(key)
 
 
