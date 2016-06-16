@@ -9,9 +9,11 @@ def _get_pattern_list(keys):
             if j < i:
                 temp[0] += keys[j]
             else:
+                temp.append('[^{}]*'.format(keys[j]))
                 temp.append(keys[j])
         for k in range(len(temp)):
-            temp[k] = '({})'.format(temp[k])
+            if '^' not in temp[k]:
+                temp[k] = '({})'.format(temp[k])
         ret.append(''.join(temp))
     return ret
 
@@ -138,13 +140,50 @@ def filter_data(keys, data):
     return final_data
 
 
-class Filter(object):
-    def __init__(self, data):
+def render_string(data, index, normal, highlighted, selected):
+    ret = []
+    for i in range(len(data)):
+        item = data[i]
+        if i == index:
+            ret.append((selected, '[ '))
+        else:
+            ret.append((normal, '  '))
+        for piece in item:
+            if piece['highlight']:
+                a = (highlighted, piece['string'])
+            else:
+                a = (normal, piece['string'])
+            ret.append(a)
+        if i == index:
+            ret.append((selected, ' ]'))
+        ret.append((normal, '\n'))
+    return ret
+
+
+class ProjectSelector(object):
+    def __init__(self, data, normal, highlighted, selected):
         self.data = data
         self.keys = ''
+        self.focus = 0
+        self.last_selection_result = filter_data(self.keys, self.data)
+        self.normal = normal
+        self.highlighted = highlighted
+        self.selected = selected
 
     def add_key(self, key):
-        self.keys += key
+        temp = self.keys
+        temp += key
+        result = filter_data(temp, self.data)
+        match_occurred = False
+        for item in result:
+            for part in item:
+                if part['highlight']:
+                    match_occurred = True
+                    break
+        if match_occurred:
+            self.focus = 0
+            self.last_selection_result = result
+            self.keys = temp
 
     def remove_key(self):
         if len(self.keys) == 0:
@@ -153,9 +192,31 @@ class Filter(object):
             self.keys = ''
         else:
             self.keys = self.keys[:-1]
+        self.focus = 0
+        self.last_selection_result = filter_data(self.keys, self.data)
 
-    def filter(self):
-        return filter_data(self.keys, self.data)
+    def up(self):
+        if self.focus > 0:
+            self.focus -= 1
+
+    def down(self):
+        if self.focus < len(self.data)-1:
+            self.focus += 1
+
+    def select(self):
+        ret = ''
+        for part in self.last_selection_result[self.focus]:
+            ret += part['string']
+        return ret
+
+    def render(self):
+        return render_string(
+            self.last_selection_result,
+            self.focus,
+            self.normal,
+            self.highlighted,
+            self.selected
+        )
 
 
 

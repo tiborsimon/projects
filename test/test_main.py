@@ -3,17 +3,6 @@
 
 from unittest import TestCase
 
-try:
-    import mock
-except ImportError:
-    from unittest import mock
-
-try:
-    import __builtin__
-    open_mock_string = '__builtin__.open'
-except ImportError:
-    open_mock_string = 'builtins.open'
-
 # from projects import p
 # from projects import config
 

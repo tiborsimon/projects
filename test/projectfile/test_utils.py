@@ -3,17 +3,6 @@
 
 from unittest import TestCase
 
-try:
-    import mock
-except ImportError:
-    from unittest import mock
-
-try:
-    import __builtin__
-    builtin_module = '__builtin__'
-except ImportError:
-    builtin_module = 'builtins'
-
 from projects.projectfile import utils
 
 
