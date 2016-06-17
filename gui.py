@@ -4,6 +4,7 @@ from projects.gui import generate_gui_string
 
 
 def select_project(project_list):
+    max_width = len(max(project_list, key=len))
     f = ProjectSelector(project_list, 'normal', 'highlighted', 'selected')
 
     def refresh_list(key=''):
@@ -40,7 +41,7 @@ def select_project(project_list):
 
     txt = urwid.Text('', align='left')
     fill = urwid.Filler(txt)
-    pad = urwid.Padding(fill, align='center', width=18)
+    pad = urwid.Padding(fill, align='center', width=max_width+4)
     box = urwid.LineBox(pad, title="Projects")
 
     footer = urwid.Text(['Start typing to search project. Use arrow keys to navigate. Press (Enter) to select project. ', 'Press (', ('quit button', 'Q'), ') to exit.'])
