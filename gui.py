@@ -36,7 +36,8 @@ def select_project(project_list):
         ('normal', 'light gray', ''),
         ('selected', 'yellow, bold', ''),
         ('highlighted', 'black, bold', 'yellow'),
-        ('quit button', 'dark red,bold', '')
+        ('quit button', 'light red, bold', ''),
+        ('enter button', 'light green, bold', '')
     ]
 
     txt = urwid.Text('', align='left')
@@ -44,7 +45,7 @@ def select_project(project_list):
     pad = urwid.Padding(fill, align='center', width=max_width+4)
     box = urwid.LineBox(pad, title="Projects")
 
-    footer = urwid.Text(['Start typing to search project. Use arrow keys to navigate. Press (Enter) to select project. ', 'Press (', ('quit button', 'Q'), ') to exit.'])
+    footer = urwid.Text(['Start typing to search. Use arrow keys to navigate. Press (', ('enter button', 'Enter'), ') to select project. ', 'Press (', ('quit button', 'Q'), ') to exit.'])
     frame = urwid.Frame(body=box, footer=footer)
 
     loop = urwid.MainLoop(frame, palette, unhandled_input=exit_on_q)
