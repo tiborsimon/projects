@@ -149,10 +149,17 @@ class Creation(TestCase):
 
 
 class Getter(TestCase):
+    @mock.patch.object(config, '_load_config', autospec=True)
+    @mock.patch.object(config, 'os', autospec=True)
+    def test__loaded_projects_path_expanded(self, mock_os, mock_load):
+        dummy_config = dict(config._default_config)
+        mock_load.return_value = dummy_config
+        config.get()
+        mock_os.path.expanduser.assert_called_with(dict(config._default_config)['projects-path'])
 
     @mock.patch.object(config, '_load_config', autospec=True)
     def test__loaded_config_returned(self, mock_load):
-        dummy_config = config._default_config
+        dummy_config = dict(config._default_config)
         mock_load.return_value = dummy_config
         result = config.get()
         self.assertEqual(dummy_config, result)
@@ -160,7 +167,7 @@ class Getter(TestCase):
     @mock.patch.object(config, '_load_config', autospec=True)
     @mock.patch.object(config, '_create_default_config', autospec=True)
     def test__config_file_not_exits__creates_new_one(self, mock_create, mock_load):
-        mock_load.side_effect = [IOError(), config._default_config]
+        mock_load.side_effect = [IOError(), dict(config._default_config)]
         config.get()
         mock_create.assert_called_with()
 
@@ -185,7 +192,7 @@ class Getter(TestCase):
     @mock.patch.object(config, '_load_config', autospec=True)
     @mock.patch.object(config, '_validate', autospec=True)
     def test__loaded_config_gets_validated(self, mock_validate, mock_load):
-        dummy_config = config._default_config
+        dummy_config = dict(config._default_config)
         mock_load.return_value = dummy_config
         config.get()
         mock_validate.assert_called_with(dummy_config)
@@ -202,6 +209,8 @@ class Getter(TestCase):
     @mock.patch.object(config, '_load_config', autospec=True)
     @mock.patch.object(config, '_validate', autospec=True)
     def test__invalid_key__raises_config_error(self, mock_validate, mock_load):
+        dummy_config = dict(config._default_config)
+        mock_load.return_value = dummy_config
         error_message = 'invalid-key'
         mock_validate.side_effect = SyntaxError(error_message)
         with self.assertRaises(Exception) as cm:
@@ -211,6 +220,8 @@ class Getter(TestCase):
     @mock.patch.object(config, '_load_config', autospec=True)
     @mock.patch.object(config, '_validate', autospec=True)
     def test__invalid_value_for_key__raises_config_error(self, mock_validate, mock_load):
+        dummy_config = dict(config._default_config)
+        mock_load.return_value = dummy_config
         error_message = 'key'
         mock_validate.side_effect = ValueError(error_message)
         with self.assertRaises(Exception) as cm:

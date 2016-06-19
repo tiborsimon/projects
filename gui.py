@@ -1,6 +1,5 @@
 import urwid
 from projects.project_selector import ProjectSelector
-from projects.gui import generate_gui_string
 
 
 def select_project(project_list, path_callback):

@@ -64,6 +64,7 @@ def get():
     except ValueError as e:
         raise ConfigError(_INVALID_VALUE_ERROR.format(e.args[0]))
 
+    config['projects-path'] = os.path.expanduser(config['projects-path'])
     return config
 
 
