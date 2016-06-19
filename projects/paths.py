@@ -15,3 +15,11 @@ def inside_project(projects_path):
         return False
     else:
         return current_path.startswith(projects_path)
+
+
+def get_project_root(projects_root, current_path):
+    separator = os.path.sep
+    root = projects_root.split(separator)
+    current = current_path.split(separator)
+    return os.path.join(projects_root, current[len(root)])
+

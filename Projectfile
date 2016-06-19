@@ -1,0 +1,4 @@
+from v0.1.1
+
+command|c:
+    echo "helloka :)"

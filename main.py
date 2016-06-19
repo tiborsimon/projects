@@ -2,6 +2,7 @@ from subprocess import call
 import os
 from projects import config
 from projects import paths
+from projects import projectfile
 import gui
 
 
@@ -16,7 +17,10 @@ def main(args):
     try:
         conf = config.get()
         if paths.inside_project(conf['projects-path']):
-            print('list commands')
+            project_root = paths.get_project_root(conf['projects-path'], os.getcwd())
+            data = projectfile.get_data_for_root(project_root)
+            print(data)
+
         else:
             # start project selection
             gui.select_project(
