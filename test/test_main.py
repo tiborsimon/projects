@@ -2,18 +2,58 @@
 # -*- coding: utf-8 -*-
 
 from unittest import TestCase
+try:
+    import mock
+except ImportError:
+    from unittest import mock
 
-# from projects import p
-# from projects import config
+import main
 
 
-# class Config(TestCase):
+class DetermineIfCallHappenedFromProject(TestCase):
+    @mock.patch.object(main, 'call', autospec=True)
+    def test__simple_command_can_be_executed_regardless_of_extra_whitespaces(self, mock_call):
+        args = ['x', 'x', 'command']
+        data = {
+            'min-version': (2, 0, 0),
+            'commands': {
+                'command': {
+                    'script': [
+                        'a     a  a',
+                        'b b   b'
+                    ]
+                }
+            }
+        }
+        calls = [
+            mock.call(['a', 'a', 'a']),
+            mock.call(['b', 'b', 'b'])
+        ]
+        main.execute(args, data)
+        mock_call.assert_has_calls(calls)
 
-#     @mock.patch.object(p, 'config', autospec=True)
-#     @mock.patch.object(p, 'paths', autospec=True)
-#     def test__config_loaded_and_used_correctly(self, mock_path, mock_config):
-#         mock_path.inside_project.return_value = True
-#         mock_config.get.return_value = config._default_config
-#         p.main(())
-#         mock_path.inside_project.assert_called_with(config._default_config['mandatory']['projects-path'])
-#         # TODO: mock out further calls
+    @mock.patch.object(main, 'call', autospec=True)
+    def test__alias_can_be_redirected(self, mock_call):
+        args = ['x', 'x', 'c']
+        data = {
+            'min-version': (2, 0, 0),
+            'commands': {
+                'command': {
+                    'script': [
+                        'a     a  a',
+                        'b b   b'
+                    ]
+                },
+                'c': {
+                    'alias': 'command'
+                }
+            }
+        }
+        calls = [
+            mock.call(['a', 'a', 'a']),
+            mock.call(['b', 'b', 'b'])
+        ]
+        main.execute(args, data)
+        mock_call.assert_has_calls(calls)
+
+
