@@ -1,3 +1,42 @@
 #!/usr/bin/env bash
 
-python -m projects $(pwd) $@
+GREEN=$(tput setaf 2)
+YELLOW=$(tput setaf 3)
+CYAN=$(tput setaf 6)
+BOLD=$(tput bold)
+RESET=$(tput sgr0)
+
+# checking   if there is an active alias for the p command to source it
+if ! alias | grep --quiet "alias p='. p'"; then
+    echo ''
+    echo " [${YELLOW} !!!! ${RESET}] - Alias for the ${BOLD}p${RESET} command was not found. ${BOLD}Projects${RESET} will not be able to work properly!"
+
+    # looking for the shell interpreter
+    if echo $SHELL | grep --quiet "/bash"; then
+        RC_FILE=.bashrc
+        echo " [${CYAN} info ${RESET}] - ${BOLD}bash${RESET} detected."
+    elif echo $SHELL | grep --quiet "/sh"; then
+        RC_FILE=.shrc
+        echo " [${CYAN} info ${RESET}] - ${BOLD}bash${RESET} detected."
+    elif echo $SHELL | grep --quiet "/zsh"; then
+        RC_FILE=.zshrc
+        echo " [${CYAN} info ${RESET}] - ${BOLD}bash${RESET} detected."
+    fi
+
+    # patching the rc file if needed
+    if grep --quiet "alias p='. p'" $RC_FILE; then
+        echo " [${CYAN} info ${RESET}] - Alias exist in your ~/$RC_FILE file, but you need to source it! (source ~/$RC_FILE)"
+    else
+        echo '' >> ~/$RC_FILE
+        echo "alias p='. p'" >> ~/$RC_FILE
+        echo " [${GREEN} done ${RESET}] - An alias appended to your ~/$RC_FILE file. You need to source it. (source ~/$RC_FILE)"
+    fi
+else
+    PATH_FILE=~/.p-path
+    python -m projects $(pwd) $@
+    if [ -f $PATH_FILE ]; then
+        cd $(cat $PATH_FILE)
+        rm $PATH_FILE
+    fi
+fi
+

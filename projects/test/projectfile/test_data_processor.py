@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from unittest import TestCase
 import os
+from unittest import TestCase
 
 try:
     import mock
@@ -15,7 +15,7 @@ try:
 except ImportError:
     builtin_module = 'builtins'
 
-from test.helpers import *
+from projects.test.helpers import *
 
 from projects.projectfile import data_processor
 from projects.projectfile import error

@@ -3,10 +3,9 @@
 
 from unittest import TestCase
 
-from test.helpers import *
-
 from projects.projectfile import error
 from projects.projectfile.parser import parse
+from projects.test.helpers import *
 
 
 class VersionParser(TestCase):

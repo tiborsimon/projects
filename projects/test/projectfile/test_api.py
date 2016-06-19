@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from unittest import TestCase
-import os
 
 try:
     import mock
@@ -15,7 +14,7 @@ try:
 except ImportError:
     builtin_module = 'builtins'
 
-from test.helpers import *
+from projects.test.helpers import *
 
 import os
 

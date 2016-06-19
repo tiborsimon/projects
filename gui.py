@@ -3,7 +3,7 @@ from projects.project_selector import ProjectSelector
 from projects.gui import generate_gui_string
 
 
-def select_project(project_list):
+def select_project(project_list, path_callback):
     max_width = len(max(project_list, key=len))
     f = ProjectSelector(project_list, 'normal', 'highlighted', 'selected')
 
@@ -25,9 +25,8 @@ def select_project(project_list):
         if key == 'down':
             f.down()
         if key == 'enter':
-            result = f.select()
-            print(result)
-            # raise urwid.ExitMainLoop()
+            path_callback(f.select())
+            raise urwid.ExitMainLoop()
         key = key.lower()
         refresh_list(key)
 

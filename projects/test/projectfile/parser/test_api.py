@@ -14,7 +14,7 @@ try:
 except ImportError:
     builtin_module = 'builtins'
 
-from test.helpers import *
+from projects.test.helpers import *
 
 from projects.projectfile import error
 from projects.projectfile.parser import state

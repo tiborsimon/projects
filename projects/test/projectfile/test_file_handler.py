@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from unittest import TestCase
 import os
+from unittest import TestCase
 
 try:
     import mock
@@ -18,7 +18,7 @@ except ImportError:
 from projects.projectfile import file_handler
 from projects.projectfile import error
 from projects.projectfile import defs
-from test.helpers import *
+from projects.test.helpers import *
 
 
 class FileLoading(TestCase):
