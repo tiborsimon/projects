@@ -5,7 +5,7 @@ from unittest import TestCase
 
 from projects.projectfile import error
 from projects.projectfile.parser import parse
-from projects.test.helpers import *
+from test.helpers import *
 
 
 class VersionParser(TestCase):

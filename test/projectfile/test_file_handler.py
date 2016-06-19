@@ -18,7 +18,7 @@ except ImportError:
 from projects.projectfile import file_handler
 from projects.projectfile import error
 from projects.projectfile import defs
-from projects.test.helpers import *
+from test.helpers import *
 
 
 class FileLoading(TestCase):

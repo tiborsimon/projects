@@ -14,7 +14,7 @@ try:
 except ImportError:
     builtin_module = 'builtins'
 
-from projects.test.helpers import *
+from test.helpers import *
 
 import os
 

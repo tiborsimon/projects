@@ -15,7 +15,7 @@ try:
 except ImportError:
     builtin_module = 'builtins'
 
-from projects.test.helpers import *
+from test.helpers import *
 
 from projects.projectfile import data_processor
 from projects.projectfile import error

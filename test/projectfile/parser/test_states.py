@@ -5,7 +5,7 @@ from unittest import TestCase
 
 from projects.projectfile import error
 from projects.projectfile.parser import state
-from projects.test.helpers import *
+from test.helpers import *
 
 
 class StartState(TestCase):

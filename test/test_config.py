@@ -14,7 +14,7 @@ try:
 except ImportError:
     open_mock_string = 'builtins.open'
 
-from projects.test.helpers import *
+from test.helpers import *
 
 from projects import config
 
