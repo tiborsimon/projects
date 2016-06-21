@@ -142,7 +142,6 @@ def finalize_data(input_data):
 
     for node in input_data:
         _process_node(command_buffer, node, data)
-    # _delete_divisors(command_buffer)
     return data
 
 

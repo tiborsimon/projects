@@ -1,5 +1,7 @@
 import urwid
+import pydoc
 from projects.project_selector import ProjectSelector
+from projects import doc_generator
 
 
 def select_project(project_list, path_callback):
@@ -51,28 +53,8 @@ def select_project(project_list, path_callback):
 
 
 def show_project_details(data):
-
-    def exit_on_q(key):
-        if key in ('Q',):
-            raise urwid.ExitMainLoop()
-
-    palette = [
-        ('normal', 'light gray', ''),
-        ('selected', 'yellow, bold', ''),
-        ('highlighted', 'black, bold', 'yellow'),
-        ('quit button', 'light red, bold', ''),
-        ('enter button', 'light green, bold', '')
-    ]
-
-    import pprint
-    bt = urwid.BigText(pprint.pformat(data), urwid.font.HalfBlock5x4Font())
-    bt = urwid.Padding(bt, 'left', width='clip')
-    bt = urwid.Filler(bt, 'top')
-
-    frame = urwid.Frame(body=bt, header=bt)
-
-    loop = urwid.MainLoop(bt, palette, unhandled_input=exit_on_q)
-    loop.run()
+    doc = doc_generator.generate_doc(data, 'hello')
+    pydoc.pager(doc)
 
 
 if __name__ == '__main__':
