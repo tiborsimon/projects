@@ -21,5 +21,9 @@ def get_project_root(projects_root, current_path):
     separator = os.path.sep
     root = projects_root.split(separator)
     current = current_path.split(separator)
-    return os.path.join(projects_root, current[len(root)])
+    ret = {
+        'path': os.path.join(projects_root, current[len(root)]),
+        'name': current[len(root)]
+    }
+    return ret
 

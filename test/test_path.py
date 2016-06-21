@@ -49,14 +49,20 @@ class ProjectRootFinding(TestCase):
     def test__project_root_cen_be_calculated(self):
         projects_root = '/projects/root'
         current_path = '/projects/root/some-project'
-        expected = '/projects/root/some-project'
+        expected = {
+            'path': '/projects/root/some-project',
+            'name': 'some-project'
+        }
         result = paths.get_project_root(projects_root, current_path)
         self.assertEqual(expected, result)
 
     def test__project_root_cen_be_calculated_deep_inside_the_project_too(self):
         projects_root = '/projects/root'
         current_path = '/projects/root/some-project/a/b/c/d/e/f/g/h/i'
-        expected = '/projects/root/some-project'
+        expected = {
+            'path': '/projects/root/some-project',
+            'name': 'some-project'
+        }
         result = paths.get_project_root(projects_root, current_path)
         self.assertEqual(expected, result)
 

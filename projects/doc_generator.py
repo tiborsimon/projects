@@ -1,7 +1,7 @@
 from pyfiglet import Figlet
 
 
-def generate_doc(data, pahts):
+def generate_doc(data):
     f = Figlet(font='big')
-    title = f.renderText('Projects')
+    title = f.renderText(data['name'])
     return title + '\nThe actual doc..'

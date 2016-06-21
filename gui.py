@@ -53,7 +53,7 @@ def select_project(project_list, path_callback):
 
 
 def show_project_details(data):
-    doc = doc_generator.generate_doc(data, 'hello')
+    doc = doc_generator.generate_doc(data)
     pydoc.pager(doc)
 
 

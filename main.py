@@ -46,7 +46,8 @@ def main(args):
         conf = config.get()
         if paths.inside_project(conf['projects-path']):
             project_root = paths.get_project_root(conf['projects-path'], os.getcwd())
-            data = projectfile.get_data_for_root(project_root)
+            data = projectfile.get_data_for_root(project_root['path'])
+            data['name'] = project_root['name']
             execute(args, data)
 
         else:
