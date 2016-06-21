@@ -16,19 +16,30 @@ def path_setting_callback(path):
     return_path = path
 
 
+def process_command(command_name, data):
+    command = data['commands'][command_name]
+    if 'alias' in command:
+        command = data['commands'][command['alias']]
+    if 'dependencies' in command:
+        for dep in command['dependencies']:
+            process_command(dep, data)
+    for lines in command['script']:
+        call(re.sub('\s+', ' ', lines).split(' '))
+
+
 def execute(args, data):
     if len(args) > 2:
         args = args[2:]
         for command_name in args:
             if command_name in data['commands']:
-                command = data['commands'][command_name]
-                if 'alias' in command:
-                    command = data['commands'][command['alias']]
-                for lines in command['script']:
-                    call(re.sub('\s+', ' ', lines).split(' '))
+                process_command(command_name, data)
             else:
                 pass
-                # no command..
+                # no command found
+    else:
+        # show gui for project
+        gui.show_project_details(data)
+
 
 def main(args):
     try:

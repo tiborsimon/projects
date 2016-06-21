@@ -56,4 +56,81 @@ class DetermineIfCallHappenedFromProject(TestCase):
         main.execute(args, data)
         mock_call.assert_has_calls(calls)
 
+    @mock.patch.object(main, 'call', autospec=True)
+    def test__dependencies_can_be_handled(self, mock_call):
+        args = ['x', 'x', 'c']
+        data = {
+            'min-version': (2, 0, 0),
+            'commands': {
+                'command1': {
+                    'script': [
+                        'command 1 commands'
+                    ]
+                },
+                'command2': {
+                    'dependencies': ['command1'],
+                    'script': [
+                        'command 2 commands'
+                    ]
+                },
+                'c': {
+                    'alias': 'command2'
+                }
+            }
+        }
+        calls = [
+            mock.call(['command', '1', 'commands']),
+            mock.call(['command', '2', 'commands'])
+        ]
+        main.execute(args, data)
+        mock_call.assert_has_calls(calls)
+
+    @mock.patch.object(main, 'call', autospec=True)
+    def test__two_dependencies_with_multiple_aliases(self, mock_call):
+        args = ['x', 'x', 'c1']
+        data = {
+            'min-version': (2, 0, 0),
+            'commands': {
+                'command1': {
+                    'dependencies': ['c3', 'c2'],
+                    'script': [
+                        'command 1 commands'
+                    ]
+                },
+                'command2': {
+                    'script': [
+                        'command 2 commands'
+                    ]
+                },
+                'command3': {
+                    'dependencies': ['command4'],
+                    'script': [
+                        'command 3 commands'
+                    ]
+                },
+                'command4': {
+                    'script': [
+                        'command 4 commands'
+                    ]
+                },
+                'c1': {
+                    'alias': 'command1'
+                },
+                'c2': {
+                    'alias': 'command2'
+                },
+                'c3': {
+                    'alias': 'command3'
+                }
+            }
+        }
+        calls = [
+            mock.call(['command', '4', 'commands']),
+            mock.call(['command', '3', 'commands']),
+            mock.call(['command', '2', 'commands']),
+            mock.call(['command', '1', 'commands'])
+        ]
+        main.execute(args, data)
+        mock_call.assert_has_calls(calls)
+
 

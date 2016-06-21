@@ -29,7 +29,6 @@ def select_project(project_list, path_callback):
         key = key.lower()
         refresh_list(key)
 
-
     palette = [
         ('normal', 'light gray', ''),
         ('selected', 'yellow, bold', ''),
@@ -49,6 +48,32 @@ def select_project(project_list, path_callback):
     loop = urwid.MainLoop(frame, palette, unhandled_input=exit_on_q)
     refresh_list()
     loop.run()
+
+
+def show_project_details(data):
+
+    def exit_on_q(key):
+        if key in ('Q',):
+            raise urwid.ExitMainLoop()
+
+    palette = [
+        ('normal', 'light gray', ''),
+        ('selected', 'yellow, bold', ''),
+        ('highlighted', 'black, bold', 'yellow'),
+        ('quit button', 'light red, bold', ''),
+        ('enter button', 'light green, bold', '')
+    ]
+
+    import pprint
+    bt = urwid.BigText(pprint.pformat(data), urwid.font.HalfBlock5x4Font())
+    bt = urwid.Padding(bt, 'left', width='clip')
+    bt = urwid.Filler(bt, 'top')
+
+    frame = urwid.Frame(body=bt, header=bt)
+
+    loop = urwid.MainLoop(bt, palette, unhandled_input=exit_on_q)
+    loop.run()
+
 
 if __name__ == '__main__':
     print('starting gui')
