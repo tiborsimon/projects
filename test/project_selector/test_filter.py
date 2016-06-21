@@ -190,6 +190,14 @@ class SearchPatternGeneration(TestCase):
         result = project_selector._get_pattern_list(keys)
         self.assertEqual(expected, result)
 
+    def test__pattern_dot_handled_correctly(self):
+        keys = '.'
+        expected = [
+            '(\\.)'
+        ]
+        result = project_selector._get_pattern_list(keys)
+        self.assertEqual(expected, result)
+
 
 class ItemWeighting(TestCase):
     def test__no_match_results_zero_weight(self):

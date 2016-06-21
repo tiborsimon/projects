@@ -13,7 +13,7 @@ def _get_pattern_list(keys):
                 temp.append(keys[j])
         for k in range(len(temp)):
             if '^' not in temp[k]:
-                temp[k] = '({})'.format(temp[k])
+                temp[k] = '({})'.format(temp[k].replace('.', '\\.'))
         ret.append(''.join(temp))
     return ret
 

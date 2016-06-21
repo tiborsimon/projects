@@ -11,7 +11,7 @@ def select_project(project_list, path_callback):
             if key in ('delete', 'backspace'):
                 f.remove_key()
             else:
-                if key in 'abcdefghijklmnopqrstuvwxyz- .':
+                if key in 'abcdefghijklmnopqrstuvwxyz- .0123456789':
                     f.add_key(key)
         s = f.render()
         txt.set_text(s)
