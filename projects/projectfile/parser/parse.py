@@ -108,7 +108,7 @@ def command_header(line):
         if deps:
             ret[keys[0]]['dependencies'] = deps
         if len(keys) > 1:
-            alternatives = keys[1:]
+            alternatives = sorted(keys[1:], key=len, reverse=True)
             ret[keys[0]]['alternatives'] = alternatives
             for a in alternatives:
                 ret[a] = {'alias': keys[0]}

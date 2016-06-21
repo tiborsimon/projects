@@ -699,6 +699,23 @@ class CommandHeaderParser(TestCase):
         result = parse.command_header(line)
         self.assertEqual(expected, result)
 
+    def test__alternatives_are_sorted_in_decending_length_order(self):
+        line = 'command|c|com:'
+        expected = {
+            'command': {
+                'alternatives': ['com', 'c'],
+                'done': False
+            },
+            'com': {
+                'alias': 'command'
+            },
+            'c': {
+                'alias': 'command'
+            }
+        }
+        result = parse.command_header(line)
+        self.assertEqual(expected, result)
+
     def test__valid_command_header__dependencies(self):
         line = 'command|com|c: [dep]'
         expected = ['dep']
