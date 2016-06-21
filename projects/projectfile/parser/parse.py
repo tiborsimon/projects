@@ -108,8 +108,10 @@ def command_header(line):
         if deps:
             ret[keys[0]]['dependencies'] = deps
         if len(keys) > 1:
-            for key in keys[1:]:
-                ret[key] = {'alias': keys[0]}
+            alternatives = keys[1:]
+            ret[keys[0]]['alternatives'] = alternatives
+            for a in alternatives:
+                ret[a] = {'alias': keys[0]}
         return ret
     else:
         if not re.match('^\s+.*', line) and not re.search(':', line):

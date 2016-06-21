@@ -430,6 +430,7 @@ class LinesProcessing(TestCase):
             },
             'commands': {
                 'command': {
+                    'alternatives': ['com', 'c'],
                     'description': 'This is the command description. vmi',
                     'pre': ['echo "pre"'],
                     'post': ['echo "post"']
@@ -441,6 +442,7 @@ class LinesProcessing(TestCase):
                     'alias': 'command'
                 },
                 'other_command': {
+                    'alternatives': ['oth', 'oo', 'o'],
                     'dependencies': ['command'],
                     'description': 'Another command..',
                     'pre': ['echo "other"', 'echo "something"'],
@@ -498,6 +500,7 @@ class LinesProcessing(TestCase):
             },
             'commands': {
                 'command': {
+                    'alternatives': ['com', 'c'],
                     'description': 'This is the command description.#comment vmi#comment',
                     'pre': ['echo "pre"'],
                     'post': ['echo "post"']
@@ -509,6 +512,7 @@ class LinesProcessing(TestCase):
                     'alias': 'command'
                 },
                 'other_command': {
+                    'alternatives': ['oth', 'oo', 'o'],
                     'dependencies': ['command'],
                     'description': 'Another command..#comment',
                     'pre': ['echo "other"', 'echo "something"'],
@@ -566,6 +570,7 @@ class LinesProcessing(TestCase):
             },
             'commands': {
                 'command': {
+                    'alternatives': ['com', 'c'],
                     'description': 'This is the command description.  #comment vmi  #comment',
                     'pre': ['echo "pre"'],
                     'post': ['echo "post"']
@@ -577,6 +582,7 @@ class LinesProcessing(TestCase):
                     'alias': 'command'
                 },
                 'other_command': {
+                    'alternatives': ['oth', 'oo', 'o'],
                     'dependencies': ['command'],
                     'description': 'Another command..  #comment',
                     'pre': ['echo "other"', 'echo "something"'],

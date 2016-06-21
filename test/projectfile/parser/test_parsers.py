@@ -655,6 +655,7 @@ class CommandHeaderParser(TestCase):
         line = 'command|com:'
         expected = {
             'command': {
+                'alternatives': ['com'],
                 'done': False
             },
             'com': {
@@ -668,6 +669,7 @@ class CommandHeaderParser(TestCase):
         line = 'command|com|c:'
         expected = {
             'command': {
+                'alternatives': ['com', 'c'],
                 'done': False
             },
             'com': {
@@ -684,6 +686,7 @@ class CommandHeaderParser(TestCase):
         line = 'command |  com    | c    :'
         expected = {
             'command': {
+                'alternatives': ['com', 'c'],
                 'done': False
             },
             'com': {
@@ -698,122 +701,45 @@ class CommandHeaderParser(TestCase):
 
     def test__valid_command_header__dependencies(self):
         line = 'command|com|c: [dep]'
-        expected = {
-            'command': {
-                'dependencies': ['dep'],
-                'done': False
-            },
-            'com': {
-                'alias': 'command'
-            },
-            'c': {
-                'alias': 'command'
-            }
-        }
+        expected = ['dep']
         result = parse.command_header(line)
-        self.assertEqual(expected, result)
+        self.assertEqual(expected, result['command']['dependencies'])
 
     def test__valid_command_header__multiple_dependencies(self):
         line = 'command|com|c: [dep, dep2, dep3]'
-        expected = {
-            'command': {
-                'dependencies': ['dep', 'dep2', 'dep3'],
-                'done': False
-            },
-            'com': {
-                'alias': 'command'
-            },
-            'c': {
-                'alias': 'command'
-            }
-        }
+        expected = ['dep', 'dep2', 'dep3']
         result = parse.command_header(line)
-        self.assertEqual(expected, result)
+        self.assertEqual(expected, result['command']['dependencies'])
 
     def test__valid_command_header__full_range_dependencies(self):
         line = 'command|com|c: [command_COMMAND_1234567890.abc-abc]'
-        expected = {
-            'command': {
-                'dependencies': ['command_COMMAND_1234567890.abc-abc'],
-                'done': False
-            },
-            'com': {
-                'alias': 'command'
-            },
-            'c': {
-                'alias': 'command'
-            }
-        }
+        expected = ['command_COMMAND_1234567890.abc-abc']
         result = parse.command_header(line)
-        self.assertEqual(expected, result)
+        self.assertEqual(expected, result['command']['dependencies'])
 
     def test__valid_command_header__dependencies_with_no_whitespaces(self):
         line = 'command|com|c:[dep]'
-        expected = {
-            'command': {
-                'dependencies': ['dep'],
-                'done': False
-            },
-            'com': {
-                'alias': 'command'
-            },
-            'c': {
-                'alias': 'command'
-            }
-        }
+        expected = ['dep']
         result = parse.command_header(line)
-        self.assertEqual(expected, result)
+        self.assertEqual(expected, result['command']['dependencies'])
 
     def test__valid_command_header__dependencies_with_more_outside_whitespaces(self):
         line = 'command|com|c:    [dep]          '
-        expected = {
-            'command': {
-                'dependencies': ['dep'],
-                'done': False
-            },
-            'com': {
-                'alias': 'command'
-            },
-            'c': {
-                'alias': 'command'
-            }
-        }
+        expected = ['dep']
         result = parse.command_header(line)
-        self.assertEqual(expected, result)
+        self.assertEqual(expected, result['command']['dependencies'])
 
     def test__valid_command_header__dependencies_with_more_inside_whitespaces(self):
         line = 'command|com|c: [ dep    ]'
-        expected = {
-            'command': {
-                'dependencies': ['dep'],
-                'done': False
-            },
-            'com': {
-                'alias': 'command'
-            },
-            'c': {
-                'alias': 'command'
-            }
-        }
+        expected = ['dep']
         result = parse.command_header(line)
-        self.assertEqual(expected, result)
+        self.assertEqual(expected, result['command']['dependencies'])
 
     def test__valid_command_header__multiple_dependencies_with_more_inside_whitespaces(self):
         line = 'command|com|c: [ dep  ,               dep1  ]'
-        expected = {
-            'command': {
-                'dependencies': ['dep', 'dep1'],
-                'done': False
-            },
-            'com': {
-                'alias': 'command'
-            },
-            'c': {
-                'alias': 'command'
-            }
-        }
+        expected = ['dep', 'dep1']
         result = parse.command_header(line)
-        self.assertEqual(expected, result)
+        self.assertEqual(expected, result['command']['dependencies'])
 
     def test__valid_command_header__can_tolerate_comment_1(self):
         line = 'command:#comment'
@@ -849,6 +775,7 @@ class CommandHeaderParser(TestCase):
         line = 'command|com|c:[dep,dep1]#comment'
         expected = {
             'command': {
+                'alternatives': ['com', 'c'],
                 'dependencies': ['dep', 'dep1'],
                 'done': False
             },
