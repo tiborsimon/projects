@@ -1,4 +1,13 @@
 from v0.1.1
 
+"""
+This is a very nice project..
+"""
+
 command|c:
+    """
+    This is a fine command..
+    """
     echo "helloka :)"
+    ===
+    echo "and this is the post"
