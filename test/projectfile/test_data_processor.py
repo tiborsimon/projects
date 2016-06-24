@@ -1763,3 +1763,63 @@ class DependencyAddition(TestCase):
         result = data_processor.finalize_data(input_data)
         self.assertEqual(expected, result['commands']['command_B']['dependencies'])
 
+
+class AlternativesAddition(TestCase):
+    def test__dependencies_can_be_added(self):
+        input_data = [
+            {
+                'path': 'path_B',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'command_A': {
+                        'alternatives': ['com', 'c'],
+                        'pre': ['pre B']
+                    }
+                },
+                'children': []
+            },
+            {
+                'path': 'path_B',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'command_B': {
+                        'dependencies': 'command_A',
+                        'pre': ['pre B']
+                    }
+                },
+                'children': []
+            }
+        ]
+        expected = ['com', 'c']
+        result = data_processor.finalize_data(input_data)
+        self.assertEqual(expected, result['commands']['command_A']['alternatives'])
+
+    def test__dependencies_can_be_added(self):
+        input_data = [
+            {
+                'path': 'path_A',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'command_A': {
+                        'alternatives': ['com', 'c'],
+                        'pre': ['pre B']
+                    }
+                },
+                'children': []
+            },
+            {
+                'path': 'path_A/B',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'command_A': {
+                        'alternatives': ['cc'],
+                        'pre': ['pre B']
+                    }
+                },
+                'children': []
+            }
+        ]
+        expected = ['com', 'cc', 'c']
+        result = data_processor.finalize_data(input_data)
+        self.assertEqual(expected, result['commands']['command_A']['alternatives'])
+

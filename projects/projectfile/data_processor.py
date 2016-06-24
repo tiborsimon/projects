@@ -244,6 +244,17 @@ def _add_dependencies(pool, raw_commad):
         pool['dependencies'] = raw_commad['dependencies']
 
 
+def _add_alternatives(pool, raw_commad):
+    if 'alternatives' in raw_commad:
+        if 'alternatives' in pool:
+            for new in raw_commad['alternatives']:
+                if new not in pool['alternatives']:
+                    pool['alternatives'].append(new)
+            pool['alternatives'].sort(key=len, reverse=True)
+        else:
+            pool['alternatives'] = raw_commad['alternatives']
+
+
 def _process_commands(command_buffer, node):
     for command_name in _command_names(node):
         pool = get_working_pool(command_buffer, command_name)
@@ -256,6 +267,7 @@ def _process_commands(command_buffer, node):
             continue
         _add_command_description(pool, raw_command)
         _add_dependencies(pool, raw_command)
+        _add_alternatives(pool, raw_command)
         _add_cd(pool, node)
         _add_pre(pool, raw_command)
         _add_divisor(pool)

@@ -25,6 +25,7 @@ from projects.projectfile import error
 class ProjectfileModuleFullStackTests(TestCase):
     @mock.patch.object(projectfile.data_processor.file_handler, 'projectfile_walk')
     def test__root_projectfile_structure_can_be_parsed(self, mock_walk):
+        self.maxDiff = None
         dummy_walk_data = [
             (
                 os.path.join('root'),
@@ -120,6 +121,7 @@ class ProjectfileModuleFullStackTests(TestCase):
             'description': 'Root level.\n\nRoot/A level.\n\nRoot/A/B level.\n\nRoot/C level.',
             'commands': {
                 'command': {
+                    'alternatives': ['com', 'cc', 'c'],
                     'description': 'Command in root: command\n\nCommand in root/A: command\n\nCommand in root/A/B: command\n\nCommand in root/C: command',
                     'script': [
                         'cd {}'.format(dummy_walk_data[0][0]),
@@ -146,6 +148,7 @@ class ProjectfileModuleFullStackTests(TestCase):
                     'alias': 'command'
                 },
                 'other_command': {
+                    'alternatives': ['oth', 'oo', 'o'],
                     'dependencies': ['command'],
                     'description': 'Command in root: other\n\nCommand in root/A: other',
                     'script': [

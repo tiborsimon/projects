@@ -7,6 +7,7 @@ This is a very nice project..
 command|c:
     """
     This is a fine command..
+    Which has a newline in it..
     """
     echo "helloka :)"
     ===
