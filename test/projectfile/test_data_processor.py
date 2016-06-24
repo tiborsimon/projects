@@ -1765,7 +1765,7 @@ class DependencyAddition(TestCase):
 
 
 class AlternativesAddition(TestCase):
-    def test__dependencies_can_be_added(self):
+    def test__alternatives_can_be_added(self):
         input_data = [
             {
                 'path': 'path_B',
@@ -1794,7 +1794,7 @@ class AlternativesAddition(TestCase):
         result = data_processor.finalize_data(input_data)
         self.assertEqual(expected, result['commands']['command_A']['alternatives'])
 
-    def test__dependencies_can_be_added(self):
+    def test__alternatives_in_multiple_levels_can_be_added   (self):
         input_data = [
             {
                 'path': 'path_A',
