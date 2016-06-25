@@ -1,4 +1,3 @@
 mock>=2.0.0
 urwid
 pyyaml
-pyfiglet

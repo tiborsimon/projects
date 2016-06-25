@@ -1,14 +1,16 @@
-from pyfiglet import Figlet
+import textwrap
 
 
+def generate_doc(data, width):
+    doc = '=' * width + '\n'
+    name = data['name'].upper()
+    name = '  '.join(name)
+    name = name.center(width) + '\n'
+    doc += name
 
-
-def generate_doc(data):
-    f = Figlet(font='big')
-    doc = f.renderText(data['name'])
-    doc += '\n\n'
+    doc += '=' * width + '\n\n'
     if 'description' in data:
-        doc += data['description'] + '\n\n\n'
+        doc += wrap_lines(data['description'], width, indent=1) + '\n\n'
     for command_name in data['commands']:
         command = data['commands'][command_name]
         if 'alias' in command:
@@ -17,13 +19,27 @@ def generate_doc(data):
         if 'alternatives' in command:
             doc += '|'
             doc += '|'.join(command['alternatives'])
-            doc += '  '
+        doc += ':'
         if 'dependencies' in command:
-            doc += '['
-            doc += ', '.join(command['dependecies'])
-            doc += ']\n'
+            doc += ' ['
+            doc += ', '.join(command['dependencies'])
+            doc += ']'
         doc += '\n\n'
         if 'description' in command:
-            doc += command['description']
+            doc += wrap_lines(command['description'], width, indent=4)
+        doc += '\n\n'
+    return doc
 
-    return doc + repr(data)
+
+def wrap_lines(raw, width, indent=0):
+    # import pdb; pdb.set_trace()
+    ret = ''
+    for p in [p.strip() for p in raw.split('\n') if p != '']:
+        p_ret = ''
+        wrapped = textwrap.wrap(p, width-4)
+        for line in wrapped:
+            p_ret += ' '*indent + line + '\n'
+        ret += p_ret + '\n'
+    return ret[:-1]
+
+

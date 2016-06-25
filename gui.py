@@ -52,8 +52,8 @@ def select_project(project_list, path_callback):
     loop.run()
 
 
-def show_project_details(data):
-    doc = doc_generator.generate_doc(data)
+def show_project_details(data, width):
+    doc = doc_generator.generate_doc(data, width)
     pydoc.pager(doc)
 
 

@@ -38,7 +38,7 @@ def execute(args, data):
                 # no command found
     else:
         # show gui for project
-        gui.show_project_details(data)
+        gui.show_project_details(data, 80)
 
 
 def main(args):

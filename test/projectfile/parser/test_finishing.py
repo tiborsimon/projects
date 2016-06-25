@@ -171,6 +171,19 @@ class DataIntegrityTest(TestCase):
         assert_exception(self, cm, error.ProjectfileError,
                          {'error': error.PROJECTFILE_INVALID_DEPENDENCY.format('c', 'c2')})
 
+    def test__dependencies_are_tansitive(self):
+        data = {
+            'commands': {
+                'c1': {},
+                'c2': {
+                    'dependencies': ['c']
+                },
+                'c': {
+                    'alias': 'c1'
+                }
+            }
+        }
+        parser._data_integrity_check(data)
 
 class Integration(TestCase):
     @mock.patch.object(parser, '_parse_lines')
