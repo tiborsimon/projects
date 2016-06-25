@@ -32,7 +32,6 @@ def generate_doc(data, width):
 
 
 def wrap_lines(raw, width, indent=0):
-    # import pdb; pdb.set_trace()
     ret = ''
     for p in [p.strip() for p in raw.split('\n') if p != '']:
         p_ret = ''

@@ -1,11 +1,13 @@
-from subprocess import call
 import os
+import sys
 from projects import config
 from projects import paths
 from projects import projectfile
+from projects.projectfile.error import ProjectfileError
 import gui
 from subprocess import call
 import re
+from termcolor import colored
 
 
 return_path = ''
@@ -60,6 +62,13 @@ def main(args):
                 with open(os.path.join(os.path.expanduser('~'), '.p-path'), 'w+') as f:
                     f.write(os.path.join(os.path.expanduser(conf['projects-path']), return_path))
 
-    except Exception as e:
-        print(e)
-        pass
+    except ProjectfileError as e:
+        error = e.args[0]
+        message = '\n Projectfile error!\n {}'.format(error['error'])
+        if 'path' in error:
+            message = '{}\n Path: {}/Projectfile'.format(message, error['path'])
+        if 'line' in error:
+            message = '{}\n Line: {}'.format(message, error['line'])
+        print(colored(message, 'red'))
+        sys.exit(-1)
+
