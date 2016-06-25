@@ -7,7 +7,7 @@ This is a very nice project.. This is a very nice project.. This is a very nice 
 Which has a very nice line..
 """
 
-command|c [d]
+command|c: [d]
     """
     This is a fine command..
     Which has a newline in it.. And of course it does not count because there is no new line character between them!
@@ -15,7 +15,7 @@ command|c [d]
     So this has to be in a new line, otherwise, the whole description parseing algorithm is a piece of shot, and I have to 
     rework it completely. I hate the thing that I am a slow-typer..
     """
-    echo "helloka :)"
+    echo helloka :)
     ===
     echo "and this is the post"
 

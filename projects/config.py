@@ -54,6 +54,8 @@ def get():
             raise ConfigError(_FILE_CREATION_ERROR.format(e.args[0]))
     except SyntaxError as e:
         raise ConfigError(_JSON_SYNTAX_ERROR.format(e.args[0]))
+    except Exception:
+        raise ConfigError(_JSON_SYNTAX_ERROR.format('Yaml syntax error..'))
 
     try:
         _validate(config)
@@ -70,16 +72,14 @@ def get():
 
 _CONFIG_FILE = '~/.prc'
 _FILE_CREATION_ERROR = 'Config file ({}) cannot be created. IOError: {{}}'.format(_CONFIG_FILE)
-_JSON_SYNTAX_ERROR = 'Invalid JSON format in config file ({}). SyntaxError: {{}}'.format(_CONFIG_FILE)
+_JSON_SYNTAX_ERROR = 'Invalid Yaml format in config file ({}). SyntaxError: {{}}'.format(_CONFIG_FILE)
 _MANDATORY_KEY_ERROR = 'Missing mandatory key "{{}}" in config file ({}).'.format(_CONFIG_FILE)
 _INVALID_KEY_ERROR = 'Invalid key "{{}}" in config file ({}).'.format(_CONFIG_FILE)
 _INVALID_VALUE_ERROR = 'Invalid value for key "{{}}" in config file ({}).'.format(_CONFIG_FILE)
 
 _default_config = {
     'projects-path': '~/projects',
-    'number-color': 'yellow',
-    'highlight-color': 'yellow',
-    'plugins': []
+    'doc-width': 80
 }
 
 _mandatory_keys = [
@@ -87,9 +87,7 @@ _mandatory_keys = [
 ]
 
 _optional_keys = [
-    'number-color',
-    'highlight-color',
-    'plugins'
+    'doc-width'
 ]
 
 

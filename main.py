@@ -8,6 +8,7 @@ import gui
 from subprocess import call
 import re
 from termcolor import colored
+from projects.config import ConfigError
 
 
 return_path = ''
@@ -29,7 +30,7 @@ def process_command(command_name, data):
         call(re.sub('\s+', ' ', lines).split(' '))
 
 
-def execute(args, data):
+def execute(args, data, conf):
     if len(args) > 2:
         args = args[2:]
         for command_name in args:
@@ -37,10 +38,12 @@ def execute(args, data):
                 process_command(command_name, data)
             else:
                 pass
-                # no command found
     else:
-        # show gui for project
-        gui.show_project_details(data, 80)
+        if 'doc-width' in conf:
+            width = conf['doc-width']
+        else:
+            width = 80
+        gui.show_project_details(data, width)
 
 
 def main(args):
@@ -50,7 +53,7 @@ def main(args):
             project_root = paths.get_project_root(conf['projects-path'], os.getcwd())
             data = projectfile.get_data_for_root(project_root['path'])
             data['name'] = project_root['name']
-            execute(args, data)
+            execute(args, data, conf)
 
         else:
             # start project selection
@@ -69,6 +72,12 @@ def main(args):
             message = '{}\n Path: {}/Projectfile'.format(message, error['path'])
         if 'line' in error:
             message = '{}\n Line: {}'.format(message, error['line'])
+        print(colored(message, 'red'))
+        sys.exit(-1)
+
+    except ConfigError as e:
+        error = e.args[0]
+        message = '\n Config error!\n {}'.format(error)
         print(colored(message, 'red'))
         sys.exit(-1)
 
