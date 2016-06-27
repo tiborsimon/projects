@@ -11,8 +11,8 @@ import main
 
 
 class DetermineIfCallHappenedFromProject(TestCase):
-    @mock.patch.object(main, 'call', autospec=True)
-    def test__simple_command_can_be_executed_regardless_of_extra_whitespaces(self, mock_call):
+    @mock.patch.object(main, 'execute_call', autospec=True)
+    def test__simple_command_can_be_executed_regardless_of_extra_whitespaces(self, mock_execute_call):
         args = ['x', 'x', 'command']
         data = {
             'min-version': (2, 0, 0),
@@ -26,14 +26,15 @@ class DetermineIfCallHappenedFromProject(TestCase):
             }
         }
         calls = [
-            mock.call(['a', 'a', 'a']),
-            mock.call(['b', 'b', 'b'])
+            mock.call(data['commands']['command']['script'][0]),
+            mock.call(data['commands']['command']['script'][1])
         ]
+        mock_execute_call.return_value = ('', '')
         main.execute(args, data, {'doc-width': 80})
-        mock_call.assert_has_calls(calls)
+        mock_execute_call.assert_has_calls(calls)
 
-    @mock.patch.object(main, 'call', autospec=True)
-    def test__alias_can_be_redirected(self, mock_call):
+    @mock.patch.object(main, 'execute_call', autospec=True)
+    def test__alias_can_be_redirected(self, mock_execute_call):
         args = ['x', 'x', 'c']
         data = {
             'min-version': (2, 0, 0),
@@ -50,14 +51,15 @@ class DetermineIfCallHappenedFromProject(TestCase):
             }
         }
         calls = [
-            mock.call(['a', 'a', 'a']),
-            mock.call(['b', 'b', 'b'])
+            mock.call(data['commands']['command']['script'][0]),
+            mock.call(data['commands']['command']['script'][1])
         ]
+        mock_execute_call.return_value = ('', '')
         main.execute(args, data, {'doc-width': 80})
-        mock_call.assert_has_calls(calls)
+        mock_execute_call.assert_has_calls(calls)
 
-    @mock.patch.object(main, 'call', autospec=True)
-    def test__dependencies_can_be_handled(self, mock_call):
+    @mock.patch.object(main, 'execute_call', autospec=True)
+    def test__dependencies_can_be_handled(self, mock_execute_call):
         args = ['x', 'x', 'c']
         data = {
             'min-version': (2, 0, 0),
@@ -79,14 +81,15 @@ class DetermineIfCallHappenedFromProject(TestCase):
             }
         }
         calls = [
-            mock.call(['command', '1', 'commands']),
-            mock.call(['command', '2', 'commands'])
+            mock.call(data['commands']['command1']['script'][0]),
+            mock.call(data['commands']['command2']['script'][0])
         ]
+        mock_execute_call.return_value = ('', '')
         main.execute(args, data, {'doc-width': 80})
-        mock_call.assert_has_calls(calls)
+        mock_execute_call.assert_has_calls(calls)
 
-    @mock.patch.object(main, 'call', autospec=True)
-    def test__two_dependencies_with_multiple_aliases(self, mock_call):
+    @mock.patch.object(main, 'execute_call', autospec=True)
+    def test__two_dependencies_with_multiple_aliases(self, mock_execute_call):
         args = ['x', 'x', 'c1']
         data = {
             'min-version': (2, 0, 0),
@@ -125,12 +128,13 @@ class DetermineIfCallHappenedFromProject(TestCase):
             }
         }
         calls = [
-            mock.call(['command', '4', 'commands']),
-            mock.call(['command', '3', 'commands']),
-            mock.call(['command', '2', 'commands']),
-            mock.call(['command', '1', 'commands'])
+            mock.call(data['commands']['command4']['script'][0]),
+            mock.call(data['commands']['command3']['script'][0]),
+            mock.call(data['commands']['command2']['script'][0]),
+            mock.call(data['commands']['command1']['script'][0])
         ]
+        mock_execute_call.return_value = ('', '')
         main.execute(args, data, {'doc-width': 80})
-        mock_call.assert_has_calls(calls)
+        mock_execute_call.assert_has_calls(calls)
 
 

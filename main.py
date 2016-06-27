@@ -27,13 +27,17 @@ def process_command(command_name, data):
         for dep in command['dependencies']:
             process_command(dep, data)
     for line in command['script']:
-        process = subprocess.Popen(line, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = process.communicate()
+        err, out = execute_call(line)
         if out:
             print(out.strip())
         if err:
             print(colored(err.strip(), 'red'))
-            sys.exit(process.returncode)
+
+
+def execute_call(line):
+    process = subprocess.Popen(line, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = process.communicate()
+    return err, out
 
 
 def execute(args, data, conf):
