@@ -142,7 +142,19 @@ def finalize_data(input_data):
 
     for node in input_data:
         _process_node(command_buffer, node, data)
+    _add_aliases(command_buffer)
     return data
+
+
+def _add_aliases(command_buffer):
+    original_commands = [key for key in command_buffer]
+    for command_name in original_commands:
+        if 'alternatives' in command_buffer[command_name]:
+            for alt in command_buffer[command_name]['alternatives']:
+                if alt not in command_buffer:
+                    command_buffer[alt] = {
+                        'alias': command_name
+                    }
 
 
 def _add_cd(pool, node):
@@ -234,7 +246,13 @@ def _process_children(command_buffer, node, data):
 
 def get_working_pool(command_buffer, command_name):
     if command_name not in command_buffer:
-        command_buffer[command_name] = {'script': []}
+        for command in command_buffer:
+            if ('alternatives' in command_buffer[command] and
+                        command_name in command_buffer[command]['alternatives']):
+                command_name = command
+                break
+        else:
+            command_buffer[command_name] = {'script': []}
     pool = command_buffer[command_name]
     return pool
 
@@ -257,14 +275,10 @@ def _add_alternatives(pool, raw_commad):
 
 def _process_commands(command_buffer, node):
     for command_name in _command_names(node):
-        pool = get_working_pool(command_buffer, command_name)
         raw_command = node['commands'][command_name]
-
         if 'alias' in raw_command:
-            pool['alias'] = raw_command['alias']
-            if 'script' in pool:
-                del pool['script']
             continue
+        pool = get_working_pool(command_buffer, command_name)
         _add_command_description(pool, raw_command)
         _add_dependencies(pool, raw_command)
         _add_alternatives(pool, raw_command)

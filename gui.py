@@ -19,6 +19,8 @@ def select_project(project_list, path_callback):
         txt.set_text(s)
 
     def exit_on_q(key):
+        if key.__class__ is not str:
+            return
         if key in ('Q',):
             raise urwid.ExitMainLoop()
         if key == 'up':

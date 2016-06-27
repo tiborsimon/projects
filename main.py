@@ -5,11 +5,56 @@ from projects import paths
 from projects import projectfile
 import gui
 import subprocess
-import re
 from termcolor import colored
+import pydoc
 
 
 __version__ = '1.0.0'
+
+help_text = """\
+===============================================================================
+                                      _           _
+                                     (_)         | |
+                      _ __  _ __ ___  _  ___  ___| |_ ___
+                     | '_ \| '__/ _ \| |/ _ \/ __| __/ __|
+                     | |_) | | | (_) | |  __/ (__| |_\__ \\
+                     | .__/|_|  \___/| |\___|\___|\__|___/
+                     | |            _/ |
+                     |_|           |__/
+
+===============================================================================
+            i n t u i t i v e   p r o j e c t   m a n a g e m e n t
+===============================================================================
+
+ Features
+     - quick project navigation
+     - Projectfile based recursive scripting system
+     - instant help menu generation
+
+ Usage:
+     p
+     p p
+     p <command>
+     p [-h|--help]
+     p [-v|--version]
+     p [-i|--init]
+
+ Terms:
+     Project directory - the directory where you store all your projects. Inside
+                         this directory are your root directories of your
+                         projects repositories.
+     Projectfile - the file you write to projects
+
+ p
+     This command is the main trigger for projects. It behaves differently
+     depending on your current working directory.
+
+     OUTSIDE your projects directory, it opens the project
+     selector screen, where you can
+
+
+
+"""
 
 return_path = ''
 
@@ -67,6 +112,9 @@ def main(args):
                     with open('Projectfile', 'w+') as f:
                         f.write(projectfile_content)
                     print('Projectfile created.')
+                return
+            elif args[0] in ['-h', '--help']:
+                pydoc.pager(help_text)
                 return
             elif args[0] in ['p']:
                 handle_project_selection(conf)

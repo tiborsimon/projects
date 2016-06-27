@@ -689,6 +689,59 @@ class FinalizingCommands(TestCase):
         result = data_processor.finalize_data(input_data)
         self.assertEqual(expected, result)
 
+    def test__child_with_alternative_only_naming(self):
+        input_data = [
+            {
+                'path': 'path_A',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'command': {
+                        'alternatives': ['c'],
+                        'pre': ['pre A'],
+                        'post': ['post A']
+                    },
+                    'c': {
+                        'alias': 'command'
+                    }
+                },
+                'children': [
+                    {
+                        'path': 'path_B',
+                        'min-version': (1, 2, 3),
+                        'commands': {
+                            'c': {
+                                'pre': ['pre B'],
+                                'post': ['post B']
+                            }
+                        },
+                        'children': []
+                    }
+                ]
+            }
+        ]
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'alternatives': ['c'],
+                    'script': [
+                        'cd path_A',
+                        'pre A',
+                        'cd path_B',
+                        'pre B',
+                        'post B',
+                        'post A'
+                    ]
+                },
+                'c': {
+                    'alias': 'command'
+                }
+
+            }
+        }
+        result = data_processor.finalize_data(input_data)
+        self.assertEqual(expected, result)
+
     def test__child_with_different_and_common_commands(self):
         input_data = [
             {
@@ -824,6 +877,7 @@ class AlternativeHandling(TestCase):
                 'min-version': (1, 2, 3),
                 'commands': {
                     'command': {
+                        'alternatives': ['c'],
                         'pre': ['pre A'],
                         'post': ['post A']
                     },
@@ -838,6 +892,7 @@ class AlternativeHandling(TestCase):
             'min-version': (1, 2, 3),
             'commands': {
                 'command': {
+                    'alternatives': ['c'],
                     'script': [
                         'cd path_A',
                         'pre A',
@@ -870,6 +925,7 @@ class AlternativeHandling(TestCase):
                         'min-version': (1, 2, 3),
                         'commands': {
                             'command': {
+                                'alternatives': ['c'],
                                 'pre': ['pre B'],
                                 'post': ['post B']
                             },
@@ -886,6 +942,7 @@ class AlternativeHandling(TestCase):
             'min-version': (1, 2, 3),
             'commands': {
                 'command': {
+                    'alternatives': ['c'],
                     'script': [
                         'cd path_A',
                         'pre A',
@@ -910,6 +967,7 @@ class AlternativeHandling(TestCase):
                 'min-version': (1, 2, 3),
                 'commands': {
                     'command': {
+                        'alternatives': ['ca'],
                         'pre': ['pre A'],
                         'post': ['post A']
                     },
@@ -923,6 +981,7 @@ class AlternativeHandling(TestCase):
                         'min-version': (1, 2, 3),
                         'commands': {
                             'command': {
+                                'alternatives': ['cb'],
                                 'pre': ['pre B'],
                                 'post': ['post B']
                             },
@@ -939,6 +998,7 @@ class AlternativeHandling(TestCase):
             'min-version': (1, 2, 3),
             'commands': {
                 'command': {
+                    'alternatives': ['ca', 'cb'],
                     'script': [
                         'cd path_A',
                         'pre A',
@@ -966,6 +1026,7 @@ class AlternativeHandling(TestCase):
                 'min-version': (1, 2, 3),
                 'commands': {
                     'command': {
+                        'alternatives': ['ca'],
                         'pre': ['pre A'],
                         'post': ['post A']
                     },
@@ -980,6 +1041,7 @@ class AlternativeHandling(TestCase):
                 'min-version': (1, 2, 3),
                 'commands': {
                     'command': {
+                        'alternatives': ['cb'],
                         'pre': ['pre B'],
                         'post': ['post B']
                     },
@@ -994,6 +1056,7 @@ class AlternativeHandling(TestCase):
             'min-version': (1, 2, 3),
             'commands': {
                 'command': {
+                    'alternatives': ['ca', 'cb'],
                     'script': [
                         'cd path_A',
                         'pre A',
@@ -1021,6 +1084,7 @@ class AlternativeHandling(TestCase):
                 'min-version': (1, 2, 3),
                 'commands': {
                     'command': {
+                        'alternatives': ['c'],
                         'pre': ['pre A'],
                         'post': ['post A']
                     },
@@ -1035,6 +1099,7 @@ class AlternativeHandling(TestCase):
                 'min-version': (1, 2, 3),
                 'commands': {
                     'command': {
+                        'alternatives': ['c'],
                         'pre': ['pre B'],
                         'post': ['post B']
                     },
@@ -1049,6 +1114,7 @@ class AlternativeHandling(TestCase):
             'min-version': (1, 2, 3),
             'commands': {
                 'command': {
+                    'alternatives': ['c'],
                     'script': [
                         'cd path_A',
                         'pre A',
@@ -1073,6 +1139,7 @@ class AlternativeHandling(TestCase):
                 'min-version': (1, 2, 3),
                 'commands': {
                     'command': {
+                        'alternatives': ['c'],
                         'pre': ['pre A'],
                         'post': ['post A']
                     },
@@ -1086,6 +1153,7 @@ class AlternativeHandling(TestCase):
                         'min-version': (1, 2, 3),
                         'commands': {
                             'command': {
+                                'alternatives': ['c'],
                                 'pre': ['pre B'],
                                 'post': ['post B']
                             },
@@ -1102,6 +1170,7 @@ class AlternativeHandling(TestCase):
             'min-version': (1, 2, 3),
             'commands': {
                 'command': {
+                    'alternatives' : ['c'],
                     'script': [
                         'cd path_A',
                         'pre A',
