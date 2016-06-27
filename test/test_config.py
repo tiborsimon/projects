@@ -117,7 +117,7 @@ class Validation(TestCase):
         }
         with self.assertRaises(Exception) as cm:
             config._validate(invalid_config)
-        assert_exception_type(self, cm, ValueError)
+        assert_exception_type(self, cm, SyntaxError)
 
 
 class Creation(TestCase):
@@ -205,6 +205,17 @@ class Getter(TestCase):
         with self.assertRaises(Exception) as cm:
             config.get()
         assert_exception(self, cm, config.ConfigError, config._MANDATORY_KEY_ERROR.format(error_message))
+
+    @mock.patch.object(config, '_load_config', autospec=True)
+    @mock.patch.object(config, '_validate', autospec=True)
+    def test__missing_optional_key__gets_replaced_with_the_default_value(self, mock_validate, mock_load):
+        dummy_config = dict(config._default_config)
+        del dummy_config['doc-width']
+        mock_load.return_value = dummy_config
+        expected = 80
+        result = config.get()
+        self.assertEqual(expected, result['doc-width'])
+
 
     @mock.patch.object(config, '_load_config', autospec=True)
     @mock.patch.object(config, '_validate', autospec=True)

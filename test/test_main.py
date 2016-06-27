@@ -29,7 +29,7 @@ class DetermineIfCallHappenedFromProject(TestCase):
             mock.call(['a', 'a', 'a']),
             mock.call(['b', 'b', 'b'])
         ]
-        main.execute(args, data)
+        main.execute(args, data, {'doc-width': 80})
         mock_call.assert_has_calls(calls)
 
     @mock.patch.object(main, 'call', autospec=True)
@@ -53,7 +53,7 @@ class DetermineIfCallHappenedFromProject(TestCase):
             mock.call(['a', 'a', 'a']),
             mock.call(['b', 'b', 'b'])
         ]
-        main.execute(args, data)
+        main.execute(args, data, {'doc-width': 80})
         mock_call.assert_has_calls(calls)
 
     @mock.patch.object(main, 'call', autospec=True)
@@ -82,7 +82,7 @@ class DetermineIfCallHappenedFromProject(TestCase):
             mock.call(['command', '1', 'commands']),
             mock.call(['command', '2', 'commands'])
         ]
-        main.execute(args, data)
+        main.execute(args, data, {'doc-width': 80})
         mock_call.assert_has_calls(calls)
 
     @mock.patch.object(main, 'call', autospec=True)
@@ -130,7 +130,7 @@ class DetermineIfCallHappenedFromProject(TestCase):
             mock.call(['command', '2', 'commands']),
             mock.call(['command', '1', 'commands'])
         ]
-        main.execute(args, data)
+        main.execute(args, data, {'doc-width': 80})
         mock_call.assert_has_calls(calls)
 
 

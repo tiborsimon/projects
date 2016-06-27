@@ -1,4 +1,5 @@
 from setuptools import setup
+from main import __version__
 
 
 def readme():
@@ -6,12 +7,12 @@ def readme():
         return f.read()
 
 setup(name='projects',
-      version='0.1.1',
+      version=__version__,
       description='The extensible project manager',
       long_description=readme(),
       test_suite='test',
       classifiers=[
-            'Development Status :: 2 - Pre-Alpha',
+            'Development Status :: 5 - Production/Stable',
             'Topic :: Utilities',
             'Environment :: Console',
             'Natural Language :: English',

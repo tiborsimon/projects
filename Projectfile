@@ -15,7 +15,7 @@ command|c: [d]
     So this has to be in a new line, otherwise, the whole description parseing algorithm is a piece of shot, and I have to 
     rework it completely. I hate the thing that I am a slow-typer..
     """
-    echo helloka :)
+    echo "helloka :)
     ===
     echo "and this is the post"
 

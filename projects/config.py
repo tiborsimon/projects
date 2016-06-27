@@ -67,6 +67,7 @@ def get():
         raise ConfigError(_INVALID_VALUE_ERROR.format(e.args[0]))
 
     config['projects-path'] = os.path.expanduser(config['projects-path'])
+    _complete_config(config)
     return config
 
 
@@ -89,6 +90,13 @@ _mandatory_keys = [
 _optional_keys = [
     'doc-width'
 ]
+
+
+
+def _complete_config(config):
+    for key in _optional_keys:
+        if key not in config:
+            config[key] = _default_config[key]
 
 
 def _get_config_path():

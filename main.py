@@ -3,13 +3,13 @@ import sys
 from projects import config
 from projects import paths
 from projects import projectfile
-from projects.projectfile.error import ProjectfileError
 import gui
-from subprocess import call
+import subprocess
 import re
 from termcolor import colored
-from projects.config import ConfigError
 
+
+__version__ = '1.0.0'
 
 return_path = ''
 
@@ -26,46 +26,54 @@ def process_command(command_name, data):
     if 'dependencies' in command:
         for dep in command['dependencies']:
             process_command(dep, data)
-    for lines in command['script']:
-        call(re.sub('\s+', ' ', lines).split(' '))
+    for line in command['script']:
+        process = subprocess.Popen(line, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = process.communicate()
+        if out:
+            print(out.strip())
+        if err:
+            print(colored(err.strip(), 'red'))
+            sys.exit(process.returncode)
 
 
 def execute(args, data, conf):
-    if len(args) > 2:
-        args = args[2:]
+    if args:
         for command_name in args:
             if command_name in data['commands']:
                 process_command(command_name, data)
             else:
                 pass
     else:
-        if 'doc-width' in conf:
-            width = conf['doc-width']
-        else:
-            width = 80
-        gui.show_project_details(data, width)
+        gui.show_project_details(data, conf['doc-width'])
 
 
 def main(args):
     try:
         conf = config.get()
+        args = args[2:]
+        if len(args) == 1:
+            if args[0] in ['-v', '--version']:
+                print(__version__)
+                return
+            elif args[0] in ['-i', '--init']:
+                if os.path.isfile('Projectfile'):
+                    print('You already have a Projectfile in this directory.. Nothing to do ;)')
+                else:
+                    projectfile_content = projectfile.DEFAULT_PROJECTFILE.format(__version__)
+                    with open('Projectfile', 'w+') as f:
+                        f.write(projectfile_content)
+                    print('Projectfile created.')
+                return
+            elif args[0] in ['p']:
+                handle_project_selection(conf)
+                return
+
         if paths.inside_project(conf['projects-path']):
-            project_root = paths.get_project_root(conf['projects-path'], os.getcwd())
-            data = projectfile.get_data_for_root(project_root['path'])
-            data['name'] = project_root['name']
-            execute(args, data, conf)
-
+            handle_inside_project(args, conf)
         else:
-            # start project selection
-            gui.select_project(
-                paths.list_dir_for_path(conf['projects-path']),
-                path_setting_callback
-            )
-            if return_path:
-                with open(os.path.join(os.path.expanduser('~'), '.p-path'), 'w+') as f:
-                    f.write(os.path.join(os.path.expanduser(conf['projects-path']), return_path))
+            handle_project_selection(conf)
 
-    except ProjectfileError as e:
+    except projectfile.error.ProjectfileError as e:
         error = e.args[0]
         message = '\n Projectfile error!\n {}'.format(error['error'])
         if 'path' in error:
@@ -75,9 +83,26 @@ def main(args):
         print(colored(message, 'red'))
         sys.exit(-1)
 
-    except ConfigError as e:
+    except config.ConfigError as e:
         error = e.args[0]
         message = '\n Config error!\n {}'.format(error)
         print(colored(message, 'red'))
         sys.exit(-1)
+
+
+def handle_project_selection(conf):
+    gui.select_project(
+        paths.list_dir_for_path(conf['projects-path']),
+        path_setting_callback
+    )
+    if return_path:
+        with open(os.path.join(os.path.expanduser('~'), '.p-path'), 'w+') as f:
+            f.write(os.path.join(os.path.expanduser(conf['projects-path']), return_path))
+
+
+def handle_inside_project(args, conf):
+    project_root = paths.get_project_root(conf['projects-path'], os.getcwd())
+    data = projectfile.get_data_for_root(project_root['path'])
+    data['name'] = project_root['name']
+    execute(args, data, conf)
 
