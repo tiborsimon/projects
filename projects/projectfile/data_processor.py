@@ -211,7 +211,7 @@ def _add_command_description(pool, raw_command):
 
 def _add_version(node, data):
     if 'min-version' in data:
-        if data['min-version'] < node['min-version']:
+        if data['min-version'] >= node['min-version']:
             data['min-version'] = node['min-version']
     else:
         data['min-version'] = node['min-version']

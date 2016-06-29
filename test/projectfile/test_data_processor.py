@@ -1418,7 +1418,7 @@ class FinalizeVersions(TestCase):
         result = data_processor.finalize_data(input_data)
         self.assertEqual(expected, result['min-version'])
 
-    def test__redefined_parallel_versions__latest_should_be_kept(self):
+    def test__redefined_parallel_versions__smallest_should_be_kept(self):
         input_data = [
             {
                 'path': 'path_A',
@@ -1445,11 +1445,11 @@ class FinalizeVersions(TestCase):
                 'children': []
             }
         ]
-        expected = (2, 0, 0)
+        expected = (1, 2, 3)
         result = data_processor.finalize_data(input_data)
         self.assertEqual(expected, result['min-version'])
 
-    def test__redefined_parallel_versions__latest_should_be_kept__even_in_reverse_order(self):
+    def test__redefined_parallel_versions__smallest_should_be_kept__even_in_reverse_order(self):
         input_data = [
             {
                 'path': 'path_A',
@@ -1476,7 +1476,7 @@ class FinalizeVersions(TestCase):
                 'children': []
             }
         ]
-        expected = (2, 0, 0)
+        expected = (1, 2, 3)
         result = data_processor.finalize_data(input_data)
         self.assertEqual(expected, result['min-version'])
 
@@ -1508,7 +1508,7 @@ class FinalizeVersions(TestCase):
                 ]
             }
         ]
-        expected = (2, 0, 0)
+        expected = (1, 2, 3)
         result = data_processor.finalize_data(input_data)
         self.assertEqual(expected, result['min-version'])
 
@@ -1642,7 +1642,7 @@ class AppendVariables(TestCase):
             }
         ]
         with self.assertRaises(Exception) as cm:
-            result = data_processor.finalize_data(input_data)
+            data_processor.finalize_data(input_data)
         assert_exception(self, cm, error.ProjectfileError, {
             'error': error.VARIABLE_REDEFINED_ERROR.format('variable-a', 'path_A', 'path_B'),
             'path': 'path_B'

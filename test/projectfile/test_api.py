@@ -117,7 +117,7 @@ class ProjectfileModuleFullStackTests(TestCase):
             )
         ]
         expected = {
-            'min-version': (2, 0, 0),
+            'min-version': (1, 2, 3),
             'description': 'Root level.\n\nRoot/A level.\n\nRoot/A/B level.\n\nRoot/C level.',
             'commands': {
                 'command': {

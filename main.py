@@ -121,6 +121,8 @@ help_text = """\
      will follow. It marks the directories that contain a Projectfile.
 
 
+
+
 ===============================================================================
                  _____           _           _    __ _ _
                 |  __ \         (_)         | |  / _(_) |
@@ -140,7 +142,10 @@ help_text = """\
  generated Projectfile will demonstrate all provided functionality except the
  recursive command concatenation since it will generate only one Projectfile.
 
--------------------------- Projectfile format ---------------------------------
+
+
+-------------------------- PROJECTFILE FORMAT ---------------------------------
+
 
  There are mandatory and optional features you can add to Projectfile.
 
@@ -166,9 +171,7 @@ help_text = """\
     3. variables
     4. command header
     5. command description
-    6. command pre-body
-    7. recursive separator
-    8. command post-body
+    6. command body (pre, separator and post)
 
 
  <projects> version [mandatory]
@@ -192,10 +195,10 @@ help_text = """\
     '''
 
     After the version you can define a global description of the whole project.
-    You can write long lines, <projects> will wrap them according to the defined
-    "doc-width" key in the ~/.prc configuration file. Single line breaks won't
-    break the lines in the generated manual. You have to use an empty line in
-    order to add a line break.
+    You can write long lines, <projects> will wrap them according to the
+    defined "doc-width" key in the ~/.prc configuration file. Single line
+    breaks won't break the lines in the generated manual. You have to use an
+    empty line in order to add a line break.
 
     If you have multiple Projectfiles created, the main descriptions will be
     concatenated with empty lines according to the walk order.
@@ -209,9 +212,10 @@ help_text = """\
     yet_another_variable = Quotes are optional. This is still valid.
     '''
 
-    You can define variables as well. Each variable will be used as a string. No
-    other variable format is currently supported. You can omit the quotes if you
-    want, <projects> will use the entire string you write after the "=" sign.
+    You can define variables as well. Each variable will be used as a string.
+    No other variable format is currently supported. You can omit the quotes
+    if you want, <projects> will use the entire string you write after the
+    "=" sign.
 
     To use the variables you need to escape them:
 
@@ -221,12 +225,13 @@ help_text = """\
     Both escapement is interpreted equally.
 
     Defined variables go to the global variable pool. You cannot assign a
-    variable the more than once. Hence you cannot redefine a variable in a later
-    Projectfile (a Projectfile is thant is processed later according to the walk
-    order). Redefining a variable will raise an error. Since every variables go
-    to the global variable pool, you can use the variables in any Projectfile
-    independently which Projectfile you defined them. It is possible to use a
-    variable in the root level Projectfile that is defined in a later Projectfile.
+    variable the more than once. Hence you cannot redefine a variable in a
+    later Projectfile (a Projectfile is thant is processed later according to
+    the walk order). Redefining a variable will raise an error. Since every
+    variables go to the global variable pool, you can use the variables in any
+    Projectfile independently which Projectfile you defined them. It is
+    possible to use a variable in the root level Projectfile that is defined
+    in a later Projectfile.
 
 
  command header [mandatory]
@@ -235,16 +240,33 @@ help_text = """\
     my_command|alternative1|alt2: [dependency1, dependency2]
     '''
 
-    The command header feature allows you to define a command, it's alternatives
-    and it's dependent other commands. The first keyword is the default keyword
-    for the command. Alternatives are separated with the pipe "|" character.
-    After the keyword definitions, a colon ":" closes the command header. After
-    the colon, you can define a list of other commands, that are executed in
-    the order you defined them before the current command execution.
+    The command header feature allows you to define a command, it's
+    alternatives and it's dependent other commands. The first keyword is the
+    default keyword for the command. Alternatives are separated with the pipe
+    "|" character. After the keyword definitions, a colon ":" closes the
+    command header. After the colon, you can define a list of other commands,
+    that are executed in the order you defined them before the current command
+    execution.
 
-    A command cannot be redefined in the same Projectfile twice. If you redefine
-    a command in another Projectfile, the commands' body will be appended to
-    each other according to the path relationship of these files.  
+    A command cannot be redefined in the same Projectfile twice. If you
+    redefine a command in another Projectfile, the commands' bodies will be
+    appended to each other according to the path relationship of these files.
+
+
+ command description [optional]
+
+    '''
+    my_command|alternative1|alt2: [dependency1, dependency2]
+        \"\"\"
+        This is a command description, and it works as the main description.
+        \"\"\"
+    '''
+
+    The command description will be added to the generated manual. It behaves
+    the same as the main description, except it requires an indentation.
+
+    If a command is redefined in another Projectfile, the command descriptions
+    will be appended according to the path relationship of these files.
 
 
 
