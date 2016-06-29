@@ -145,7 +145,7 @@ class Creation(TestCase):
         mock_open = mock.mock_open()
         with mock.patch(open_mock_string, mock_open):
             config._create_default_config()
-        mock_yaml.safe_dump.assert_called_with(config._default_config, mock_open.return_value)
+        mock_yaml.dump.assert_called_with(config._default_config, mock_open.return_value, default_flow_style=False)
 
 
 class Getter(TestCase):

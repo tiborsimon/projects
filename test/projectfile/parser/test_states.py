@@ -786,3 +786,33 @@ class PostState(TestCase):
         with self.assertRaises(Exception) as cm:
             state.post(data, line)
         assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_MISSING_COLON_ERROR)
+
+    def test__redefined_command_in_post__raises_error(self):
+        data = {
+            'commands': {
+                'my_command': {
+                    'done': False,
+                    'post': ['previous command']
+                }
+            }
+        }
+        line = 'my_command:'
+        with self.assertRaises(Exception) as cm:
+            state.post(data, line)
+        assert_exception(self, cm, SyntaxError,
+                         error.COMMAND_HEADER_REDEFINED_ERROR.format('my_command'))
+
+    def test__redefined_command_in_pre__raises_error(self):
+        data = {
+            'commands': {
+                'my_command': {
+                    'done': False,
+                    'post': ['previous command']
+                }
+            }
+        }
+        line = 'my_command:'
+        with self.assertRaises(Exception) as cm:
+            state.pre(data, line)
+        assert_exception(self, cm, SyntaxError,
+                         error.COMMAND_HEADER_REDEFINED_ERROR.format('my_command'))

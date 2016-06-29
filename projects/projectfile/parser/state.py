@@ -129,6 +129,7 @@ def pre(data, line):
     c = parse.command_header(line)
     if c:
         current_command['done'] = True
+        utils.assert_command_is_present(c, data)
         data['commands'].update(c)
         return command
 
@@ -150,5 +151,6 @@ def post(data, line):
     c = parse.command_header(line)
     if c:
         current_command['done'] = True
+        utils.assert_command_is_present(c, data)
         data['commands'].update(c)
         return command

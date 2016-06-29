@@ -92,7 +92,6 @@ _optional_keys = [
 ]
 
 
-
 def _complete_config(config):
     for key in _optional_keys:
         if key not in config:
@@ -142,5 +141,5 @@ def _create_default_config():
     """
     config_path = _get_config_path()
     with open(config_path, 'w+') as f:
-        yaml.safe_dump(_default_config, f)
+        yaml.dump(_default_config, f, default_flow_style=False)
 

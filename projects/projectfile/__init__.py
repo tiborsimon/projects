@@ -87,7 +87,6 @@ def get_walk_order(project_root):
     starting = ['.git', '.svn', 'node_modules']
     ending = ['__pycache__']
     data = file_handler.get_walk_data(project_root)
-    print('')
     for root, dirs, files in data:
         root = root[len(project_root) + 1:]
         for e in starting:
@@ -101,7 +100,7 @@ def get_walk_order(project_root):
                 if not root:
                     root = '.'
                 if os.path.isfile(os.path.join(root, 'Projectfile')):
-                    print(' [x] ' + root)
+                    print('[x] ' + root)
                 else:
-                    print(' [ ] ' + root)
+                    print('[ ] ' + root)
 
