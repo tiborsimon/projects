@@ -31,6 +31,7 @@ help_text = """\
      - Projectfile based recursive scripting system
      - instant help menu generation
 
+
  Usage:
      p
      p p
@@ -38,12 +39,22 @@ help_text = """\
      p [-h|--help]
      p [-v|--version]
      p [-i|--init]
+     p [-w|--walk]
+
 
  Terms:
-     Project directory - the directory where you store all your projects. Inside
+     Project directory - The directory where you store all your projects. Inside
                          this directory are your root directories of your
-                         projects repositories.
-     Projectfile - the file you write to projects
+                         project repositories.
+
+     Projectfile       - The file you write to tell <projects> what to do. You
+                         can place a Projectfile into every directory you have
+                         in your project. <projects> will recursively process
+                         them in alphabetical order, or in a custom way you
+                         specify with a Projectwalk file.
+
+     Projectwalk       - Optional file that specifies the order of the Projectfile
+                         processing order. The default
 
  p
      This command is the main trigger for projects. It behaves differently
@@ -111,10 +122,13 @@ def main(args):
                     projectfile_content = projectfile.DEFAULT_PROJECTFILE.format(__version__)
                     with open('Projectfile', 'w+') as f:
                         f.write(projectfile_content)
-                    print('Projectfile created.')
+                    print('Projectfile created. Use the "p" command to invoke the manual.')
                 return
             elif args[0] in ['-h', '--help']:
                 pydoc.pager(help_text)
+                return
+            elif args[0] in ['-w', '--walk']:
+                projectfile.get_walk_order(os.getcwd())
                 return
             elif args[0] in ['p']:
                 handle_project_selection(conf)

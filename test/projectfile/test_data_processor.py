@@ -1077,7 +1077,7 @@ class AlternativeHandling(TestCase):
         result = data_processor.finalize_data(input_data)
         self.assertEqual(expected, result)
 
-    def test__alternative_redefined_in_separate_node__should_be_tolerated(self):
+    def test__alternative_redefined_for_the_same_command_in_separate_node__should_be_tolerated(self):
         input_data = [
             {
                 'path': 'path_A',
@@ -1132,7 +1132,7 @@ class AlternativeHandling(TestCase):
         result = data_processor.finalize_data(input_data)
         self.assertEqual(expected, result)
 
-    def test__alternative_redefined_in_child__should_be_tolerated(self):
+    def test__alternative_redefined_for_the_same_command_in_child__should_be_tolerated(self):
         input_data = [
             {
                 'path': 'path_A',
@@ -1187,6 +1187,87 @@ class AlternativeHandling(TestCase):
         }
         result = data_processor.finalize_data(input_data)
         self.assertEqual(expected, result)
+
+    def test__two_commands_with_same_alternative_in_child__raises_error(self):
+        input_data = [
+            {
+                'path': 'path_A',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'command1': {
+                        'alternatives': ['c'],
+                        'pre': ['pre A'],
+                        'post': ['post A']
+                    },
+                    'c': {
+                        'alias': 'command1'
+                    }
+                },
+                'children': [
+                    {
+                        'path': 'path_B',
+                        'min-version': (1, 2, 3),
+                        'commands': {
+                            'command2': {
+                                'alternatives': ['c'],
+                                'pre': ['pre B'],
+                                'post': ['post B']
+                            },
+                            'c': {
+                                'alias': 'command2'
+                            }
+                        },
+                        'children': []
+                    }
+                ]
+            }
+        ]
+        with self.assertRaises(Exception) as cm:
+            data_processor.finalize_data(input_data)
+        assert_exception(self, cm, error.ProjectfileError,
+                         {
+                             'error': error.PROJECTFILE_ALTERNATIVE_REDEFINED.format('c', 'command2', 'command1')
+                         })
+
+    def test__two_commands_with_same_alternative_in_separate_node__raises_error(self):
+        input_data = [
+            {
+                'path': 'path_A',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'command1': {
+                        'alternatives': ['c'],
+                        'pre': ['pre A'],
+                        'post': ['post A']
+                    },
+                    'c': {
+                        'alias': 'command1'
+                    }
+                },
+                'children': []
+            },
+            {
+                'path': 'path_B',
+                'min-version': (1, 2, 3),
+                'commands': {
+                    'command2': {
+                        'alternatives': ['c'],
+                        'pre': ['pre B'],
+                        'post': ['post B']
+                    },
+                    'c': {
+                        'alias': 'command2'
+                    }
+                },
+                'children': []
+            }
+        ]
+        with self.assertRaises(Exception) as cm:
+            data_processor.finalize_data(input_data)
+        assert_exception(self, cm, error.ProjectfileError,
+                         {
+                             'error': error.PROJECTFILE_ALTERNATIVE_REDEFINED.format('c', 'command2', 'command1')
+                         })
 
 
 class FinalizingDescriptions(TestCase):

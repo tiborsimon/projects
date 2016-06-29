@@ -4,9 +4,13 @@ from . import defs
 from . import error
 
 
+def get_walk_data(root):
+    return walk(root)
+
+
 def projectfile_walk(project_root):
     result = []
-    for root, dirs, files in walk(project_root):
+    for root, dirs, files in get_walk_data(project_root):
         w = []
         for f in files:
             if f == defs.PROJECTFILE:

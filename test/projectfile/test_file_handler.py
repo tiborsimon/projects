@@ -37,7 +37,7 @@ class FileLoading(TestCase):
 
 
 class ProjectfileWalk(TestCase):
-    @mock.patch.object(file_handler, 'walk', autospec=True)
+    @mock.patch.object(file_handler, 'get_walk_data', autospec=True)
     @mock.patch.object(file_handler, '_load', autospec=True)
     def test__single_projectfile(self, mock_load, mock_walk):
         dummy_path = '.'

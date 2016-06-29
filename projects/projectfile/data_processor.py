@@ -155,6 +155,12 @@ def _add_aliases(command_buffer):
                     command_buffer[alt] = {
                         'alias': command_name
                     }
+                else:
+                    aliased_command = command_buffer[alt]['alias']
+                    if aliased_command != command_name:
+                        raise error.ProjectfileError({
+                            'error': error.PROJECTFILE_ALTERNATIVE_REDEFINED.format(alt, aliased_command, command_name)
+                        })
 
 
 def _add_cd(pool, node):

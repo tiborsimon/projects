@@ -10,6 +10,7 @@ PROJECTFILE_NO_COMMAND_ERROR = 'No commands were defined in the Projectfile!'
 PROJECTFILE_NO_COMMAND_IN_COMMAND_ERROR = 'Command {} do not have any executable commands! Is this command necessary?'
 PROJECTFILE_INVALID_DEPENDENCY = 'Invalid dependency "{}" for command "{}".'
 PROJECTFILE_NO_PROJECTFILE = 'No Projectfile was found. Nothing to do..'
+PROJECTFILE_ALTERNATIVE_REDEFINED = 'Alternative "{}" used for both "{}" and "{}"..'
 
 COMMENT_DELIMITER_UNEXPECTED_ERROR = 'Unexpected comment delimiter (""")!'
 COMMAND_DELIMITER_UNEXPECTED_ERROR = 'Unexpected command delimiter (===)!'
