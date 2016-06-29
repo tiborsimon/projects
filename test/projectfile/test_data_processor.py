@@ -1224,10 +1224,7 @@ class AlternativeHandling(TestCase):
         ]
         with self.assertRaises(Exception) as cm:
             data_processor.finalize_data(input_data)
-        assert_exception(self, cm, error.ProjectfileError,
-                         {
-                             'error': error.PROJECTFILE_ALTERNATIVE_REDEFINED.format('c', 'command2', 'command1')
-                         })
+        self.assertEqual(cm.exception.__class__, error.ProjectfileError)
 
     def test__two_commands_with_same_alternative_in_separate_node__raises_error(self):
         input_data = [
@@ -1264,10 +1261,7 @@ class AlternativeHandling(TestCase):
         ]
         with self.assertRaises(Exception) as cm:
             data_processor.finalize_data(input_data)
-        assert_exception(self, cm, error.ProjectfileError,
-                         {
-                             'error': error.PROJECTFILE_ALTERNATIVE_REDEFINED.format('c', 'command2', 'command1')
-                         })
+        self.assertEqual(cm.exception.__class__, error.ProjectfileError)
 
 
 class FinalizingDescriptions(TestCase):
