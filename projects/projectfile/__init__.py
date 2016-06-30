@@ -12,7 +12,9 @@ You can use the provided commands 'hello' and 'answer' or it's shorter alternati
 
 You can start a new paragraph in the descriptions by inserting an empty line like this.
 
-Descriptions are useful as they provide a searchable manual for your project for free.
+Descriptions are useful as they provide a searchable automatically generated manual
+for your project for free. You can invoke this manual with the "p" command inside if
+you are inside your project directory.
 """
 
 magic = 42
@@ -21,11 +23,11 @@ hello|h: [a]
     """
     This command will great you.
 
-    There is a shorter alternative "h" for the command. It is also depending on the
+    There is a shorter alternative "h" for the command. It is depending on the
     "a" command which is the alternative of the "answer" command.
 
-    If you execute a dependent command, it's dependencies will be executed first
-    in order.
+    If you execute a command with dependencies, it's dependencies will be executed first
+    in the defined order.
     """
     echo "This is the my very own Projectfile."
 

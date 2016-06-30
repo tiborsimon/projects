@@ -25,9 +25,9 @@ class DetermineIfCallHappenedFromProject(TestCase):
                 }
             }
         }
+        concatenated_commands = ' && '.join(data['commands']['command']['script'])
         calls = [
-            mock.call(data['commands']['command']['script'][0]),
-            mock.call(data['commands']['command']['script'][1])
+            mock.call(concatenated_commands)
         ]
         mock_execute_call.return_value = ('', '')
         main.execute(args, data, {'doc-width': 80})
@@ -50,9 +50,9 @@ class DetermineIfCallHappenedFromProject(TestCase):
                 }
             }
         }
+        concatenated_commands = ' && '.join(data['commands']['command']['script'])
         calls = [
-            mock.call(data['commands']['command']['script'][0]),
-            mock.call(data['commands']['command']['script'][1])
+            mock.call(concatenated_commands)
         ]
         mock_execute_call.return_value = ('', '')
         main.execute(args, data, {'doc-width': 80})
@@ -80,9 +80,11 @@ class DetermineIfCallHappenedFromProject(TestCase):
                 }
             }
         }
+        concatenated_commands1 = ' && '.join(data['commands']['command1']['script'])
+        concatenated_commands2 = ' && '.join(data['commands']['command2']['script'])
         calls = [
-            mock.call(data['commands']['command1']['script'][0]),
-            mock.call(data['commands']['command2']['script'][0])
+            mock.call(concatenated_commands1),
+            mock.call(concatenated_commands2)
         ]
         mock_execute_call.return_value = ('', '')
         main.execute(args, data, {'doc-width': 80})
@@ -127,11 +129,15 @@ class DetermineIfCallHappenedFromProject(TestCase):
                 }
             }
         }
+        concatenated_commands1 = ' && '.join(data['commands']['command1']['script'])
+        concatenated_commands2 = ' && '.join(data['commands']['command2']['script'])
+        concatenated_commands3 = ' && '.join(data['commands']['command3']['script'])
+        concatenated_commands4 = ' && '.join(data['commands']['command4']['script'])
         calls = [
-            mock.call(data['commands']['command4']['script'][0]),
-            mock.call(data['commands']['command3']['script'][0]),
-            mock.call(data['commands']['command2']['script'][0]),
-            mock.call(data['commands']['command1']['script'][0])
+            mock.call(concatenated_commands4),
+            mock.call(concatenated_commands3),
+            mock.call(concatenated_commands2),
+            mock.call(concatenated_commands1)
         ]
         mock_execute_call.return_value = ('', '')
         main.execute(args, data, {'doc-width': 80})

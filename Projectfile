@@ -1,26 +1,39 @@
-from v0.1.1
+from v1.0.0
 
 """
-This is a very nice project.. This is a very nice project.. This is a very nice project. .his is a very nice project..
+This is a template Projectfile you have created with the 'p [-i|--init]' command.
+You can use the provided commands 'hello' and 'answer' or it's shorter alternatives
+'h' and 'ans' or 'a'. ie.: p <command>
 
-This is a very nice project.. This is a very nice project.. This is a very nice project. .his is a very nice project..
-Which has a very nice line..
+You can start a new paragraph in the descriptions by inserting an empty line like this.
+
+Descriptions are useful as they provide a searchable automatically generated manual
+for your project for free. You can invoke this manual with the "p" command inside if
+you are inside your project directory.
 """
 
-command|c: [d]
-    """
-    This is a fine command..
-    Which has a newline in it.. And of course it does not count because there is no new line character between them!
+magic = 42
 
-    So this has to be in a new line, otherwise, the whole description parseing algorithm is a piece of shot, and I have to 
-    rework it completely. I hate the thing that I am a slow-typer..
+hello|h: [a]
     """
-    echo "helloka :)
-    ===
-    echo "and this is the post"
+    This command will great you.
 
-dependent_command|dp|d:
+    There is a shorter alternative "h" for the command. It is depending on the
+    "a" command which is the alternative of the "answer" command.
+
+    If you execute a command with dependencies, it's dependencies will be executed first
+    in the defined order.
     """
-    This is another description I just wrote here.
+    echo "This is the my very own Projectfile."
+
+answer|ans|a:
     """
-    echo "Imreeeee, I am dependent.."
+    This command will give you the answer for every question.
+
+    You can use the long "answer" keyword as well as the shorter "ans" or "a" to
+    execute this command.
+
+    Inside the Projectfile, you can also refer to a command in another command's
+    dependency list by any of it's alternatives.
+    """
+    echo "The answer for everything is $magic!"

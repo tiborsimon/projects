@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import os
 import sys
 from projects import config
@@ -8,8 +11,8 @@ import subprocess
 from termcolor import colored
 import pydoc
 
-
-__version__ = '1.0.0'
+__version__ = (1, 0, 0)
+__printable_version__ = '{}.{}.{}'.format(__version__[0], __version__[1], __version__[2])
 
 help_text = """\
 ===============================================================================
@@ -36,10 +39,11 @@ help_text = """\
      p
      p -p
      p <command>
-     p [-h|--help]
-     p [-v|--version]
-     p [-i|--init]
-     p [-w|--walk]
+     p (-h|--help)
+     p (-v|--version)
+     p (-i|--init)
+     p (-w|--walk)
+     p (-l|--list) <command>
 
 
  Terminology:
@@ -100,22 +104,28 @@ help_text = """\
      The commands started with a dash reserved for <projects> itself.
 
 
- p [-h|--help]
+ p (-h|--help)
 
      Brings up this help screen.
 
 
- p [-v|--version]
+ p (-v|--version)
 
      Prints out the current <projects> version.
 
 
- p [-i|--init]
+ p (-i|--init)
 
      Generates a template Projectfile into the current directory.
 
 
- p [-w|--walk]
+ p (-w|--walk)
+
+     List out all directories in your project in the walk order <projects>
+     will follow. It marks the directories that contain a Projectfile.
+
+
+ p (-l|--list) <command>
 
      List out all directories in your project in the walk order <projects>
      will follow. It marks the directories that contain a Projectfile.
@@ -142,11 +152,6 @@ help_text = """\
  generated Projectfile will demonstrate all provided functionality except the
  recursive command concatenation since it will generate only one Projectfile.
 
-
-
--------------------------- PROJECTFILE FORMAT ---------------------------------
-
-
  There are mandatory and optional features you can add to Projectfile.
 
  Mandatory:
@@ -166,7 +171,7 @@ help_text = """\
  feature arbitrary number of empty lines are allowed. The order is the
  following:
 
-    1. <projects> version
+    1. version
     2. main description
     3. variables
     4. command header
@@ -174,7 +179,8 @@ help_text = """\
     6. command body (pre, separator and post)
 
 
- <projects> version [mandatory]
+
+ version [mandatory]
 
     '''
     from v1.0.0
@@ -185,8 +191,13 @@ help_text = """\
     defined one will be compatible with the format, but earlier versions may
     have problems with future features. The first release version is v1.0.0.
 
+    If there are more Projectfiles in your project and the defined versions
+    are different, the smallest version will be used to maximize the
+    functionality.
 
- main description [optional]
+
+
+ main description  [optional]
 
     '''
     \"\"\"
@@ -204,7 +215,8 @@ help_text = """\
     concatenated with empty lines according to the walk order.
 
 
- variables [optional]
+
+ variables  [optional]
 
     '''
     variable = 42
@@ -234,7 +246,8 @@ help_text = """\
     in a later Projectfile.
 
 
- command header [mandatory]
+
+ command header  [mandatory]
 
     '''
     my_command|alternative1|alt2: [dependency1, dependency2]
@@ -248,29 +261,118 @@ help_text = """\
     that are executed in the order you defined them before the current command
     execution.
 
+    According to the given example you can invoke your command with the
+    following syntax inside your project directory:
+
+        p my_command
+        p alternative1
+        p alt2
+
+    Both will execute the same command body after the dependent commands
+    (dependency1 and  dependency2) is executed first in the given order.
+
     A command cannot be redefined in the same Projectfile twice. If you
     redefine a command in another Projectfile, the commands' bodies will be
     appended to each other according to the path relationship of these files.
 
 
- command description [optional]
+
+ command description  [optional]
 
     '''
-    my_command|alternative1|alt2: [dependency1, dependency2]
+    my_command:
         \"\"\"
         This is a command description, and it works as the main description.
         \"\"\"
     '''
 
     The command description will be added to the generated manual. It behaves
-    the same as the main description, except it requires an indentation.
+    the same as the main description, except it requires an indentation in any
+    way (space, tab, count doesn't matter).
 
     If a command is redefined in another Projectfile, the command descriptions
     will be appended according to the path relationship of these files.
 
 
 
- Recursive command concatenation
+ command body  [mandatory]
+
+    '''
+    my_command:
+        command1
+        command2
+    '''
+
+    The command body defines what commands <projects> needs to execute if
+    you invoke the given command with the "p <command>" syntax inside your
+    project directory. Commands needs to be indented in any way (at least one
+    space). <projects> will execute all given commands line by line.
+
+    If you have multiple Projectfiles in your project and there are command
+    headers that are defined in more than one Projectfile, the command bodies
+    will be appended according to the path relationship of these files.
+
+    Example:
+    ╔═══════════════════════════════════╦═══════════════════════════════════╗
+    ║ $ cat ./Projectfile               ║ $ cat ./dir/Projectfile           ║
+    ║ from v1.0.0                       ║ from v1.0.0                       ║
+    ║ my_command:                       ║ my_command:                       ║
+    ║   echo "This is the root."        ║   echo "This is a subdir."        ║
+    ╠═══════════════════════════════════╩═══════════════════════════════════╣
+    ║ $ p --walk                                                            ║
+    ║ [x] .                                                                 ║
+    ║ [x] dir                                                               ║
+    ╠═══════════════════════════════════════════════════════════════════════╣
+    ║ $ p my_command                                                        ║
+    ║ This is the root.                                                     ║
+    ║ This is a subdir.                                                     ║
+    ╚═══════════════════════════════════════════════════════════════════════╝
+
+    As you can see, the command bodies get concatenated according to the walk
+    order (can be printed out by the "p [-w|--walk]" command).
+
+    There is another feature that can be used to execute post configuration
+    eg. executing commands after all lower order command bodies were executed.
+    This feature is called recursive separator ("==="). If you place this
+    separator inside a command body, and there are other Projectfiles lower
+    level than the current Projectfile and there
+
+    Example:
+    ╔═══════════════════════════════════╦═══════════════════════════════════╗
+    ║ $ cat ./Projectfile               ║ $ cat ./A/Projectfile             ║
+    ║ from v1.0.0                       ║ from v1.0.0                       ║
+    ║ my_command:                       ║ my_command:                       ║
+    ║   echo "root pre"                 ║   echo "A pre"                    ║
+    ║   ===                             ║   ===                             ║
+    ║   echo "root post"                ║   echo "A post"                   ║
+    ╠═══════════════════════════════════╬═══════════════════════════════════╣
+    ║ $ cat ./A/B/Projectfile           ║ $ cat ./C/Projectfile             ║
+    ║ from v1.0.0                       ║ from v1.0.0                       ║
+    ║ my_command:                       ║ my_command:                       ║
+    ║   echo "inside A/B"               ║   echo "C pre"                    ║
+    ║                                   ║   ===                             ║
+    ║                                   ║   echo "C post"                   ║
+    ╠═══════════════════════════════════╩═══════════════════════════════════╣
+    ║ $ p --walk                                                            ║
+    ║ [x] .                                                                 ║
+    ║ [x] A                                                                 ║
+    ║ [x] A/B                                                               ║
+    ║ [x] C                                                                 ║
+    ╠═══════════════════════════════════════════════════════════════════════╣
+    ║ $ p my_command                                                        ║
+    ║ This is the root.                                                     ║
+    ║ This is a subdir.                                                     ║
+    ╚═══════════════════════════════════════════════════════════════════════╝
+
+
+
+
+
+
+
+-------------------------- EXAMPLE PROJECTFILE --------------------------------
+
+
 
 
 
@@ -293,12 +395,12 @@ def process_command(command_name, data):
     if 'dependencies' in command:
         for dep in command['dependencies']:
             process_command(dep, data)
-    for line in command['script']:
-        err, out = execute_call(line)
-        if out:
-            print(out.strip())
-        if err:
-            print(colored(err.strip(), 'red'))
+    concatenated_commands = ' && '.join(command['script'])
+    err, out = execute_call(concatenated_commands)
+    if out:
+        print(out.strip())
+    if err:
+        print(colored(err.strip(), 'red'))
 
 
 def execute_call(line):
@@ -324,14 +426,14 @@ def main(args):
         args = args[2:]
         if len(args) == 1:
             if args[0] in ['-v', '--version']:
-                print(__version__)
+                print(__printable_version__)
                 return
             elif args[0] in ['-i', '--init']:
                 if paths.inside_project(conf['projects-path']):
                     if os.path.isfile('Projectfile'):
                         print('You already have a Projectfile in this directory.. Nothing to do ;)')
                     else:
-                        projectfile_content = projectfile.DEFAULT_PROJECTFILE.format(__version__)
+                        projectfile_content = projectfile.DEFAULT_PROJECTFILE.format(__printable_version__)
                         with open('Projectfile', 'w+') as f:
                             f.write(projectfile_content)
                         print('Projectfile created. Use the "p" command to invoke the manual.')
@@ -349,6 +451,25 @@ def main(args):
                 return
             elif args[0] in ['-p']:
                 handle_project_selection(conf)
+                return
+            elif args[0] in ['-l', '--list']:
+                print('You need to give a command what you want to list.\np (-l|--list) <command>')
+                return
+        if len(args) == 2:
+            if args[0] in ['-l', '--list']:
+                command = args[1]
+                project_root = paths.get_project_root(conf['projects-path'], os.getcwd())
+                data = projectfile.get_data_for_root(project_root['path'])
+                if command in data['commands']:
+                    for line in data['commands'][command]['script']:
+                        print(line)
+                else:
+                    print('Invalid command: "{}"\nAvailable commands:'.format(command))
+                    for c in data['commands']:
+                        print(c)
+            return
+
+
 
         if paths.inside_project(conf['projects-path']):
             handle_inside_project(args, conf)
