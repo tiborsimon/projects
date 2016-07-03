@@ -2,22 +2,24 @@ import os
 from os import walk
 from . import defs
 from . import error
+from projects.projectfile import parser
 
 
 def get_walk_data(root):
     return walk(root)
 
 
-def projectfile_walk(project_root):
+def get_node_list(project_root):
     result = []
     for root, dirs, files in get_walk_data(project_root):
-        w = []
         for f in files:
             if f == defs.PROJECTFILE:
-                w.append(root)
-                path = os.path.join(root, f)
-                w.append(_load(path))
-                result.append(tuple(w))
+                raw_lines = _load(os.path.join(root, f))
+                node = {
+                    'path': root
+                }
+                node.update(parser.process_lines(raw_lines))
+                result.append(node)
     if not result:
         raise error.ProjectfileError({
             'error': error.PROJECTFILE_NO_PROJECTFILE

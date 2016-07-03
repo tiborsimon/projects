@@ -121,14 +121,13 @@ help_text = """\
 
  p (-w|--walk)
 
-     List out all directories in your project in the walk order <projects>
+     Lists out all directories in your project in the walk order <projects>
      will follow. It marks the directories that contain a Projectfile.
 
 
  p (-l|--list) <command>
 
-     List out all directories in your project in the walk order <projects>
-     will follow. It marks the directories that contain a Projectfile.
+     Lists out the processed command bodies for the given command.
 
 
 
@@ -323,6 +322,12 @@ help_text = """\
     ║ [x] .                                                                 ║
     ║ [x] dir                                                               ║
     ╠═══════════════════════════════════════════════════════════════════════╣
+    ║ $ p --list my_command                                                 ║
+    ║ cd /home/user/projects/example                                        ║
+    ║ echo "This is the root."                                              ║
+    ║ cd /home/user/projects/example/dir                                    ║
+    ║ echo "This is the a subdir."                                          ║
+    ╠═══════════════════════════════════════════════════════════════════════╣
     ║ $ p my_command                                                        ║
     ║ This is the root.                                                     ║
     ║ This is a subdir.                                                     ║
@@ -349,15 +354,26 @@ help_text = """\
     ║ $ cat ./A/B/Projectfile           ║ $ cat ./C/Projectfile             ║
     ║ from v1.0.0                       ║ from v1.0.0                       ║
     ║ my_command:                       ║ my_command:                       ║
-    ║   echo "inside A/B"               ║   echo "C pre"                    ║
-    ║                                   ║   ===                             ║
-    ║                                   ║   echo "C post"                   ║
+    ║   echo "listing inside A/B"       ║   echo "C pre"                    ║
+    ║   ls -1                           ║   ===                             ║
+    ║   echo "done"                     ║   echo "C post"                   ║
     ╠═══════════════════════════════════╩═══════════════════════════════════╣
+    ║ $ ls -1 A/B                                                           ║
+    ║ Projectfile                                                           ║
+    ║ file1                                                                 ║
+    ║ file2                                                                 ║
+    ╠═══════════════════════════════════════════════════════════════════════╣
     ║ $ p --walk                                                            ║
     ║ [x] .                                                                 ║
     ║ [x] A                                                                 ║
     ║ [x] A/B                                                               ║
     ║ [x] C                                                                 ║
+    ╠═══════════════════════════════════════════════════════════════════════╣
+    ║ $ p --list my_command                                                 ║
+    ║ cd /home/user/projects/example                                        ║
+    ║ echo "root pre"                                                       ║
+    ║ cd /home/user/projects/example/dir                                    ║
+    ║ echo "This is the a subdir."                                          ║
     ╠═══════════════════════════════════════════════════════════════════════╣
     ║ $ p my_command                                                        ║
     ║ This is the root.                                                     ║
@@ -428,6 +444,7 @@ def main(args):
             if args[0] in ['-v', '--version']:
                 print(__printable_version__)
                 return
+
             elif args[0] in ['-i', '--init']:
                 if paths.inside_project(conf['projects-path']):
                     if os.path.isfile('Projectfile'):
@@ -440,27 +457,34 @@ def main(args):
                 else:
                     print('\n You are not inside any of your projects. Use the "p" command to navigate into one.')
                 return
+
             elif args[0] in ['-h', '--help']:
                 pydoc.pager(help_text)
                 return
+
             elif args[0] in ['-w', '--walk']:
                 if paths.inside_project(conf['projects-path']):
                     projectfile.get_walk_order(os.getcwd())
                 else:
                     print('You are not inside any of your projects. Use the "p" command to navigate into one.')
                 return
+
             elif args[0] in ['-p']:
                 handle_project_selection(conf)
                 return
+
             elif args[0] in ['-l', '--list']:
-                print('You need to give a command what you want to list.\np (-l|--list) <command>')
+                print('Command name missing after this option. Cannot list the command body..\np (-l|--list) <command>')
                 return
+
         if len(args) == 2:
             if args[0] in ['-l', '--list']:
                 command = args[1]
                 project_root = paths.get_project_root(conf['projects-path'], os.getcwd())
                 data = projectfile.get_data_for_root(project_root['path'])
                 if command in data['commands']:
+                    if 'alias' in data['commands'][command]:
+                        command = data['commands'][command]['alias']
                     for line in data['commands'][command]['script']:
                         print(line)
                 else:
@@ -468,8 +492,6 @@ def main(args):
                     for c in data['commands']:
                         print(c)
             return
-
-
 
         if paths.inside_project(conf['projects-path']):
             handle_inside_project(args, conf)

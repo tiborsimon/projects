@@ -1,4 +1,4 @@
-from . import data_processor
+from . import command_processor
 from . import file_handler
 import os
 
@@ -79,9 +79,9 @@ def get_data_for_root(project_root):
     :param project_root:
     :return: {dict} parsed and flattened commands with descriptions
     """
-    processing_tree = data_processor.generate_processing_tree(project_root)
-    data = data_processor.finalize_data(processing_tree)
-    data_processor.process_variables(data)
+    raw_nodes = file_handler.get_node_list(project_root)
+    command_tree = command_processor.generate_command_tree(raw_nodes)
+    command_processor.process_variables(data)
     return data
 
 

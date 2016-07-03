@@ -39,76 +39,113 @@ class FileLoading(TestCase):
 class ProjectfileWalk(TestCase):
     @mock.patch.object(file_handler, 'get_walk_data', autospec=True)
     @mock.patch.object(file_handler, '_load', autospec=True)
-    def test__single_projectfile(self, mock_load, mock_walk):
-        dummy_path = '.'
+    @mock.patch.object(file_handler, 'parser', autospec=True)
+    def test__single_projectfile(self, mock_parser, mock_load, mock_walk):
+        dummy_path = 'root'
         dummy_walk = [
             (dummy_path, [], [defs.PROJECTFILE])
         ]
         dummy_file_content = ['line 1', 'line 2']
 
+        mock_parsed_data = {
+            'dummy': 'parsed',
+            'data': 42
+        }
+
+        mock_parser.process_lines.return_value = mock_parsed_data
         mock_walk.return_value = dummy_walk
         mock_load.return_value = dummy_file_content
 
         expected = [
-            ('.', dummy_file_content)
+            {
+                'path': 'root',
+                'dummy': 'parsed',
+                'data': 42
+            }
         ]
 
-        result = file_handler.projectfile_walk(dummy_path)
+        result = file_handler.get_node_list(dummy_path)
 
         mock_walk.assert_called_with(dummy_path)
         mock_load.assert_called_with(os.path.join(dummy_walk[0][0], dummy_walk[0][2][0]))
+        mock_parser.process_lines.assert_called_with(dummy_file_content)
         self.assertEqual(expected, result)
 
     @mock.patch.object(file_handler, 'walk', autospec=True)
     @mock.patch.object(file_handler, '_load', autospec=True)
-    def test__single_projectfile_with_other_files(self, mock_load, mock_walk):
-        dummy_path = '.'
+    @mock.patch.object(file_handler, 'parser', autospec=True)
+    def test__single_projectfile_with_other_files(self, mock_parser, mock_load, mock_walk):
+        dummy_path = 'root'
         dummy_walk = [
             (dummy_path, [], ['other_file_1', 'other_file_2', defs.PROJECTFILE])
         ]
         dummy_file_content = ['line 1', 'line 2']
 
+        mock_parsed_data = {
+            'dummy': 'parsed',
+            'data': 42
+        }
+
+        mock_parser.process_lines.return_value = mock_parsed_data
         mock_walk.return_value = dummy_walk
         mock_load.return_value = dummy_file_content
 
         expected = [
-            ('.', dummy_file_content)
+            {
+                'path': 'root',
+                'dummy': 'parsed',
+                'data': 42
+            }
         ]
 
-        result = file_handler.projectfile_walk(dummy_path)
+        result = file_handler.get_node_list(dummy_path)
 
         mock_walk.assert_called_with(dummy_path)
         mock_load.assert_called_with(os.path.join(dummy_walk[0][0], dummy_walk[0][2][2]))
+        mock_parser.process_lines.assert_called_with(dummy_file_content)
         self.assertEqual(expected, result)
 
     @mock.patch.object(file_handler, 'walk', autospec=True)
     @mock.patch.object(file_handler, '_load', autospec=True)
-    def test__no_projectfile_on_level__skips_that_level(self, mock_load, mock_walk):
-        dummy_path = '.'
+    @mock.patch.object(file_handler, 'parser', autospec=True)
+    def test__no_projectfile_on_level__skips_that_level(self, mock_parser, mock_load, mock_walk):
+        dummy_path = 'root'
         dummy_walk = [
             (dummy_path, ['A'], [defs.PROJECTFILE]),
             (os.path.join(dummy_path, 'A'), [], ['other'])
         ]
         dummy_file_content = ['line 1', 'line 2']
 
+        mock_parsed_data = {
+            'dummy': 'parsed',
+            'data': 42
+        }
+
+        mock_parser.process_lines.return_value = mock_parsed_data
         mock_walk.return_value = dummy_walk
         mock_load.return_value = dummy_file_content
 
         expected = [
-            ('.', dummy_file_content)
+            {
+                'path': 'root',
+                'dummy': 'parsed',
+                'data': 42
+            }
         ]
 
-        result = file_handler.projectfile_walk(dummy_path)
+        result = file_handler.get_node_list(dummy_path)
 
         mock_walk.assert_called_with(dummy_path)
+        mock_parser.process_lines.assert_called_with(dummy_file_content)
         self.assertEqual(expected, result)
 
     @mock.patch.object(file_handler, 'walk', autospec=True)
     @mock.patch.object(file_handler, '_load', autospec=True)
-    def test__more_complicated_example__full_projectfile_coverage(self, mock_load, mock_walk):
-        dummy_path = '.'
+    @mock.patch.object(file_handler, 'parser', autospec=True)
+    def test__more_complicated_example__full_projectfile_coverage(self, mock_parser, mock_load, mock_walk):
+        dummy_path = 'root'
         dummy_walk = [
-            ('.', ['A', 'B', 'C'], ['some_file_1', defs.PROJECTFILE]),
+            (dummy_path, ['A', 'B', 'C'], ['some_file_1', defs.PROJECTFILE]),
             (os.path.join(dummy_path, 'A'), [], [defs.PROJECTFILE, 'some_file_1']),
             (os.path.join(dummy_path, 'B'), ['F'], ['some_file_1', 'some_file_2', defs.PROJECTFILE]),
             (os.path.join(dummy_path, 'B', 'F'), [], ['some_file_1', 'some_file_1', defs.PROJECTFILE]),
@@ -118,30 +155,76 @@ class ProjectfileWalk(TestCase):
         ]
         dummy_file_content = ['line 1', 'line 2']
 
+        mock_parsed_data = [
+            {
+                'dummy-data': 'root'
+            },
+            {
+                'dummy-data': 'root/A'
+            },
+            {
+                'dummy-data': 'root/B'
+            },
+            {
+                'dummy-data': 'root/B/F'
+            },
+            {
+                'dummy-data': 'root/C'
+            },
+            {
+                'dummy-data': 'root/C/D'
+            },
+            {
+                'dummy-data': 'root/C/E'
+            }
+        ]
+
+        mock_parser.process_lines.side_effect = mock_parsed_data
         mock_walk.return_value = dummy_walk
         mock_load.return_value = dummy_file_content
 
         expected = [
-            ('.', dummy_file_content),
-            (os.path.join(dummy_path, 'A'), dummy_file_content),
-            (os.path.join(dummy_path, 'B'), dummy_file_content),
-            (os.path.join(dummy_path, 'B', 'F'), dummy_file_content),
-            (os.path.join(dummy_path, 'C'), dummy_file_content),
-            (os.path.join(dummy_path, 'C', 'D'), dummy_file_content),
-            (os.path.join(dummy_path, 'C', 'E'), dummy_file_content)
+            {
+                'path': 'root',
+                'dummy-data': 'root'
+            },
+            {
+                'path': 'root/A',
+                'dummy-data': 'root/A'
+            },
+            {
+                'path': 'root/B',
+                'dummy-data': 'root/B'
+            },
+            {
+                'path': 'root/B/F',
+                'dummy-data': 'root/B/F'
+            },
+            {
+                'path': 'root/C',
+                'dummy-data': 'root/C'
+            },
+            {
+                'path': 'root/C/D',
+                'dummy-data': 'root/C/D'
+            },
+            {
+                'path': 'root/C/E',
+                'dummy-data': 'root/C/E'
+            }
         ]
 
-        result = file_handler.projectfile_walk(dummy_path)
-
+        result = file_handler.get_node_list(dummy_path)
         mock_walk.assert_called_with(dummy_path)
         self.assertEqual(expected, result)
 
     @mock.patch.object(file_handler, 'walk', autospec=True)
     @mock.patch.object(file_handler, '_load', autospec=True)
-    def test__more_complicated_example__partial_projectfile_coverage(self, mock_load, mock_walk):
-        dummy_path = '.'
+    @mock.patch.object(file_handler, 'parser', autospec=True)
+    def test__more_complicated_example__partial_projectfile_coverage(self, mock_parser, mock_load, mock_walk):
+        dummy_path = 'root'
         dummy_walk = [
-            ('.', ['A', 'B', 'C'], ['some_file_1']),
+            (dummy_path, ['A', 'B', 'C'], ['some_file_1']),
             (os.path.join(dummy_path, 'A'), [], ['some_file_1']),
             (os.path.join(dummy_path, 'B'), ['F'], ['some_file_1', 'some_file_2', defs.PROJECTFILE]),
             (os.path.join(dummy_path, 'B', 'F'), [], ['some_file_1', 'some_file_1']),
@@ -151,16 +234,38 @@ class ProjectfileWalk(TestCase):
         ]
         dummy_file_content = ['line 1', 'line 2']
 
+        mock_parsed_data = [
+            {
+                'dummy-data': 'root/B'
+            },
+            {
+                'dummy-data': 'root/C/D'
+            },
+            {
+                'dummy-data': 'root/C/E'
+            }
+        ]
+
+        mock_parser.process_lines.side_effect = mock_parsed_data
         mock_walk.return_value = dummy_walk
         mock_load.return_value = dummy_file_content
 
         expected = [
-            (os.path.join(dummy_path, 'B'), dummy_file_content),
-            (os.path.join(dummy_path, 'C', 'D'), dummy_file_content),
-            (os.path.join(dummy_path, 'C', 'E'), dummy_file_content)
+            {
+                'path': 'root/B',
+                'dummy-data': 'root/B'
+            },
+            {
+                'path': 'root/C/D',
+                'dummy-data': 'root/C/D'
+            },
+            {
+                'path': 'root/C/E',
+                'dummy-data': 'root/C/E'
+            }
         ]
 
-        result = file_handler.projectfile_walk(dummy_path)
+        result = file_handler.get_node_list(dummy_path)
 
         mock_walk.assert_called_with(dummy_path)
         self.assertEqual(expected, result)
@@ -177,7 +282,7 @@ class ErrorHandling(TestCase):
         mock_walk.return_value = dummy_walk
 
         with self.assertRaises(Exception) as cm:
-            file_handler.projectfile_walk(dummy_path)
+            file_handler.get_node_list(dummy_path)
         assert_exception(self, cm, error.ProjectfileError, {'error': error.PROJECTFILE_NO_PROJECTFILE})
 
 
