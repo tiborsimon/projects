@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
 from unittest import TestCase
 
 try:
@@ -21,7 +20,7 @@ from projects.projectfile import command_processor
 from projects.projectfile import error
 
 
-class MergingCommands(TestCase):
+class GeneratingCommandTree(TestCase):
     def test__only_pre(self):
         processing_tree = [
             {
@@ -1269,235 +1268,6 @@ class AppendVariables(TestCase):
         })
 
 
-class VariableSubstitution(TestCase):
-    def test__substitution_function_recognize_variable_with_short_syntax(self):
-        line = '$magic'
-        variables = {
-            'magic': {
-                'value': '42'
-            }
-        }
-        expected = '42'
-        result = command_processor.substitute_variables(line, variables)
-        self.assertEqual(expected, result)
-
-    def test__substitution_function_recognize_variable_with_long_syntax(self):
-        line = '${magic}'
-        variables = {
-            'magic': {
-                'value': '42'
-            }
-        }
-        expected = '42'
-        result = command_processor.substitute_variables(line, variables)
-        self.assertEqual(expected, result)
-
-    def test__substitution_function_recognize_variable_with_short_syntax__in_text(self):
-        line = '...$magic...'
-        variables = {
-            'magic': {
-                'value': '42'
-            }
-        }
-        expected = '...42...'
-        result = command_processor.substitute_variables(line, variables)
-        self.assertEqual(expected, result)
-
-    def test__substitution_function_recognize_variable_with_long_syntax__in_text(self):
-        line = '...${magic}...'
-        variables = {
-            'magic': {
-                'value': '42'
-            }
-        }
-        expected = '...42...'
-        result = command_processor.substitute_variables(line, variables)
-        self.assertEqual(expected, result)
-
-    def test__missing_escapement__no_substitution(self):
-        line = '...{magic}...'
-        variables = {
-            'magic': {
-                'value': '42'
-            }
-        }
-        expected = '...{magic}...'
-        result = command_processor.substitute_variables(line, variables)
-        self.assertEqual(expected, result)
-
-    def test__missing_escapement__no_substitution_case_2(self):
-        line = '...magic...'
-        variables = {
-            'magic': {
-                'value': '42'
-            }
-        }
-        expected = '...magic...'
-        result = command_processor.substitute_variables(line, variables)
-        self.assertEqual(expected, result)
-
-    # def test__variable_can_be_substituted_to_commands(self):
-    #     data = {
-    #         'variables': {
-    #             'var_a': {
-    #                 'value': 'aaa'
-    #             }
-    #         },
-    #         'min-version': (1, 2, 3),
-    #         'commands': {
-    #             'command': {
-    #                 'script': [
-    #                     'cd $var_a'
-    #                 ]
-    #             }
-    #         }
-    #     }
-    #     expected = {
-    #         'min-version': (1, 2, 3),
-    #         'commands': {
-    #             'command': {
-    #                 'script': [
-    #                     'cd aaa'
-    #                 ]
-    #             }
-    #         }
-    #     }
-    #     command_processor.generate_command_tree(processing_tree)
-    #     self.assertEqual(expected, data)
-#
-#     def test__multiple_variables_can_be_substituted_to_commands(self):
-#         data = {
-#             'variables': {
-#                 'var_a': {
-#                     'value': 'aaa'
-#                 },
-#                 'var_b': {
-#                     'value': 'bbb'
-#                 }
-#             },
-#             'min-version': (1, 2, 3),
-#             'commands': {
-#                 'command': {
-#                     'script': [
-#                         'cd ${var_a}',
-#                         'echo ${var_b}'
-#                     ]
-#                 },
-#                 'other_command': {
-#                     'script': [
-#                         'cd $var_b',
-#                         'echo $var_a'
-#                     ]
-#                 }
-#             }
-#         }
-#         expected = {
-#             'min-version': (1, 2, 3),
-#             'commands': {
-#                 'command': {
-#                     'script': [
-#                         'cd aaa',
-#                         'echo bbb'
-#                     ]
-#                 },
-#                 'other_command': {
-#                     'script': [
-#                         'cd bbb',
-#                         'echo aaa'
-#                     ]
-#                 }
-#             }
-#         }
-#         data_processor.process_variables(data)
-#         self.assertEqual(expected, data)
-#
-#     def test__multiple_variables_can_be_substituted_to_main_description(self):
-#         data = {
-#             'variables': {
-#                 'var_a': {
-#                     'value': 'aaa'
-#                 },
-#                 'var_b': {
-#                     'value': 'bbb'
-#                 }
-#             },
-#             'min-version': (1, 2, 3),
-#             'description': '$var_a ... $var_b',
-#             'commands': {
-#                 'command': {
-#                     'script': [
-#                         'cd $var_a',
-#                         'echo $var_b'
-#                     ]
-#                 }
-#             }
-#         }
-#         expected = {
-#             'min-version': (1, 2, 3),
-#             'description': 'aaa ... bbb',
-#             'commands': {
-#                 'command': {
-#                     'script': [
-#                         'cd aaa',
-#                         'echo bbb'
-#                     ]
-#                 }
-#             }
-#         }
-#         data_processor.process_variables(data)
-#         self.assertEqual(expected, data)
-#
-#     def test__multiple_variables_can_be_substituted_to_command_descriptions(self):
-#         data = {
-#             'variables': {
-#                 'var_a': {
-#                     'value': 'aaa'
-#                 },
-#                 'var_b': {
-#                     'value': 'bbb'
-#                 }
-#             },
-#             'min-version': (1, 2, 3),
-#             'commands': {
-#                 'command': {
-#                     'description': '$var_a ... $var_b',
-#                     'script': [
-#                         'cd $var_a',
-#                         'echo $var_b'
-#                     ]
-#                 },
-#                 'other_command': {
-#                     'description': '$var_b ... $var_a',
-#                     'script': [
-#                         'cd $var_b',
-#                         'echo $var_a'
-#                     ]
-#                 }
-#             }
-#         }
-#         expected = {
-#             'min-version': (1, 2, 3),
-#             'commands': {
-#                 'command': {
-#                     'description': 'aaa ... bbb',
-#                     'script': [
-#                         'cd aaa',
-#                         'echo bbb'
-#                     ]
-#                 },
-#                 'other_command': {
-#                     'description': 'bbb ... aaa',
-#                     'script': [
-#                         'cd bbb',
-#                         'echo aaa'
-#                     ]
-#                 }
-#             }
-#         }
-#         data_processor.process_variables(data)
-#         self.assertEqual(expected, data)
-#
-#
 class DependencyAddition(TestCase):
     def test__dependencies_can_be_added(self):
         processing_tree = [
@@ -1622,3 +1392,676 @@ class AlternativesAddition(TestCase):
         expected = ['com', 'cc', 'c']
         result = command_processor.generate_command_tree(processing_tree)
         self.assertEqual(expected, result['commands']['command_A']['alternatives'])
+
+class FlatteningCommands(TestCase):
+    def test__simple_command_with_pre_and_post_with_no_child(self):
+        command_tree = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command': {
+                    'root': [
+                        {
+                            'path': 'A',
+                            'pre': ['pre A'],
+                            'post': ['post A']
+                        }
+                    ]
+                }
+            }
+        }
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command': {
+                    'script': [
+                        'cd A',
+                        'pre A',
+                        'post A'
+                    ]
+                }
+            }
+        }
+        command_processor.flatten_commands(command_tree)
+        self.assertEqual(expected, command_tree)
+
+    def test__simple_command_with_only_pre(self):
+        command_tree = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command': {
+                    'root': [
+                        {
+                            'path': 'A',
+                            'pre': ['pre A']
+                        }
+                    ]
+                }
+            }
+        }
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command': {
+                    'script': [
+                        'cd A',
+                        'pre A'
+                    ]
+                }
+            }
+        }
+        command_processor.flatten_commands(command_tree)
+        self.assertEqual(expected, command_tree)
+
+    def test__simple_command_with_only_post(self):
+        command_tree = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command': {
+                    'root': [
+                        {
+                            'path': 'A',
+                            'post': ['post A']
+                        }
+                    ]
+                }
+            }
+        }
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command': {
+                    'script': [
+                        'cd A',
+                        'post A'
+                    ]
+                }
+            }
+        }
+        command_processor.flatten_commands(command_tree)
+        self.assertEqual(expected, command_tree)
+
+    def test__simple_command_with_pre_and_post_with_one_child(self):
+        command_tree = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command': {
+                    'root': [
+                        {
+                            'path': 'A',
+                            'pre': ['pre A'],
+                            'post': ['post A'],
+                            'children': [
+                                {
+                                    'path': 'A/B',
+                                    'pre': ['pre B'],
+                                    'post': ['post B']
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command': {
+                    'script': [
+                        'cd A',
+                        'pre A',
+                        'cd A/B',
+                        'pre B',
+                        'post B',
+                        'cd A',
+                        'post A'
+                    ]
+                }
+            }
+        }
+        command_processor.flatten_commands(command_tree)
+        self.assertEqual(expected, command_tree)
+
+    def test__simple_command_with_only_pre_with_one_child(self):
+        command_tree = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command': {
+                    'root': [
+                        {
+                            'path': 'A',
+                            'pre': ['pre A'],
+                            'children': [
+                                {
+                                    'path': 'A/B',
+                                    'pre': ['pre B']
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command': {
+                    'script': [
+                        'cd A',
+                        'pre A',
+                        'cd A/B',
+                        'pre B',
+                    ]
+                }
+            }
+        }
+        command_processor.flatten_commands(command_tree)
+        self.assertEqual(expected, command_tree)
+
+    def test__simple_command_with_only_post_with_one_child(self):
+        command_tree = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command': {
+                    'root': [
+                        {
+                            'path': 'A',
+                            'post': ['post A'],
+                            'children': [
+                                {
+                                    'path': 'A/B',
+                                    'post': ['post B']
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command': {
+                    'script': [
+                        'cd A/B',
+                        'post B',
+                        'cd A',
+                        'post A'
+                    ]
+                }
+            }
+        }
+        command_processor.flatten_commands(command_tree)
+        self.assertEqual(expected, command_tree)
+
+    def test__simple_command_with_no_post_with_one_child(self):
+        command_tree = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command': {
+                    'root': [
+                        {
+                            'path': 'A',
+                            'pre': ['pre A'],
+                            'children': [
+                                {
+                                    'path': 'A/B',
+                                    'post': ['post B']
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command': {
+                    'script': [
+                        'cd A',
+                        'pre A',
+                        'cd A/B',
+                        'post B'
+                    ]
+                }
+            }
+        }
+        command_processor.flatten_commands(command_tree)
+        self.assertEqual(expected, command_tree)
+
+    def test__simple_command_with_one_child(self):
+        command_tree = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command': {
+                    'root': [
+                        {
+                            'path': 'A',
+                            'pre': ['pre A'],
+                            'post': ['post A'],
+                            'children': [
+                                {
+                                    'path': 'A/B',
+                                    'pre': ['pre B'],
+                                    'post': ['post B']
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command': {
+                    'script': [
+                        'cd A',
+                        'pre A',
+                        'cd A/B',
+                        'pre B',
+                        'post B',
+                        'cd A',
+                        'post A'
+                    ]
+                }
+            }
+        }
+        command_processor.flatten_commands(command_tree)
+        self.assertEqual(expected, command_tree)
+
+    def test__parallel_commands_pre_only_with_no_child(self):
+        command_tree = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command': {
+                    'root': [
+                        {
+                            'path': 'A',
+                            'pre': ['pre A']
+                        },
+                        {
+                            'path': 'B',
+                            'pre': ['pre B']
+                        }
+                    ]
+                }
+            }
+        }
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command': {
+                    'script': [
+                        'cd A',
+                        'pre A',
+                        'cd B',
+                        'pre B'
+                    ]
+                }
+            }
+        }
+        command_processor.flatten_commands(command_tree)
+        self.assertEqual(expected, command_tree)
+
+    def test__parallel_commands_post_only_with_no_child(self):
+        command_tree = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command': {
+                    'root': [
+                        {
+                            'path': 'A',
+                            'post': ['post A']
+                        },
+                        {
+                            'path': 'B',
+                            'post': ['post B']
+                        }
+                    ]
+                }
+            }
+        }
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command': {
+                    'script': [
+                        'cd A',
+                        'post A',
+                        'cd B',
+                        'post B'
+                    ]
+                }
+            }
+        }
+        command_processor.flatten_commands(command_tree)
+        self.assertEqual(expected, command_tree)
+
+    def test__parallel_commands_with_no_child(self):
+        command_tree = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command': {
+                    'root': [
+                        {
+                            'path': 'A',
+                            'pre': ['pre A'],
+                            'post': ['post A']
+                        },
+                        {
+                            'path': 'B',
+                            'pre': ['pre B'],
+                            'post': ['post B']
+                        }
+                    ]
+                }
+            }
+        }
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command': {
+                    'script': [
+                        'cd A',
+                        'pre A',
+                        'post A',
+                        'cd B',
+                        'pre B',
+                        'post B'
+                    ]
+                }
+            }
+        }
+        command_processor.flatten_commands(command_tree)
+        self.assertEqual(expected, command_tree)
+
+    def test__parallel_commands_with_children(self):
+        command_tree = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command': {
+                    'root': [
+                        {
+                            'path': 'A',
+                            'pre': ['pre A'],
+                            'post': ['post A'],
+                            'children': [
+                                {
+                                    'path': 'A/B',
+                                    'pre': ['pre B'],
+                                    'post': ['post B']
+                                }
+                            ]
+                        },
+                        {
+                            'path': 'C',
+                            'pre': ['pre C'],
+                            'post': ['post C'],
+                            'children': [
+                                {
+                                    'path': 'C/D',
+                                    'pre': ['pre D'],
+                                    'post': ['post D']
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command': {
+                    'script': [
+                        'cd A',
+                        'pre A',
+                        'cd A/B',
+                        'pre B',
+                        'post B',
+                        'cd A',
+                        'post A',
+                        'cd C',
+                        'pre C',
+                        'cd C/D',
+                        'pre D',
+                        'post D',
+                        'cd C',
+                        'post C',
+                    ]
+                }
+            }
+        }
+        command_processor.flatten_commands(command_tree)
+        self.assertEqual(expected, command_tree)
+
+
+class VariableSubstitution(TestCase):
+    def test__substitution_function_recognize_variable_with_short_syntax(self):
+        line = '$magic'
+        variables = {
+            'magic': {
+                'value': '42'
+            }
+        }
+        expected = '42'
+        result = command_processor.substitute_variables(line, variables)
+        self.assertEqual(expected, result)
+
+    def test__substitution_function_recognize_variable_with_long_syntax(self):
+        line = '${magic}'
+        variables = {
+            'magic': {
+                'value': '42'
+            }
+        }
+        expected = '42'
+        result = command_processor.substitute_variables(line, variables)
+        self.assertEqual(expected, result)
+
+    def test__substitution_function_recognize_variable_with_short_syntax__in_text(self):
+        line = '...$magic...'
+        variables = {
+            'magic': {
+                'value': '42'
+            }
+        }
+        expected = '...42...'
+        result = command_processor.substitute_variables(line, variables)
+        self.assertEqual(expected, result)
+
+    def test__substitution_function_recognize_variable_with_long_syntax__in_text(self):
+        line = '...${magic}...'
+        variables = {
+            'magic': {
+                'value': '42'
+            }
+        }
+        expected = '...42...'
+        result = command_processor.substitute_variables(line, variables)
+        self.assertEqual(expected, result)
+
+    def test__missing_escapement__no_substitution(self):
+        line = '...{magic}...'
+        variables = {
+            'magic': {
+                'value': '42'
+            }
+        }
+        expected = '...{magic}...'
+        result = command_processor.substitute_variables(line, variables)
+        self.assertEqual(expected, result)
+
+    def test__missing_escapement__no_substitution_case_2(self):
+        line = '...magic...'
+        variables = {
+            'magic': {
+                'value': '42'
+            }
+        }
+        expected = '...magic...'
+        result = command_processor.substitute_variables(line, variables)
+        self.assertEqual(expected, result)
+
+    def test__variable_can_be_substituted_to_commands(self):
+        data = {
+            'variables': {
+                'var_a': {
+                    'value': 'aaa'
+                }
+            },
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'script': [
+                        'cd $var_a'
+                    ]
+                }
+            }
+        }
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'script': [
+                        'cd aaa'
+                    ]
+                }
+            }
+        }
+        command_processor.process_variables(data)
+        self.assertEqual(expected, data)
+
+    def test__multiple_variables_can_be_substituted_to_commands(self):
+        data = {
+            'variables': {
+                'var_a': {
+                    'value': 'aaa'
+                },
+                'var_b': {
+                    'value': 'bbb'
+                }
+            },
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'script': [
+                        'cd ${var_a}',
+                        'echo ${var_b}'
+                    ]
+                },
+                'other_command': {
+                    'script': [
+                        'cd $var_b',
+                        'echo $var_a'
+                    ]
+                }
+            }
+        }
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'script': [
+                        'cd aaa',
+                        'echo bbb'
+                    ]
+                },
+                'other_command': {
+                    'script': [
+                        'cd bbb',
+                        'echo aaa'
+                    ]
+                }
+            }
+        }
+        command_processor.process_variables(data)
+        self.assertEqual(expected, data)
+
+    def test__multiple_variables_can_be_substituted_to_main_description(self):
+        data = {
+            'variables': {
+                'var_a': {
+                    'value': 'aaa'
+                },
+                'var_b': {
+                    'value': 'bbb'
+                }
+            },
+            'min-version': (1, 2, 3),
+            'description': '$var_a ... $var_b',
+            'commands': {
+                'command': {
+                    'script': [
+                        'cd $var_a',
+                        'echo $var_b'
+                    ]
+                }
+            }
+        }
+        expected = {
+            'min-version': (1, 2, 3),
+            'description': 'aaa ... bbb',
+            'commands': {
+                'command': {
+                    'script': [
+                        'cd aaa',
+                        'echo bbb'
+                    ]
+                }
+            }
+        }
+        command_processor.process_variables(data)
+        self.assertEqual(expected, data)
+
+    def test__multiple_variables_can_be_substituted_to_command_descriptions(self):
+        data = {
+            'variables': {
+                'var_a': {
+                    'value': 'aaa'
+                },
+                'var_b': {
+                    'value': 'bbb'
+                }
+            },
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'description': '$var_a ... $var_b',
+                    'script': [
+                        'cd $var_a',
+                        'echo $var_b'
+                    ]
+                },
+                'other_command': {
+                    'description': '$var_b ... $var_a',
+                    'script': [
+                        'cd $var_b',
+                        'echo $var_a'
+                    ]
+                }
+            }
+        }
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'command': {
+                    'description': 'aaa ... bbb',
+                    'script': [
+                        'cd aaa',
+                        'echo bbb'
+                    ]
+                },
+                'other_command': {
+                    'description': 'bbb ... aaa',
+                    'script': [
+                        'cd bbb',
+                        'echo aaa'
+                    ]
+                }
+            }
+        }
+        command_processor.process_variables(data)
+        self.assertEqual(expected, data)
+

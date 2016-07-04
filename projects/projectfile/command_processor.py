@@ -196,3 +196,33 @@ def _apply_variables_to_main_description(data):
     if 'description' in data:
         data['description'] = substitute_variables(data['description'], data['variables'])
 
+
+def flatten_node(script, node):
+    append_path(node, script)
+    if 'pre' in node:
+        for line in node['pre']:
+            script.append(line)
+    if 'children' in node:
+        for child in node['children']:
+            flatten_node(script, child)
+            if 'post' in node:
+                append_path(node, script)
+    if 'post' in node:
+        for line in node['post']:
+            script.append(line)
+
+
+def append_path(node, script):
+    if script and script[-1].startswith('cd'):
+        script.pop()
+    script.append('cd {}'.format(node['path']))
+
+
+def flatten_commands(command_tree):
+    for command_name in command_tree['commands']:
+        command = command_tree['commands'][command_name]
+        script = []
+        for node in command['root']:
+            flatten_node(script, node)
+        command['script'] = script
+        del command['root']
