@@ -286,3 +286,24 @@ class ErrorHandling(TestCase):
         assert_exception(self, cm, error.ProjectfileError, {'error': error.PROJECTFILE_NO_PROJECTFILE})
 
 
+class ExceptionRepacking(TestCase):
+    @mock.patch.object(file_handler, 'parser', autospec=True)
+    @mock.patch.object(file_handler, 'walk', autospec=True)
+    @mock.patch.object(file_handler, '_load', autospec=True)
+    def test__exception_occurs__path_gets_added(self, mock_load, mock_walk, mock_parser):
+        dummy_path = '.'
+        dummy_walk = [
+            (dummy_path, [], [defs.PROJECTFILE])
+        ]
+        mock_walk.return_value = dummy_walk
+        mock_parser.process_lines.side_effect = Exception({})
+
+        expected = {
+            'path': dummy_path
+        }
+
+        with self.assertRaises(Exception) as cm:
+            file_handler.get_node_list(dummy_path)
+            result = cm.exception.args[0]
+            self.assertEqual(expected, result)
+

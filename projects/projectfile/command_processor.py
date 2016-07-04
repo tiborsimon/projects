@@ -7,19 +7,15 @@ from . import error
 
 
 def generate_command_tree(processing_tree):
-    data = {'commands': {}}
-    command_buffer = data['commands']
+    ret = {'commands': {}}
+    command_buffer = ret['commands']
     for node in processing_tree:
-        process_node(command_buffer, data, node)
+        process_commands(command_buffer, node)
+        add_version(ret, node)
+        add_variables(ret, node)
+        add_description(ret, node)
     remove_helper_values(command_buffer)
-    return data
-
-
-def process_node(command_buffer, data, node):
-    process_commands(command_buffer, node)
-    add_version(data, node)
-    add_variables(data, node)
-    add_description(data, node)
+    return ret
 
 
 def process_commands(command_buffer, node):

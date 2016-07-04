@@ -2101,3 +2101,4 @@ class VariableSubstitution(TestCase):
         command_processor.process_variables(data)
         self.assertEqual(expected, data)
 
+
