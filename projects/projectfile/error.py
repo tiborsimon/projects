@@ -34,3 +34,4 @@ COMMAND_HEADER_INVALID_DEPENDENCY_LIST = 'Invalid dependency list syntax! It sho
 COMMAND_HEADER_SYNTAX_ERROR = 'Invalid command header format! It should be "command|c: [dep1, dep2]".'
 COMMAND_HEADER_UNEXPECTED_UNINDENTED_ERROR = 'Unexpected unindented line!'
 COMMAND_HEADER_REDEFINED_ERROR = 'Command "{}" was defined already!'
+COMMAND_HEADER_PROHIBITED_COMMAND = 'Command "{}" is prohibited. Choose another name instead.'

@@ -967,3 +967,15 @@ class CommandHeaderParser(TestCase):
         with self.assertRaises(Exception) as cm:
             parse.command_header(line)
         assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_SYNTAX_ERROR)
+
+    def test__prohibited_command_name__raises_error(self):
+        line = 'p:'
+        with self.assertRaises(Exception) as cm:
+            parse.command_header(line)
+        assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_PROHIBITED_COMMAND.format('p'))
+
+    def test__prohibited_alternative_name__raises_error(self):
+        line = 'pommand|p:'
+        with self.assertRaises(Exception) as cm:
+            parse.command_header(line)
+        assert_exception(self, cm, SyntaxError, error.COMMAND_HEADER_PROHIBITED_COMMAND.format('p'))

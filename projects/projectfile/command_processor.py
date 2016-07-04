@@ -9,7 +9,6 @@ from . import error
 def generate_command_tree(processing_tree):
     data = {'commands': {}}
     command_buffer = data['commands']
-
     for node in processing_tree:
         process_node(command_buffer, data, node)
     remove_helper_values(command_buffer)
@@ -221,6 +220,8 @@ def append_path(node, script):
 def flatten_commands(command_tree):
     for command_name in command_tree['commands']:
         command = command_tree['commands'][command_name]
+        if 'alias' in command:
+            continue
         script = []
         for node in command['root']:
             flatten_node(script, node)

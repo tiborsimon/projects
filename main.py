@@ -37,7 +37,7 @@ help_text = """\
 
  Usage:
      p
-     p -p
+     p p
      p <command>
      p (-h|--help)
      p (-v|--version)
@@ -90,11 +90,12 @@ help_text = """\
      command will show the manual generated from the Projectfiles.
 
 
- p -p
+ p p
 
      This command behaves the same as the previous "p" command but it will
-     always display the project selector screen. This could be handy if you want
-     to switch projects quickly.
+     always display the project selector screen. This could be handy if you
+     want to switch projects quickly. This is the only prohibited command name
+     that you cannot use for your commands.
 
 
  p <command>
@@ -469,7 +470,7 @@ def main(args):
                     print('You are not inside any of your projects. Use the "p" command to navigate into one.')
                 return
 
-            elif args[0] in ['-p']:
+            elif args[0] in ['p']:
                 handle_project_selection(conf)
                 return
 

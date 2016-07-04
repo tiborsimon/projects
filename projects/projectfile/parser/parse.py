@@ -1,6 +1,7 @@
 import re
 
 from projects.projectfile import error
+from projects.projectfile import defs
 
 
 def version(line):
@@ -103,6 +104,10 @@ def command_header(line):
                     raise SyntaxError(error.COMMAND_HEADER_INVALID_DEPENDENCY_LIST)
         else:
             deps = []
+
+        for prohibited_name in defs.PROHIBITED_COMMANDS:
+            if prohibited_name in keys:
+                raise SyntaxError(error.COMMAND_HEADER_PROHIBITED_COMMAND.format(prohibited_name))
 
         ret = {keys[0]: {'done': False}}
         if deps:

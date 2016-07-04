@@ -81,8 +81,9 @@ def get_data_for_root(project_root):
     """
     raw_nodes = file_handler.get_node_list(project_root)
     command_tree = command_processor.generate_command_tree(raw_nodes)
-    command_processor.process_variables(data)
-    return data
+    command_processor.flatten_commands(command_tree)
+    command_processor.process_variables(command_tree)
+    return command_tree
 
 
 def get_walk_order(project_root):

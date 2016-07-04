@@ -1424,6 +1424,42 @@ class FlatteningCommands(TestCase):
         command_processor.flatten_commands(command_tree)
         self.assertEqual(expected, command_tree)
 
+    def test__alias_can_be_tolerated(self):
+        command_tree = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command': {
+                    'root': [
+                        {
+                            'path': 'A',
+                            'pre': ['pre A'],
+                            'post': ['post A']
+                        }
+                    ]
+                },
+                'a': {
+                    'alias': 'my-command'
+                }
+            }
+        }
+        expected = {
+            'min-version': (1, 2, 3),
+            'commands': {
+                'my-command': {
+                    'script': [
+                        'cd A',
+                        'pre A',
+                        'post A'
+                    ]
+                },
+                'a': {
+                    'alias': 'my-command'
+                }
+            }
+        }
+        command_processor.flatten_commands(command_tree)
+        self.assertEqual(expected, command_tree)
+
     def test__simple_command_with_only_pre(self):
         command_tree = {
             'min-version': (1, 2, 3),

@@ -1,1 +1,3 @@
 PROJECTFILE = 'Projectfile'
+
+PROHIBITED_COMMANDS = ('p',)
