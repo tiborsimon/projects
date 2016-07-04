@@ -219,3 +219,80 @@ class ErrorCasesAndErrorWrapping(TestCase):
                          })
 
 
+class WalkDataStringforGUI(TestCase):
+    @mock.patch.object(projectfile.file_handler, 'get_walk_data')
+    @mock.patch.object(projectfile, 'os')
+    def test__walk_data_can_be_generated(self, mock_os, mock_walk):
+        dummy_walk_data = [
+            [
+                os.path.join('root'),
+                ['A', 'C'],
+                [defs.PROJECTFILE]
+            ],
+            [
+                os.path.join('root', 'A'),
+                ['B'],
+                [defs.PROJECTFILE]
+            ],
+            [
+                os.path.join('root', 'A', 'B'),
+                [],
+                [defs.PROJECTFILE]
+            ],
+            [
+                os.path.join('root', 'C'),
+                [],
+                [defs.PROJECTFILE]
+            ]
+        ]
+        mock_walk.return_value = dummy_walk_data
+        mock_os.path.isfile.return_value = True
+        expected = '''\
+[x] .
+[x] A
+[x] A/B
+[x] C
+'''
+        result = projectfile.get_walk_order('root')
+        self.assertEqual(expected, result)
+        mock_walk.assert_called_with('root')
+
+    @mock.patch.object(projectfile.file_handler, 'get_walk_data')
+    @mock.patch.object(projectfile, 'os')
+    def test__walk_data_can_be_generated_not_all_directory_contains_projectfile(self, mock_os, mock_walk):
+        dummy_walk_data = [
+            [
+                os.path.join('root'),
+                ['A', 'C'],
+                [defs.PROJECTFILE]
+            ],
+            [
+                os.path.join('root', 'A'),
+                ['B'],
+                [defs.PROJECTFILE]
+            ],
+            [
+                os.path.join('root', 'A', 'B'),
+                [],
+                []
+            ],
+            [
+                os.path.join('root', 'C'),
+                [],
+                [defs.PROJECTFILE]
+            ]
+        ]
+        mock_walk.return_value = dummy_walk_data
+        mock_os.path.isfile.side_effect = [True, True, False, True]
+        expected = '''\
+[x] .
+[x] A
+[ ] A/B
+[x] C
+'''
+        result = projectfile.get_walk_order('root')
+        self.assertEqual(expected, result)
+        mock_walk.assert_called_with('root')
+
+
+

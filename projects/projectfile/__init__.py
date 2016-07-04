@@ -1,5 +1,6 @@
 from . import command_processor
 from . import file_handler
+from . import defs
 import os
 
 DEFAULT_PROJECTFILE = '''\
@@ -90,6 +91,7 @@ def get_walk_order(project_root):
     starting = ['.git', '.svn', 'node_modules']
     ending = ['__pycache__']
     data = file_handler.get_walk_data(project_root)
+    ret = ''
     for root, dirs, files in data:
         root = root[len(project_root) + 1:]
         for e in starting:
@@ -102,8 +104,9 @@ def get_walk_order(project_root):
             else:
                 if not root:
                     root = '.'
-                if os.path.isfile(os.path.join(root, 'Projectfile')):
-                    print('[x] ' + root)
+                if os.path.isfile(os.path.join(root, defs.PROJECTFILE)):
+                    ret += '[x] ' + root + '\n'
                 else:
-                    print('[ ] ' + root)
+                    ret += '[ ] ' + root + '\n'
+    return ret
 

@@ -465,7 +465,7 @@ def main(args):
 
             elif args[0] in ['-w', '--walk']:
                 if paths.inside_project(conf['projects-path']):
-                    projectfile.get_walk_order(os.getcwd())
+                    print(projectfile.get_walk_order(os.getcwd()))
                 else:
                     print('You are not inside any of your projects. Use the "p" command to navigate into one.')
                 return
