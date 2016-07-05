@@ -11,7 +11,8 @@ def generate_doc(data, width):
     doc += '=' * width + '\n\n'
     if 'description' in data:
         doc += wrap_lines(data['description'], width, indent=1) + '\n\n'
-    for command_name in data['commands']:
+    command_names = [cm for cm in data['commands']]
+    for command_name in sorted(command_names):
         command = data['commands'][command_name]
         if 'alias' in command:
             continue

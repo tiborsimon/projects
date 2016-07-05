@@ -49,12 +49,12 @@ class DocGeneratorTests(TestCase):
  This is the main description..
 
 
-some-command|a|b: [another-command]
+another-command|c|d:
 
     This is the command description..
 
 
-another-command|c|d:
+some-command|a|b: [another-command]
 
     This is the command description..
 
