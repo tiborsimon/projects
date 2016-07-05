@@ -14,7 +14,7 @@ try:
 except ImportError:
     builtin_module = 'builtins'
 
-from projects.doc_generator import generate_doc
+from projects.doc_generator import generate_doc, generate_markdown
 
 
 class DocGeneratorTests(TestCase):
@@ -29,14 +29,14 @@ class DocGeneratorTests(TestCase):
                     'dependencies': ['another-command'],
                     'description': 'This is the command description..',
                     'script': [
-                        'echo "hello'
+                        'echo "hello"'
                     ]
                 },
                 'another-command': {
                     'alternatives': ['c', 'd'],
                     'description': 'This is the command description..',
                     'script': [
-                        'echo "hello'
+                        'echo "hello"'
                     ]
                 }
             }
@@ -61,4 +61,47 @@ some-command|a|b: [another-command]
 
 '''
         result = generate_doc(data, 80)
+        self.assertEqual(expected, result)
+
+
+class MarkdownGeneration(TestCase):
+    def test__simple_data_tructure_can_be_converted(self):
+        data = {
+            'name': 'project',
+            'min-version': (1, 2, 3),
+            'description': 'This is the main description..',
+            'commands': {
+                'some-command': {
+                    'alternatives': ['a', 'b'],
+                    'dependencies': ['another-command'],
+                    'description': 'This is the command description..',
+                    'script': [
+                        'echo "hello"'
+                    ]
+                },
+                'another-command': {
+                    'alternatives': ['c', 'd'],
+                    'description': 'This is the command description..',
+                    'script': [
+                        'echo "hello"'
+                    ]
+                }
+            }
+        }
+        expected = '''\
+# project
+
+This is the main description..
+
+## Commands
+### another-command
+
+This is the command description..
+
+### some-command
+
+This is the command description..
+
+'''
+        result = generate_markdown(data)
         self.assertEqual(expected, result)

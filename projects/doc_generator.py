@@ -43,3 +43,15 @@ def wrap_lines(raw, width, indent=0):
     return ret[:-1]
 
 
+def generate_markdown(data):
+    ret = '# {}\n\n'.format(data['name'])
+    if 'description' in data:
+        ret += data['description'] + '\n\n'
+    ret += '## Commands\n'
+    command_names = [cm for cm in data['commands']]
+    for command_name in sorted(command_names):
+        command = data['commands'][command_name]
+        ret += '### {}\n\n'.format(command_name)
+        if 'description' in command:
+            ret += command['description'] + '\n\n'
+    return ret
