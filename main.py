@@ -14,7 +14,7 @@ import pydoc
 __version__ = (1, 0, 0)
 __printable_version__ = '{}.{}.{}'.format(__version__[0], __version__[1], __version__[2])
 
-help_text = """\
+help_text = '''\
 ===============================================================================
                                       _           _
                                      (_)         | |
@@ -29,11 +29,23 @@ help_text = """\
             i n t u i t i v e   p r o j e c t   m a n a g e m e n t
 ===============================================================================
 
+ <projects> is an easy to use project navigator with a Makefile-like scripting
+ engine. You write Projectfiles instead of Makefiles where you can document
+ your project and you can create an interface for your users.
+
+ It works on every UNIX system with Python (2.7+ 3.x) installed. It's main
+ purpose is to provide a simpler scripting interface with a built in
+ documentation system. It's main target is any open source projects that want
+ to be more user friendly from the first use. <projects> designed to minimize
+ the typing.
+
+ <projects> is not a replacement for Makefile or CMake it is an optional
+ wrapper for them.
+
  Features:
      - quick project navigation
      - Projectfile based recursive scripting system
      - instant help menu generation
-
 
  Usage:
      p
@@ -44,37 +56,7 @@ help_text = """\
      p (-i|--init)
      p (-w|--walk)
      p (-l|--list) <command>
-
-
- Terminology:
-     Project directory
-         The directory where you store all your projects. Inside this directory
-         are your root directories of your project repositories. You can define
-         your project root directory in the ~/.prc configuration file with the
-         "projects-path" keyword. The default root is "~/projects".
-
-     Projectfile
-         The file you write to tell <projects> what to do. You can place a
-         Projectfile into every directory you have in your project. <projects>
-         will recursively process them in alphabetical walk order.
-
-     Command
-         Command you define in at least one of the Projectfiles. If you define
-         a command in multiple Projectfiles, the commands will be appended
-         according to the alphabetical walk order. You can execute this command
-         with the given keywords. There is a possibility to split the execution
-         of an outer command body and execute the it's children's command bodies.
-         See the Projectfile section for more details.
-
-     Alternative
-         You can give alternative keywords for a command. These alternatives
-         usually a shorter versions of the original keyword to speed up the
-         typing.
-
-     Dependencies
-         You can add dependencies to a command that will be executed before the
-         actual command will be executed. The dependency list is an ordered list
-         of other command keywords or alternatives.
+     p (-md|--markdown) [<file_name>]
 
 
  p
@@ -94,8 +76,10 @@ help_text = """\
 
      This command behaves the same as the previous "p" command but it will
      always display the project selector screen. This could be handy if you
-     want to switch projects quickly. This is the only prohibited command name
-     that you cannot use for your commands.
+     want to switch projects quickly.
+
+     This is the only prohibited command name that you cannot use for your
+     commands.
 
 
  p <command>
@@ -103,6 +87,10 @@ help_text = """\
      This is the command for executing commands defined in the Projectfiles. By
      convention all defined command should start with an alphanumeric character.
      The commands started with a dash reserved for <projects> itself.
+
+     The <command> keyword can be anything except the already taken keywords:
+
+        p, -h, --help, -v, --version, -i, --init, -w, --walk, -l, --list
 
 
  p (-h|--help)
@@ -129,6 +117,13 @@ help_text = """\
  p (-l|--list) <command>
 
      Lists out the processed command bodies for the given command.
+
+
+ p (-md|--markdown) [<file_name>]
+
+     Generates a Markdown file from your processed Projectfiles. You can
+     optionally specify a name for teh generated file. The default name is
+     README.md.
 
 
 
@@ -179,12 +174,11 @@ help_text = """\
     6. command body (pre, separator and post)
 
 
-
  version [mandatory]
-
-    '''
-    from v1.0.0
-    '''
+    ╔═══════════════════════════════════════════════════════════════════════╗
+    ║ from v{version}                                                           ║
+    ║ ...                                                                   ║
+    ╚═══════════════════════════════════════════════════════════════════════╝
 
     This feature will define the earliest version that is compatible with the
     used Projectfile format. All <projects> versions greater or equal to the
@@ -196,14 +190,14 @@ help_text = """\
     functionality.
 
 
-
  main description  [optional]
-
-    '''
-    \"\"\"
-    A description for the project..
-    \"\"\"
-    '''
+    ╔═══════════════════════════════════════════════════════════════════════╗
+    ║ ...                                                                   ║
+    ║ """                                                                   ║
+    ║ Description for the whole project.                                    ║
+    ║ """                                                                   ║
+    ║ ...                                                                   ║
+    ╚═══════════════════════════════════════════════════════════════════════╝
 
     After the version you can define a global description of the whole project.
     You can write long lines, <projects> will wrap them according to the
@@ -215,14 +209,14 @@ help_text = """\
     concatenated with empty lines according to the walk order.
 
 
-
  variables  [optional]
-
-    '''
-    variable = 42
-    other_variable = "This is a string with spaces"
-    yet_another_variable = Quotes are optional. This is still valid.
-    '''
+    ╔═══════════════════════════════════════════════════════════════════════╗
+    ║ ...                                                                   ║
+    ║ variable = 42                                                         ║
+    ║ other_variable = "This is a string with spaces"                       ║
+    ║ yet_another_variable = Quotes are optional. This is still valid.      ║
+    ║ ...                                                                   ║
+    ╚═══════════════════════════════════════════════════════════════════════╝
 
     You can define variables as well. Each variable will be used as a string.
     No other variable format is currently supported. You can omit the quotes
@@ -232,7 +226,7 @@ help_text = """\
     To use the variables you need to escape them:
 
         $variable
-        ${variable}
+        ${{variable}}
 
     Both escapement is interpreted equally.
 
@@ -246,12 +240,12 @@ help_text = """\
     in a later Projectfile.
 
 
-
  command header  [mandatory]
-
-    '''
-    my_command|alternative1|alt2: [dependency1, dependency2]
-    '''
+    ╔═══════════════════════════════════════════════════════════════════════╗
+    ║ ...                                                                   ║
+    ║ my_command|alternative1|alt2: [dependency1, dependency2]              ║
+    ║ ...                                                                   ║
+    ╚═══════════════════════════════════════════════════════════════════════╝
 
     The command header feature allows you to define a command, it's
     alternatives and it's dependent other commands. The first keyword is the
@@ -276,15 +270,15 @@ help_text = """\
     appended to each other according to the path relationship of these files.
 
 
-
  command description  [optional]
-
-    '''
-    my_command:
-        \"\"\"
-        This is a command description, and it works as the main description.
-        \"\"\"
-    '''
+    ╔═══════════════════════════════════════════════════════════════════════╗
+    ║ ...                                                                   ║
+    ║ my_command:                                                           ║
+    ║   """                                                                 ║
+    ║   This is a command description.                                      ║
+    ║   """                                                                 ║
+    ║ ...                                                                   ║
+    ╚═══════════════════════════════════════════════════════════════════════╝
 
     The command description will be added to the generated manual. It behaves
     the same as the main description, except it requires an indentation in any
@@ -294,28 +288,32 @@ help_text = """\
     will be appended according to the path relationship of these files.
 
 
-
  command body  [mandatory]
-
-    '''
-    my_command:
-        command1
-        command2
-    '''
+    ╔═══════════════════════════════════════════════════════════════════════╗
+    ║ ...                                                                   ║
+    ║ my_command:                                                           ║
+    ║   command1                                                            ║
+    ║   command2                                                            ║
+    ║ ...                                                                   ║
+    ╚═══════════════════════════════════════════════════════════════════════╝
 
     The command body defines what commands <projects> needs to execute if
     you invoke the given command with the "p <command>" syntax inside your
     project directory. Commands needs to be indented in any way (at least one
     space). <projects> will execute all given commands line by line.
 
+
+ Projectfile examples
+
+    Simple example
+
     If you have multiple Projectfiles in your project and there are command
     headers that are defined in more than one Projectfile, the command bodies
     will be appended according to the path relationship of these files.
 
-    Example:
     ╔═══════════════════════════════════╦═══════════════════════════════════╗
     ║ $ cat ./Projectfile               ║ $ cat ./dir/Projectfile           ║
-    ║ from v1.0.0                       ║ from v1.0.0                       ║
+    ║ from v{version}                       ║ from v{version}                       ║
     ║ my_command:                       ║ my_command:                       ║
     ║   echo "This is the root."        ║   echo "This is a subdir."        ║
     ╠═══════════════════════════════════╩═══════════════════════════════════╣
@@ -334,30 +332,66 @@ help_text = """\
     ║ This is a subdir.                                                     ║
     ╚═══════════════════════════════════════════════════════════════════════╝
 
-    As you can see, the command bodies get concatenated according to the walk
-    order (can be printed out by the "p [-w|--walk]" command).
+    What you can notice in this example:
+      1. You can use the "(-w|--walk)" and "(-l|--list)" commands to get
+         information about the commands will be executed by <projects>.
+      2. The command listing shows that the command bodies were concatenated
+         according to the walk order (you can check with the "(-w|--walk)"
+         command).
+      3. The concatenated command list contains directory change commands
+         (cd) so every command defined in a Projectfile gets executed in
+         the same directory level as it's Projectfile's directory level.
+      4. Thus the directory change commands, you can notice that each command
+         will execute in the same execution context regardless of the command's
+         length (number of lines). This is different than the Makefile
+         conventions, and provide a much more simpler script writing.
+
+
+    More complex example
 
     There is another feature that can be used to execute post configuration
     eg. executing commands after all lower order command bodies were executed.
     This feature is called recursive separator ("==="). If you place this
-    separator inside a command body, and there are other Projectfiles lower
-    level than the current Projectfile and there
+    separator inside a command's body, and there are other lower level
+    Projectfiles in your project, the command bodies will be appended in a
+    special, recursive order.
 
-    Example:
+    In a Projectfile, all commands before the separator are called the "pre"
+    commands, and all the commands after the separator are called the "post"
+    commands. The seprator in every command body is optional. If there is no
+    separator, all the command lines in the command body will be handled as a
+    "pre" command block. Similarly if the command body starts with a separator
+    the whole body will be used as a post block.
+
+    If there are no lower level Projectfiles, and you have a command with
+    separated body, the sepration will be ignored.
+
+    If you have lower level Projectfiles, the base level pre commands will be
+    executed first then the execution will jump to the lower level Projectfile.
+    After the lower level Projectfile's command script gets executed, the
+    execution will be jump back after the base level separator, and the base
+    post block will be executed.
+
+    If the lower level Projectfile has separated command bodies, and there
+    are yet another lower level Projectfile, the execution will jump down
+    recursively until the last possible separation is executed.
+
+    The following example will demonstrate this behavior:
+
     ╔═══════════════════════════════════╦═══════════════════════════════════╗
     ║ $ cat ./Projectfile               ║ $ cat ./A/Projectfile             ║
-    ║ from v1.0.0                       ║ from v1.0.0                       ║
+    ║ from v{version}                       ║ from v{version}                       ║
     ║ my_command:                       ║ my_command:                       ║
-    ║   echo "root pre"                 ║   echo "A pre"                    ║
+    ║   echo "pre root"                 ║   echo "pre A"                    ║
     ║   ===                             ║   ===                             ║
-    ║   echo "root post"                ║   echo "A post"                   ║
+    ║   echo "post root"                ║   echo "post A"                   ║
     ╠═══════════════════════════════════╬═══════════════════════════════════╣
     ║ $ cat ./A/B/Projectfile           ║ $ cat ./C/Projectfile             ║
-    ║ from v1.0.0                       ║ from v1.0.0                       ║
+    ║ from v{version}                       ║ from v{version}                       ║
     ║ my_command:                       ║ my_command:                       ║
-    ║   echo "listing inside A/B"       ║   echo "C pre"                    ║
+    ║   echo "listing inside A/B"       ║   echo "pre C"                    ║
     ║   ls -1                           ║   ===                             ║
-    ║   echo "done"                     ║   echo "C post"                   ║
+    ║   echo "done"                     ║   echo "post C"                   ║
     ╠═══════════════════════════════════╩═══════════════════════════════════╣
     ║ $ ls -1 A/B                                                           ║
     ║ Projectfile                                                           ║
@@ -372,30 +406,54 @@ help_text = """\
     ╠═══════════════════════════════════════════════════════════════════════╣
     ║ $ p --list my_command                                                 ║
     ║ cd /home/user/projects/example                                        ║
-    ║ echo "root pre"                                                       ║
-    ║ cd /home/user/projects/example/dir                                    ║
-    ║ echo "This is the a subdir."                                          ║
+    ║ echo "pre root"                                                       ║
+    ║ cd /home/user/projects/example/A                                      ║
+    ║ echo "pre A"                                                          ║
+    ║ cd /home/user/projects/example/A/B                                    ║
+    ║ echo "listing inside A/B"                                             ║
+    ║ ls -1                                                                 ║
+    ║ echo "done"                                                           ║
+    ║ cd /home/user/projects/example/A                                      ║
+    ║ echo "post A"                                                         ║
+    ║ cd /home/user/projects/example/C                                      ║
+    ║ echo "pre C"                                                          ║
+    ║ echo "post C"                                                         ║
+    ║ cd /home/user/projects/example                                        ║
+    ║ echo "post root"                                                      ║
     ╠═══════════════════════════════════════════════════════════════════════╣
     ║ $ p my_command                                                        ║
-    ║ This is the root.                                                     ║
-    ║ This is a subdir.                                                     ║
+    ║ pre root                                                              ║
+    ║ pre A                                                                 ║
+    ║ listing inside A/B                                                    ║
+    ║ Projectfile                                                           ║
+    ║ file1                                                                 ║
+    ║ file2                                                                 ║
+    ║ done                                                                  ║
+    ║ post A                                                                ║
+    ║ pre C                                                                 ║
+    ║ post C                                                                ║
+    ║ post root                                                             ║
     ╚═══════════════════════════════════════════════════════════════════════╝
 
+    What you can notice in this example:
+      1. The recursive separators works as described. The post commands are
+         executed after the pre commands for that level and all the
+         recursive lower level other commands executed.
+      2. Commands get executed in the same level where the Projectfile they are
+         defined in is located.
+      3. Automatic directory changing command insertion is smart enough to
+         insert only the absolute necessary directory changing commands.
+         If there are no lower level commands, but the recursive separator
+         exists, no directory changing will be inserted before the post
+         commands. If there are no pre commands, no directory cahnging will
+         be happen before the recursive separator content. Same goes to the
+         post commands. If there are no post commands, no directory changing
+         commands will be inserted after the recursive separator's content
+         is executed.
 
-
-
-
-
-
--------------------------- EXAMPLE PROJECTFILE --------------------------------
-
-
-
-
-
-
-
-"""
+    TIP: You can always create a template Projectfile with the "(-i|--init)"
+         command.
+'''.format(version=__printable_version__)
 
 return_path = ''
 
