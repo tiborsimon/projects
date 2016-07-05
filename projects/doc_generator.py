@@ -5,7 +5,7 @@ def generate_doc(data, width):
     doc = '=' * width + '\n'
     name = data['name'].upper()
     name = '  '.join(name)
-    name = name.center(width) + '\n'
+    name = name.center(width).rstrip() + '\n'
     doc += name
 
     doc += '=' * width + '\n\n'
