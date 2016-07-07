@@ -9,7 +9,7 @@
 
 __projects__ is an easy to use _project navigator_ and a Makefile-like _scripting engine_. You can define your commands and inline documentations in __Projectfiles__.
 
-It works on every UNIX system with Python (2.7+ 3.x) installed. It's main purpose is to provide a simpler scripting interface with a built in documentation system. It's main target is any open source projects that want to be more user friendly from the first use. __projects__ designed to minimize the typing.
+It works on every _UNIX_ system with Python 2.7+ or 3.x installed. It's main purpose is to provide a simpler scripting interface with a built in documentation system. It's main target is any open source projects that want to be more user friendly from the first use. __projects__ designed to minimize the typing.
 
 __projects__ is not a replacement for Makefile or CMake it is an optional wrapper for them.
 
@@ -371,7 +371,7 @@ hello|h: [a]
 This manual is displayed in a pager, so you can exit with the `q` key.
 
 
-# Projectfile examples
+# Advanced Projectfile examples
 
 Simple example
 
