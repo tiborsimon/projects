@@ -14,26 +14,27 @@ It works on every UNIX system with Python (2.7+ 3.x) installed. It's main purpos
 
 __projects__ is not a replacement for Makefile or CMake it is an optional wrapper for them.
 
-### Features
+## Features
 - quick project navigation
 - _Projectfile_ based recursive scripting system
 - instant help menu generation
 
-### Installation
+## Installation
 
-__projects__ is available via `pip`
+There are two possible way to install __projects__.
+
+It is available via `pip`:
 
 ```
 [sudo] pip install projects
 ```
 
-You can also install it from the sources:
+Or you can also install it from the sources:
+1. download the latest release or clone the repo's master branch
+2. go inside the sources root:
+3. `[sudo] python setup.py install`
 
-```
-[sudo] python setup.py install
-```
-
-### Usage
+## Usage
 ```
 p
 p p
