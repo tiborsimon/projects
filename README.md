@@ -124,7 +124,7 @@ Generates a Markdown file from your processed _Projectfiles_. You can optionally
 
 # Projectfile
 
-_Projectfiles_ are the files you create in order to define commands that will be executed with the "p <command>". _Projectfiles_ provide a powerful and self explanatory way to interact with your project.
+_Projectfiles_ are the files you create in order to define commands that will be executed with the `p <command>`. _Projectfiles_ provide a powerful and self explanatory way to interact with your project.
 
 You can create an example _Projectfile_ with the `p (-i|--init)` command. The generated _Projectfile_ will demonstrate all provided functionality except the recursive command concatenation since it will generate only one _Projectfile_.
 
