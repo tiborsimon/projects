@@ -23,13 +23,13 @@ __projects__ is not a replacement for Makefile or CMake it is an optional wrappe
 
 There are two possible way to install __projects__.
 
-### Install with pip
+##### Install with pip
 
 ```
 [sudo] pip install projects
 ```
 
-### Install from sources
+##### Install from sources
 
 1. download the latest release or clone the repo's master branch
 1. go inside the sources root:
