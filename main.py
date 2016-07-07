@@ -329,7 +329,7 @@ help_text = '''\
     space). <projects> will execute all given commands line by line.
 
 
-Template Projectfile
+ Template Projectfile
 
     The following Projectfile can be generated with the `p (-i|--init)` command:
 
