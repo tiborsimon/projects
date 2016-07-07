@@ -264,9 +264,24 @@ my_command:
 
 The command description will be added to the generated manual. It behaves the same as the main description, except it requires an indentation in any way (space, tab, count doesn't matter).
 
-If a command is redefined in another __Projectfile__, the command descriptions will be appended according to the path relationship of these files.
+If a command is redefined in another __Projectfile__, the command descriptions will be appended according to the path  relationship of these files.
 
-## Template Projectfile
+## Command body
+
+_mandatory_
+
+```
+...
+my_command:
+  command1
+  command2
+...  
+```
+
+The command body defines what commands __projects__ needs to execute if you invoke the given command with the `p <command>` syntax inside your project directory. Commands needs to be indented in any way (at least one space). __projects__ will execute all given commands line by line.
+
+
+# Template Projectfile
 
 The following __Projectfile__ can be generated with the `p (-i|--init)` command:
 
@@ -354,21 +369,6 @@ hello|h: [a]
 ```
 
 This manual is displayed in a pager, so you can exit with the `q` key.
-
-
-## Command body
-
-_mandatory_
-
-```
-...
-my_command:
-  command1
-  command2
-...  
-```
-
-The command body defines what commands __projects__ needs to execute if you invoke the given command with the `p <command>` syntax inside your project directory. Commands needs to be indented in any way (at least one space). __projects__ will execute all given commands line by line.
 
 
 # Projectfile examples
