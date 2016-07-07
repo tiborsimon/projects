@@ -16,7 +16,7 @@ __projects__ is not a replacement for Makefile or CMake it is an optional wrappe
 ## Features
 
 - quick project navigation
-- __Projectfile__ based recursive scripting system
+- __Projectfile__ based recursive scripting system with _command concatenation_ and _recursive separation_
 - instant help menu generation
 
 ## Installation
@@ -373,7 +373,9 @@ This manual is displayed in a pager, so you can exit with the `q` key.
 
 # Advanced Projectfile examples
 
-Simple example
+The following examples will demonstrate that __projects__ can handle multiple __Projectfiles__. It uses a strict alphabetical, hierarchical order (the _Projectfile walk order_). The first example will show you the __command concatenation__, and the second one will demonstrate the usage of the __recursive separator__.
+
+## Simple example
 
 If you have multiple __Projectfiles__ in your project and there are command headers that are defined in more than one __Projectfile__, the command bodies will be appended according to the path relationship of these files.
 
@@ -408,7 +410,7 @@ If you have multiple __Projectfiles__ in your project and there are command head
 - Thus the directory change commands, you can notice that each command will execute in the same execution context regardless of the command's length (number of lines). This is different than the Makefile conventions, and provide a much more simpler script writing.
 
 
-### More complex example
+## Using the recursive separator
 
 There is another feature that can be used to execute post configuration eg. executing commands after all lower order command bodies were executed. This feature is called recursive separator (`===`). If you place this separator inside a command's body, and there are other lower level __Projectfiles__ in your project, the command bodies will be appended in a special, recursive order.
 
