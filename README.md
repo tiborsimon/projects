@@ -65,7 +65,9 @@ _INSIDE_ any of your projects (inside the repository root directory) this comman
 
 ### Direct project selector command
 
-`p p`
+```
+p p
+```
 
 This command behaves the same as the previous `p` command but it will always display the project selector screen. This could be handy if you want to switch projects quickly.
 
@@ -73,7 +75,9 @@ This is the only prohibited command name that you cannot use for your commands.
 
 ### Execute defined command
 
-`p <command>`
+```
+p <command>
+```
 
 This is the command for executing commands defined in the __Projectfiles__. By convention all defined command should start with an alphanumeric character. The commands started with a dash reserved for __projects__ itself.
 
@@ -84,37 +88,49 @@ The `<command>` keyword can be anything except the already taken keywords:
 
 ### Help screen
 
-`p (-h|--help)`
+```
+p (-h|--help)
+```
 
 Brings up this help screen.
 
 ### Version information
 
-`p (-v|--version)`
+```
+p (-v|--version)
+```
 
 Prints out the current __projects__ version.
 
 ### Template Projectfile generation
 
-`p (-i|--init)`
+```
+p (-i|--init)
+```
 
 Generates a template __Projectfile__ into the current directory.
 
 ### Projectfile walk order listing
 
-`p (-w|--walk)`
+```
+p (-w|--walk)
+```
 
 Lists out all directories in your project in the walk order __projects__ will follow. It marks the directories that contain a __Projectfile__.
 
 ### Processed command script listing
 
-`p (-l|--list) <command>`
+```
+p (-l|--list) <command>
+```
 
 Lists out the processed command bodies for the given command.
 
 ### Markdown generation
 
-`p (-md|--markdown) [<file_name>]`
+```
+p (-md|--markdown) [<file_name>]
+```
 
 Generates a Markdown file from your processed __Projectfiles__. You can optionally specify a name for teh generated file. The default name is README.md.
 
@@ -152,7 +168,9 @@ There is a strict order where you can place each features. Between each feature 
 1. command body (pre, separator and post)
 
 
-#### version [mandatory]
+## Version
+
+_mandatory_
 
 ```
 v1.0.0
@@ -164,7 +182,9 @@ This feature will define the earliest version that is compatible with the used _
 If there are more __Projectfiles__ in your project and the defined versions are different, the smallest version will be used to maximize the functionality.
 
 
-#### main description  [optional]
+## Main description
+
+_optional_
 
 ```
 ...
@@ -179,7 +199,9 @@ After the version you can define a global description of the whole project. You 
 If you have multiple __Projectfiles__ created, the main descriptions will be concatenated with empty lines according to the walk order.
 
 
- #### variables  [optional]
+## Variables
+
+_optional_ 
  
 ```
 ...
@@ -203,7 +225,10 @@ Both escapement is interpreted equally.
 Defined variables go to the global variable pool. You cannot assign a variable the more than once. Hence you cannot redefine a variable in a later __Projectfile__ (a __Projectfile__ is the file that is processed later according to the walk order). Redefining a variable will raise an error. Since every variables go to the global variable pool, you can use the variables in any __Projectfile__ independently which __Projectfile__ you defined them. It is possible to use a variable in the root level __Projectfile__ that is defined in a later __Projectfile__.
 
 
-#### command header  [mandatory]
+## Command header
+
+_mandatory_
+
 ```
 ...
 my_command|alternative1|alt2: [dependency1, dependency2]
@@ -223,7 +248,10 @@ Both will execute the same command body after the dependent commands (dependency
 A command cannot be redefined in the same __Projectfile__ twice. If you redefine a command in another __Projectfile__, the commands' bodies will be appended to each other according to the path relationship of these files.
 
 
-#### command description  [optional]
+## Command description
+
+_optional_
+
 ```
 ...
 my_command:
@@ -238,7 +266,10 @@ The command description will be added to the generated manual. It behaves the sa
 If a command is redefined in another __Projectfile__, the command descriptions will be appended according to the path relationship of these files.
 
 
-#### command body  [mandatory]
+## Command body
+
+_mandatory_
+
 ```
 ...
 my_command:
@@ -250,7 +281,7 @@ my_command:
 The command body defines what commands __projects__ needs to execute if you invoke the given command with the `p <command>` syntax inside your project directory. Commands needs to be indented in any way (at least one space). __projects__ will execute all given commands line by line.
 
 
-## Projectfile examples
+# Projectfile examples
 
 Simple example
 
