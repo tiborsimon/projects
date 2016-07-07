@@ -12,7 +12,7 @@ from termcolor import colored
 import pydoc
 from projects import doc_generator
 
-__version__ = (1, 0, 0)
+__version__ = (1, 0, 1)
 __printable_version__ = '{}.{}.{}'.format(__version__[0], __version__[1], __version__[2])
 
 help_text = '''\

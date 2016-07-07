@@ -191,11 +191,11 @@ There is a strict order where you can place each features. Between each feature 
 _mandatory_
 
 ```
-v1.0.0
+v1.0.1
 ...
 ```
 
-This feature will define the earliest version that is compatible with the used __Projectfile__ format. All __projects__ versions greater or equal to the defined one will be compatible with the format, but earlier versions may have problems with future features. The first release version is v1.0.0.
+This feature will define the earliest version that is compatible with the used __Projectfile__ format. All __projects__ versions greater or equal to the defined one will be compatible with the format, but earlier versions may have problems with future features. The first release version is v1.0.1.
 
 If there are more __Projectfiles__ in your project and the defined versions are different, the smallest version will be used to maximize the functionality.
 
@@ -219,8 +219,8 @@ If you have multiple __Projectfiles__ created, the main descriptions will be con
 
 ## Variables
 
-_optional_ 
- 
+_optional_
+
 ```
 ...
 variable = 42
@@ -292,7 +292,7 @@ _mandatory_
 my_command:
   command1
   command2
-...  
+...
 ```
 
 The command body defines what commands __projects__ needs to execute if you invoke the given command with the `p <command>` syntax inside your project directory. Commands needs to be indented in any way (at least one space). __projects__ will execute all given commands line by line.
@@ -303,7 +303,7 @@ The command body defines what commands __projects__ needs to execute if you invo
 The following __Projectfile__ can be generated with the `p (-i|--init)` command:
 
 ```
-from v1.0.0
+from v1.0.1
 
 """
 This is a template Projectfile you have created with the 'p (-i|--init])' command.
@@ -313,7 +313,7 @@ You can use the provided commands 'hello' and 'answer' or it's shorter alternati
 You can start a new paragraph in the descriptions by inserting an empty line like this.
 
 Descriptions are useful as they provide a searchable automatically generated manual
-for your project for free. You can invoke this manual with the "p" command if you are 
+for your project for free. You can invoke this manual with the "p" command if you are
 inside your project directory.
 """
 
@@ -399,7 +399,7 @@ If you have multiple __Projectfiles__ in your project and there are command head
 ```
 ╔═══════════════════════════════════╦═══════════════════════════════════╗
 ║ $ cat ./Projectfile               ║ $ cat ./dir/Projectfile           ║
-║ from v1.0.0                       ║ from v1.0.0                       ║
+║ from v1.0.1                       ║ from v1.0.1                       ║
 ║ my_command:                       ║ my_command:                       ║
 ║   echo "This is the root."        ║   echo "This is a subdir."        ║
 ╠═══════════════════════════════════╩═══════════════════════════════════╣
@@ -444,14 +444,14 @@ The following example will demonstrate this behavior:
 ```
 ╔═══════════════════════════════════╦═══════════════════════════════════╗
 ║ $ cat ./Projectfile               ║ $ cat ./A/Projectfile             ║
-║ from v1.0.0                       ║ from v1.0.0                       ║
+║ from v1.0.1                       ║ from v1.0.1                       ║
 ║ my_command:                       ║ my_command:                       ║
 ║   echo "pre root"                 ║   echo "pre A"                    ║
 ║   ===                             ║   ===                             ║
 ║   echo "post root"                ║   echo "post A"                   ║
 ╠═══════════════════════════════════╬═══════════════════════════════════╣
 ║ $ cat ./A/B/Projectfile           ║ $ cat ./C/Projectfile             ║
-║ from v1.0.0                       ║ from v1.0.0                       ║
+║ from v1.0.1                       ║ from v1.0.1                       ║
 ║ my_command:                       ║ my_command:                       ║
 ║   echo "listing inside A/B"       ║   echo "pre C"                    ║
 ║   ls -1                           ║   ===                             ║
@@ -511,7 +511,7 @@ TIP: You can always create a template __Projectfile__ with the `(-i|--init)` com
 
 ## License
 
-This project is under the __MIT license__. 
+This project is under the __MIT license__.
 See the included license file for further details.
 
 ```
