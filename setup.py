@@ -2,14 +2,10 @@ from setuptools import setup
 from main import __printable_version__
 
 
-def readme():
-    with open('README.md') as f:
-        return f.read()
-
-setup(name='projects',
+etup(name='projects',
       version=__printable_version__,
-      description='The extensible project manager',
-      long_description=readme(),
+      description='The intuitive project manager',
+      long_description="projects is an easy to use project navigation tool and a Makefile-like scripting engine. It's main purpose is to provide a simpler scripting interface with a built in man page generator. You can define your commands with inline documentation in Projectfiles. You can have one Projectfile in every directory inside your project, projects will process them recursively.",
       test_suite='test',
       classifiers=[
             'Development Status :: 5 - Production/Stable',
@@ -17,14 +13,12 @@ setup(name='projects',
             'Environment :: Console',
             'Natural Language :: English',
             'Operating System :: MacOS :: MacOS X',
-            'Operating System :: Microsoft :: Windows',
             'Operating System :: Unix',
             'License :: OSI Approved :: MIT License',
-            'Programming Language :: Python :: 2.7',
-            'Topic :: Text Processing :: Linguistic',
+            'Programming Language :: Python'
       ],
       url='https://github.com/tiborsimon/projects',
-      keywords='project management command line terminal projects tool utility',
+      keywords='project management command line terminal projects tool utility script scripting engine manual man',
       author='Tibor Simon',
       author_email='tibor@tiborsimon.io',
       license='MIT',
