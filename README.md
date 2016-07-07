@@ -8,16 +8,30 @@
 [![PyPI](https://img.shields.io/pypi/dm/projects.svg?maxAge=2592000)](https://pypi.python.org/pypi?name=projects&version=0.1.1&:action=display)
 [![Status](https://img.shields.io/badge/status-under_development-yellow.svg)]()
 
-___<projects>___ is an easy to use project navigator with a Makefile-like scripting engine. You write Projectfiles instead of Makefiles where you can document your project and you can create an interface for your users.
+___projects___ is an easy to use project navigator with a Makefile-like scripting engine. You write _Projectfiles_ instead of Makefiles where you can document your project and you can create an interface for your users.
 
-It works on every UNIX system with Python (2.7+ 3.x) installed. It's main purpose is to provide a simpler scripting interface with a built in documentation system. It's main target is any open source projects that want to be more user friendly from the first use. <projects> designed to minimize the typing.
+It works on every UNIX system with Python (2.7+ 3.x) installed. It's main purpose is to provide a simpler scripting interface with a built in documentation system. It's main target is any open source projects that want to be more user friendly from the first use. __projects__ designed to minimize the typing.
 
-__<projects>__ is not a replacement for Makefile or CMake it is an optional wrapper for them.
+__projects__ is not a replacement for Makefile or CMake it is an optional wrapper for them.
 
 ### Features
 - quick project navigation
-- Projectfile based recursive scripting system
+- _Projectfile_ based recursive scripting system
 - instant help menu generation
+
+### Installation
+
+__projects__ is available via `pip`
+
+```
+[sudo] pip install projects
+```
+
+You can also install it from the sources:
+
+```
+[sudo] python setup.py install
+```
 
 ### Usage
 ```
@@ -40,7 +54,7 @@ This command is the main trigger for projects. It behaves differently depending 
 
 _OUTSIDE_ your projects directory, it opens the project selector screen, where you can select your project by typing the projects name or by using the arrows keys.
 
-_INSIDE_ any of your projects (inside the repository root directory) this command will show the manual generated from the Projectfiles.
+_INSIDE_ any of your projects (inside the repository root directory) this command will show the manual generated from the _Projectfiles_.
 
 
 ```
@@ -56,9 +70,9 @@ This is the only prohibited command name that you cannot use for your commands.
 p <command>
 ```
 
-This is the command for executing commands defined in the Projectfiles. By convention all defined command should start with an alphanumeric character. The commands started with a dash reserved for <projects> itself.
+This is the command for executing commands defined in the _Projectfiles_. By convention all defined command should start with an alphanumeric character. The commands started with a dash reserved for __projects__ itself.
 
-The <command> keyword can be anything except the already taken keywords:
+The `<command>` keyword can be anything except the already taken keywords:
 
 `p`, `-h`, `--help`, `-v`, `--version`, `-i`, `--init`, `-w`, `--walk`, `-l`, `--list`
 
@@ -74,21 +88,21 @@ Brings up this help screen.
 p (-v|--version)
 ```
 
-Prints out the current __<projects>__ version.
+Prints out the current __projects__ version.
 
 
 ```
 p (-i|--init)
 ```
 
-Generates a template Projectfile into the current directory.
+Generates a template _Projectfile_ into the current directory.
 
 
 ```
 p (-w|--walk)
 ```
 
-Lists out all directories in your project in the walk order __<projects>__ will follow. It marks the directories that contain a Projectfile.
+Lists out all directories in your project in the walk order __projects__ will follow. It marks the directories that contain a _Projectfile_.
 
 
 ```
@@ -102,20 +116,20 @@ Lists out the processed command bodies for the given command.
 p (-md|--markdown) [<file_name>]
 ```
 
-Generates a Markdown file from your processed Projectfiles. You can optionally specify a name for teh generated file. The default name is README.md.
+Generates a Markdown file from your processed _Projectfiles_. You can optionally specify a name for teh generated file. The default name is README.md.
 
 
 # Projectfile
 
-Projectfiles are the files you create in order to define commands that will be executed with the "p <command>". Projectfiles provide a powerful and self explanatory way to interact with your project.
+_Projectfiles_ are the files you create in order to define commands that will be executed with the "p <command>". _Projectfiles_ provide a powerful and self explanatory way to interact with your project.
 
-You can create an example Projectfile with the `p (-i|--init)` command. The generated Projectfile will demonstrate all provided functionality except the recursive command concatenation since it will generate only one Projectfile.
+You can create an example _Projectfile_ with the `p (-i|--init)` command. The generated _Projectfile_ will demonstrate all provided functionality except the recursive command concatenation since it will generate only one _Projectfile_.
 
-There are mandatory and optional features you can add to Projectfile.
+There are mandatory and optional features you can add to _Projectfile_.
 
 #### Mandatory
 
-- __<projects>__ version
+- __projects__ version
 - at least one command definition header
 - command body
 
@@ -145,9 +159,9 @@ v1.0.0
 ...
 ```
 
-This feature will define the earliest version that is compatible with the used Projectfile format. All <projects> versions greater or equal to the defined one will be compatible with the format, but earlier versions may have problems with future features. The first release version is v1.0.0.
+This feature will define the earliest version that is compatible with the used _Projectfile_ format. All __projects__ versions greater or equal to the defined one will be compatible with the format, but earlier versions may have problems with future features. The first release version is v1.0.0.
 
-If there are more Projectfiles in your project and the defined versions are different, the smallest version will be used to maximize the functionality.
+If there are more _Projectfiles_ in your project and the defined versions are different, the smallest version will be used to maximize the functionality.
 
 
 #### main description  [optional]
@@ -160,10 +174,9 @@ Description for the whole project.
 ...
 ```
 
-After the version you can define a global description of the whole project. You can write long lines, __<projects>__ will wrap them according to the defined `doc-width` key in the __~/.prc__ configuration file. Single line breaks won't break the lines in the generated manual. You have to use an empty line in order to add a line break.
+After the version you can define a global description of the whole project. You can write long lines, __projects__ will wrap them according to the defined `doc-width` key in the __~/.prc__ configuration file. Single line breaks won't break the lines in the generated manual. You have to use an empty line in order to add a line break.
 
-    If you have multiple Projectfiles created, the main descriptions will be
-    concatenated with empty lines according to the walk order.
+If you have multiple _Projectfiles_ created, the main descriptions will be concatenated with empty lines according to the walk order.
 
 
  #### variables  [optional]
@@ -176,7 +189,7 @@ yet_another_variable = Quotes are optional. This is still valid.
 ...
 ```
 
-You can define variables as well. Each variable will be used as a string. No other variable format is currently supported. You can omit the quotes if you want, __<projects>__ will use the entire string you write after the `=` sign.
+You can define variables as well. Each variable will be used as a string. No other variable format is currently supported. You can omit the quotes if you want, __projects__ will use the entire string you write after the `=` sign.
 
 To use the variables you need to escape them:
 
@@ -187,7 +200,7 @@ ${{variable}}
 
 Both escapement is interpreted equally.
 
-Defined variables go to the global variable pool. You cannot assign a variable the more than once. Hence you cannot redefine a variable in a later Projectfile (a Projectfile is thant is processed later according to the walk order). Redefining a variable will raise an error. Since every variables go to the global variable pool, you can use the variables in any Projectfile independently which Projectfile you defined them. It is possible to use a variable in the root level Projectfile that is defined in a later Projectfile.
+Defined variables go to the global variable pool. You cannot assign a variable the more than once. Hence you cannot redefine a variable in a later _Projectfile_ (a _Projectfile_ is the file that is processed later according to the walk order). Redefining a variable will raise an error. Since every variables go to the global variable pool, you can use the variables in any _Projectfile_ independently which _Projectfile_ you defined them. It is possible to use a variable in the root level _Projectfile_ that is defined in a later _Projectfile_.
 
 
 #### command header  [mandatory]
@@ -207,7 +220,7 @@ According to the given example you can invoke your command with the following sy
 
 Both will execute the same command body after the dependent commands (dependency1 and  dependency2) is executed first in the given order.
 
-A command cannot be redefined in the same Projectfile twice. If you redefine a command in another Projectfile, the commands' bodies will be appended to each other according to the path relationship of these files.
+A command cannot be redefined in the same _Projectfile_ twice. If you redefine a command in another _Projectfile_, the commands' bodies will be appended to each other according to the path relationship of these files.
 
 
 #### command description  [optional]
@@ -222,7 +235,7 @@ my_command:
 
 The command description will be added to the generated manual. It behaves the same as the main description, except it requires an indentation in any way (space, tab, count doesn't matter).
 
-If a command is redefined in another Projectfile, the command descriptions will be appended according to the path relationship of these files.
+If a command is redefined in another _Projectfile_, the command descriptions will be appended according to the path relationship of these files.
 
 
 #### command body  [mandatory]
@@ -234,14 +247,14 @@ my_command:
 ...  
 ```
 
-The command body defines what commands __<projects>__ needs to execute if you invoke the given command with the `p <command>` syntax inside your project directory. Commands needs to be indented in any way (at least one space). __<projects>__ will execute all given commands line by line.
+The command body defines what commands __projects__ needs to execute if you invoke the given command with the `p <command>` syntax inside your project directory. Commands needs to be indented in any way (at least one space). __projects__ will execute all given commands line by line.
 
 
 ## Projectfile examples
 
 Simple example
 
-If you have multiple Projectfiles in your project and there are command headers that are defined in more than one Projectfile, the command bodies will be appended according to the path relationship of these files.
+If you have multiple _Projectfiles_ in your project and there are command headers that are defined in more than one _Projectfile_, the command bodies will be appended according to the path relationship of these files.
 
 ```
 ╔═══════════════════════════════════╦═══════════════════════════════════╗
@@ -268,23 +281,23 @@ If you have multiple Projectfiles in your project and there are command headers 
 
 #### What you can notice in this example
 
-- You can use the `(-w|--walk)` and `(-l|--list)` commands to get information about the commands will be executed by __<projects>__.
+- You can use the `(-w|--walk)` and `(-l|--list)` commands to get information about the commands will be executed by __projects__.
 - The command listing shows that the command bodies were concatenated according to the walk order (you can check with the `(-w|--walk)` command).
-- The concatenated command list contains directory change commands (cd) so every command defined in a Projectfile gets executed in the same directory level as it's Projectfile's directory level.
+- The concatenated command list contains directory change commands (cd) so every command defined in a _Projectfile_ gets executed in the same directory level as it's _Projectfile's_ directory level.
 - Thus the directory change commands, you can notice that each command will execute in the same execution context regardless of the command's length (number of lines). This is different than the Makefile conventions, and provide a much more simpler script writing.
 
 
 ### More complex example
 
-There is another feature that can be used to execute post configuration eg. executing commands after all lower order command bodies were executed. This feature is called recursive separator (`===`). If you place this separator inside a command's body, and there are other lower level Projectfiles in your project, the command bodies will be appended in a special, recursive order.
+There is another feature that can be used to execute post configuration eg. executing commands after all lower order command bodies were executed. This feature is called recursive separator (`===`). If you place this separator inside a command's body, and there are other lower level _Projectfiles_ in your project, the command bodies will be appended in a special, recursive order.
 
-In a Projectfile, all commands before the separator are called the __pre__ commands, and all the commands after the separator are called the __post__ commands. The seprator in every command body is optional. If there is no separator, all the command lines in the command body will be handled as a __pre__ command block. Similarly if the command body starts with a separator the whole body will be used as a post block.
+In a _Projectfile_, all commands before the separator are called the __pre__ commands, and all the commands after the separator are called the __post__ commands. The seprator in every command body is optional. If there is no separator, all the command lines in the command body will be handled as a __pre__ command block. Similarly if the command body starts with a separator the whole body will be used as a post block.
 
-If there are no lower level Projectfiles, and you have a command with separated body, the sepration will be ignored.
+If there are no lower level _Projectfiles_, and you have a command with separated body, the sepration will be ignored.
 
-If you have lower level Projectfiles, the base level pre commands will be executed first then the execution will jump to the lower level Projectfile. After the lower level Projectfile's command script gets executed, the execution will be jump back after the base level separator, and the base post block will be executed.
+If you have lower level _Projectfiles_, the base level pre commands will be executed first then the execution will jump to the lower level _Projectfile_. After the lower level _Projectfile's_ command script gets executed, the execution will be jump back after the base level separator, and the base post block will be executed.
 
-If the lower level Projectfile has separated command bodies, and there are yet another lower level Projectfile, the execution will jump down recursively until the last possible separation is executed.
+If the lower level _Projectfile_ has separated command bodies, and there are yet another lower level _Projectfile_, the execution will jump down recursively until the last possible separation is executed.
 
 The following example will demonstrate this behavior:
 
@@ -350,10 +363,10 @@ The following example will demonstrate this behavior:
 #### What you can notice in this example
 
 - The recursive separators works as described. The post commands are executed after the pre commands for that level and all the recursive lower level other commands executed.
-- Commands get executed in the same level where the Projectfile they are defined in is located.
+- Commands get executed in the same level where the _Projectfile_ they are defined in is located.
 - Automatic directory changing command insertion is smart enough to insert only the absolute necessary directory changing commands. If there are no lower level commands, but the recursive separator exists, no directory changing will be inserted before the post commands. If there are no pre commands, no directory cahnging will be happen before the recursive separator content. Same goes to the post commands. If there are no post commands, no directory changing commands will be inserted after the recursive separator's content is executed.
 
-TIP: You can always create a template Projectfile with the `(-i|--init)` command.
+TIP: You can always create a template _Projectfile_ with the `(-i|--init)` command.
 
 
 ## License
