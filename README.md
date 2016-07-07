@@ -16,7 +16,7 @@ __projects__ is not a replacement for Makefile or CMake it is an optional wrappe
 - quick __project navigation__ with minimal typing
 - __Projectfile__ based recursive scripting system
 - __command concatenation__ and __recursive separation__
-- instant __manual page__ generation
+- automatic __manual page__ generation
 
 ## Installation
 
