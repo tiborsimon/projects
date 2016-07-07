@@ -312,6 +312,49 @@ answer|ans|a:
     echo "The answer for everything is $magic!" # you can also use the ${magic} form
 ```
 
+If you use the `p` command inside your project's root directory, __projects__ will generate a _manual screen_ from the __Projectfiles__ you created. The previously listed __Projectfile__ will result the following _manual screen_ assuming that your project is called _example_ (the project name is picked from it's containing directory's name):
+
+```
+================================================================================
+                                 E X A M P L E
+================================================================================
+
+ This is a template Projectfile you have created with the 'p (-i|--init])'
+ command. You can use the provided commands 'hello' and 'answer' or it's
+ shorter alternatives 'h' and 'ans' or 'a'. ie.: p <command>
+
+ You can start a new paragraph in the descriptions by inserting an empty line
+ like this.
+
+ Descriptions are useful as they provide a searchable automatically generated
+ manual for your project for free. You can invoke this manual with the "p"
+ command if you are inside your project directory.
+
+
+answer|ans|a:
+
+    This command will give you the answer for every question.
+
+    You can use the long "answer" keyword as well as the shorter "ans" or "a" to
+    execute this command.
+
+    Inside the Projectfile, you can also refer to a command in another command's
+    dependency list by any of it's alternatives.
+
+
+hello|h: [a]
+
+    This command will great you.
+
+    There is a shorter alternative "h" for the command. It is depending on the
+    "a" command which is the alternative of the "answer" command.
+
+    If you execute a command with dependencies, it's dependencies will be
+    executed first in the defined order.
+```
+
+This manual is displayed in a pager, so you can exit with the `q` key.
+
 
 ## Command body
 
