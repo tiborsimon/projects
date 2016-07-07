@@ -12,7 +12,7 @@ setup(name='projects',
       license='MIT',
       test_suite='test',
       keywords='project management command line terminal projects tool utility script scripting engine manual man',
-      packages=find_packages(),
+      packages=find_packages(exclude=['test*']),
       scripts=['bin/p'],
       entry_points={'console_scripts': [
             'p = main:main',
