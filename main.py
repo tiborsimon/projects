@@ -12,8 +12,8 @@ from termcolor import colored
 import pydoc
 from projects import doc_generator
 
-__version__ = (1, 0, 1)
-__printable_version__ = '{}.{}.{}'.format(__version__[0], __version__[1], __version__[2])
+from pkg_resources import get_distribution
+__version__ = get_distribution('projects').version
 
 help_text = '''\
 ===============================================================================
@@ -581,7 +581,7 @@ help_text = '''\
 
     TIP: You can always create a template Projectfile with the "(-i|--init)"
          command.
-'''.format(version=__printable_version__)
+'''.format(version=__version__)
 
 return_path = ''
 
@@ -629,7 +629,7 @@ def main(args):
         args = args[2:]
         if len(args) == 1:
             if args[0] in ['-v', '--version']:
-                print(__printable_version__)
+                print(__version__)
                 return
 
             elif args[0] in ['-i', '--init']:
@@ -637,7 +637,7 @@ def main(args):
                     if os.path.isfile('Projectfile'):
                         print('You already have a Projectfile in this directory.. Nothing to do ;)')
                     else:
-                        projectfile_content = projectfile.DEFAULT_PROJECTFILE.format(__printable_version__)
+                        projectfile_content = projectfile.DEFAULT_PROJECTFILE.format(__version__)
                         with open('Projectfile', 'w+') as f:
                             f.write(projectfile_content)
                         print('Projectfile created. Use the "p" command to invoke the manual.')
