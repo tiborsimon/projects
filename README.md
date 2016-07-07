@@ -50,7 +50,7 @@ p (-md|--markdown) [<file_name>]
 ```
 
 
-### Main command
+## Main command
 
 ```
 p
@@ -63,7 +63,7 @@ _OUTSIDE_ your projects directory, it opens the project selector screen, where y
 _INSIDE_ any of your projects (inside the repository root directory) this command will show the manual generated from the __Projectfiles__.
 
 
-### Direct project selector command
+## Direct project selector command
 
 ```
 p p
@@ -73,7 +73,7 @@ This command behaves the same as the previous `p` command but it will always dis
 
 This is the only prohibited command name that you cannot use for your commands.
 
-### Execute defined command
+## Execute defined command
 
 ```
 p <command>
@@ -86,7 +86,7 @@ The `<command>` keyword can be anything except the already taken keywords:
 `p`, `-h`, `--help`, `-v`, `--version`, `-i`, `--init`, `-w`, `--walk`, `-l`, `--list`
 
 
-### Help screen
+## Help screen
 
 ```
 p (-h|--help)
@@ -94,7 +94,7 @@ p (-h|--help)
 
 Brings up this help screen.
 
-### Version information
+## Version information
 
 ```
 p (-v|--version)
@@ -102,7 +102,7 @@ p (-v|--version)
 
 Prints out the current __projects__ version.
 
-### Template Projectfile generation
+## Template Projectfile generation
 
 ```
 p (-i|--init)
@@ -110,7 +110,7 @@ p (-i|--init)
 
 Generates a template __Projectfile__ into the current directory.
 
-### Projectfile walk order listing
+## Projectfile walk order listing
 
 ```
 p (-w|--walk)
@@ -118,7 +118,7 @@ p (-w|--walk)
 
 Lists out all directories in your project in the walk order __projects__ will follow. It marks the directories that contain a __Projectfile__.
 
-### Processed command script listing
+## Processed command script listing
 
 ```
 p (-l|--list) <command>
@@ -126,7 +126,7 @@ p (-l|--list) <command>
 
 Lists out the processed command bodies for the given command.
 
-### Markdown generation
+## Markdown generation
 
 ```
 p (-md|--markdown) [<file_name>]
@@ -157,6 +157,8 @@ There are mandatory and optional features you can add to __Projectfile__.
 - command dependency list
 - command description
 - recursive separator
+
+#### Feature order
 
 There is a strict order where you can place each features. Between each feature arbitrary number of empty lines are allowed. The order is the following:
 
