@@ -36,6 +36,23 @@ There are two possible way to install __projects__.
 1. go inside the sources root:
 1. `[sudo] python setup.py install`
 
+# Configuration
+
+When __projects__ starts up for the first time, it creates it's configuration file (only if it isn't exist already) inside your home directory: `~/.prc`
+
+By default it contains the following options in YAML format:
+
+```
+$ cat ~/.prc
+doc-width: 80
+projects-path: ~/projects
+```
+
+`projects-path` - _mandatory_, it's value will tell __projects__ where it can find your projects' repositories
+
+`doc-width` - _optional_, width of the generated __manual pages__. If not defined, it will be set to 80.
+
+
 # Usage
 ```
 p
@@ -376,7 +393,7 @@ This manual is displayed in a pager, so you can exit with the `q` key.
 
 The following examples will demonstrate that __projects__ can handle multiple __Projectfiles__. It uses a strict alphabetical, hierarchical order (the _Projectfile walk order_). The first example will show you the __command concatenation__, and the second one will demonstrate the usage of the __recursive separator__.
 
-## Simple example
+## Command concatenation
 
 If you have multiple __Projectfiles__ in your project and there are command headers that are defined in more than one __Projectfile__, the command bodies will be appended according to the path relationship of these files.
 
