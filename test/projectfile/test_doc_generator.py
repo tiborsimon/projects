@@ -85,6 +85,16 @@ class MarkdownGeneration(TestCase):
                     'script': [
                         'echo "hello"'
                     ]
+                },
+                'yet-another-command': {
+                    'dependencies': ['another-command'],
+                    'description': 'This is the command description..',
+                    'script': [
+                        'echo "hello"'
+                    ]
+                },
+                'alt-alt': {
+                    'alias': 'something..'
                 }
             }
         }
@@ -93,12 +103,24 @@ class MarkdownGeneration(TestCase):
 
 This is the main description..
 
-## Commands
+---
+
 ### another-command
+
+- _alternatives_: `c`, `d`
 
 This is the command description..
 
 ### some-command
+
+- _alternatives_: `a`, `b`
+- _dependencies_: `another-command`
+
+This is the command description..
+
+### yet-another-command
+
+- _dependencies_: `another-command`
 
 This is the command description..
 

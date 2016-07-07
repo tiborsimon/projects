@@ -10,6 +10,7 @@ import gui
 import subprocess
 from termcolor import colored
 import pydoc
+from projects import doc_generator
 
 __version__ = (1, 0, 0)
 __printable_version__ = '{}.{}.{}'.format(__version__[0], __version__[1], __version__[2])
@@ -536,6 +537,16 @@ def main(args):
                 print('Command name missing after this option. Cannot list the command body..\np (-l|--list) <command>')
                 return
 
+            elif args[0] in ['-md', '--markdown']:
+                project_root = paths.get_project_root(conf['projects-path'], os.getcwd())
+                data = projectfile.get_data_for_root(project_root['path'])
+                data['name'] = project_root['name']
+                md_content = doc_generator.generate_markdown(data)
+                with open(os.path.join(project_root['path'], 'README.md'), 'w+') as f:
+                    f.write(md_content)
+                print("README.md file was generated into your project's root.")
+                return
+
         if len(args) == 2:
             if args[0] in ['-l', '--list']:
                 command = args[1]
@@ -550,7 +561,17 @@ def main(args):
                     print('Invalid command: "{}"\nAvailable commands:'.format(command))
                     for c in data['commands']:
                         print(c)
-            return
+                return
+            elif args[0] in ['-md', '--markdown']:
+                name = args[1]
+                project_root = paths.get_project_root(conf['projects-path'], os.getcwd())
+                data = projectfile.get_data_for_root(project_root['path'])
+                data['name'] = project_root['name']
+                md_content = doc_generator.generate_markdown(data)
+                with open(os.path.join(project_root['path'], name), 'w+') as f:
+                    f.write(md_content)
+                print("A markdown file named \"{}\" was generated into your project's root.".format(name))
+                return
 
         if paths.inside_project(conf['projects-path']):
             handle_inside_project(args, conf)

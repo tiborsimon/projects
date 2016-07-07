@@ -47,11 +47,23 @@ def generate_markdown(data):
     ret = '# {}\n\n'.format(data['name'])
     if 'description' in data:
         ret += data['description'] + '\n\n'
-    ret += '## Commands\n'
+    ret += '---\n\n'
     command_names = [cm for cm in data['commands']]
     for command_name in sorted(command_names):
         command = data['commands'][command_name]
+        if 'alias' in command:
+            continue
         ret += '### {}\n\n'.format(command_name)
+        if 'alternatives' in command:
+            alt = []
+            for a in command['alternatives']:
+                alt.append('`{}`'.format(a))
+            ret += '- _alternatives_: {}\n'.format(', '.join(alt))
+        if 'dependencies' in command:
+            dep = []
+            for d in command['dependencies']:
+                dep.append('`{}`'.format(d))
+            ret += '- _dependencies_: {}\n'.format(', '.join(dep))
         if 'description' in command:
-            ret += command['description'] + '\n\n'
+            ret += '\n' + command['description'] + '\n\n'
     return ret
