@@ -6,7 +6,6 @@
 [![PyPI](https://img.shields.io/pypi/v/projects.svg?maxAge=2592000)](https://pypi.python.org/pypi?name=projects&version=0.1.1&:action=display)
 [![license](https://img.shields.io/github/license/tiborsimon/projects.svg?maxAge=2592000)](https://github.com/tiborsimon/projects#license)
 [![PyPI](https://img.shields.io/pypi/dm/projects.svg?maxAge=2592000)](https://pypi.python.org/pypi?name=projects&version=0.1.1&:action=display)
-[![Status](https://img.shields.io/badge/status-under_development-yellow.svg)]()
 
 __projects__ is an easy to use _project navigator_ and a Makefile-like _scripting engine_. You can define your commands and inline documentations in __Projectfiles__.
 
@@ -24,13 +23,13 @@ __projects__ is not a replacement for Makefile or CMake it is an optional wrappe
 
 There are two possible way to install __projects__.
 
-It is available via `pip`:
+### Install with pip
 
 ```
 [sudo] pip install projects
 ```
 
-Or you can also install it from the sources:
+### Install from sources
 
 1. download the latest release or clone the repo's master branch
 1. go inside the sources root:
