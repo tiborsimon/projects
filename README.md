@@ -8,13 +8,14 @@
 [![PyPI](https://img.shields.io/pypi/dm/projects.svg?maxAge=2592000)](https://pypi.python.org/pypi?name=projects&version=0.1.1&:action=display)
 [![Status](https://img.shields.io/badge/status-under_development-yellow.svg)]()
 
-___projects___ is an easy to use project navigator with a Makefile-like scripting engine. You write _Projectfiles_ instead of Makefiles where you can document your project and you can create an interface for your users.
+__projects__ is an easy to use project navigator with a Makefile-like scripting engine. You write _Projectfiles_ instead of Makefiles where you can document your project and you can create an interface for your users.
 
 It works on every UNIX system with Python (2.7+ 3.x) installed. It's main purpose is to provide a simpler scripting interface with a built in documentation system. It's main target is any open source projects that want to be more user friendly from the first use. __projects__ designed to minimize the typing.
 
 __projects__ is not a replacement for Makefile or CMake it is an optional wrapper for them.
 
 ## Features
+
 - quick project navigation
 - _Projectfile_ based recursive scripting system
 - instant help menu generation
@@ -30,9 +31,10 @@ It is available via `pip`:
 ```
 
 Or you can also install it from the sources:
+
 1. download the latest release or clone the repo's master branch
-2. go inside the sources root:
-3. `[sudo] python setup.py install`
+1. go inside the sources root:
+1. `[sudo] python setup.py install`
 
 ## Usage
 ```
