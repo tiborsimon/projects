@@ -7,15 +7,13 @@
 [![license](https://img.shields.io/github/license/tiborsimon/projects.svg?maxAge=2592000)](https://github.com/tiborsimon/projects#license)
 [![PyPI](https://img.shields.io/pypi/dm/projects.svg?maxAge=2592000)](https://pypi.python.org/pypi?name=projects&version=0.1.1&:action=display)
 
-__projects__ is an easy to use _project navigator_ and a Makefile-like _scripting engine_. You can define your commands and inline documentations in __Projectfiles__.
-
-It works on every _UNIX_ system with Python 2.7+ or 3.x installed. It's main purpose is to provide a simpler scripting interface with a built in documentation system. It's main target is any open source projects that want to be more user friendly from the first use. __projects__ designed to minimize the typing.
+__projects__ is an easy to use _project navigator_ and a Makefile-like _scripting engine_. You can define your commands and inline documentations in __Projectfiles__. It works on every _UNIX_ system with Python 2.7+ or 3.x installed. It's main purpose is to provide a simpler scripting interface with a built in manual page generation system.
 
 __projects__ is not a replacement for Makefile or CMake it is an optional wrapper for them.
 
 ## Features
 
-- quick __project navigation__
+- quick __project navigation__ with minimal typing
 - __Projectfile__ based recursive scripting system
 - __command concatenation__ and __recursive separation__
 - instant __manual page__ generation
