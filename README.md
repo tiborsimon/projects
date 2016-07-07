@@ -33,7 +33,7 @@ There are two possible way to install __projects__.
 #### Install from sources
 
 1. download the latest release or clone the repo's master branch
-1. go inside the sources root:
+1. go inside the sources root
 1. `[sudo] python setup.py install`
 
 # Configuration
