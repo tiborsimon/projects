@@ -30,11 +30,13 @@ help_text = '''\
             i n t u i t i v e   p r o j e c t   m a n a g e m e n t
 ===============================================================================
 
- projects is an easy to use project navigator and a Makefile-like scripting
- engine. You can define your commands and inline documentations in
- Projectfiles. It works on every UNIX system with Python 2.7+ or 3.x installed.
- It's main purpose is to provide a simpler scripting interface with a built in
- manual page generation system.
+ <projects> is an easy to use project navigation tool and a Makefile-like
+ scripting engine. It's main purpose is to provide a simpler scripting
+ interface with a built in man page generator. You can define your commands
+ with inline documentation in Projectfiles. You can have one Projectfile in
+ every directory inside your project, <projects> will process them recursively.
+
+ <projects> works on every UNIX system with Python 2.7+ or 3.x installed.
 
  <projects> is not a replacement for Makefile or CMake it is an optional
  wrapper for them.
@@ -374,7 +376,7 @@ Template Projectfile
     ║     command's dependency list by any of it's alternatives.            ║
     ║     """                                                               ║
     ║     echo "The answer for everything is $magic!"                       ║
-    ║     # you can also use the ${{magic}} form                              ║
+    ║     # you can also use the ${{magic}} form                            ║
     ║                                                                       ║
     ╚═══════════════════════════════════════════════════════════════════════╝
 
