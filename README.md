@@ -15,10 +15,10 @@ __projects__ is not a replacement for Makefile or CMake it is an optional wrappe
 
 ## Features
 
-- quick project navigation
+- quick __project navigation__
 - __Projectfile__ based recursive scripting system
 - __command concatenation__ and __recursive separation__
-- instant help menu generation
+- instant __manual page__ generation
 
 ## Installation
 
@@ -328,7 +328,7 @@ answer|ans|a:
     echo "The answer for everything is $magic!" # you can also use the ${magic} form
 ```
 
-If you use the `p` command inside your project's root directory, __projects__ will generate a _manual screen_ from the __Projectfiles__ you created. The previously listed __Projectfile__ will result the following _manual screen_ assuming that your project is called _example_ (the project name is picked from it's containing directory's name):
+If you use the `p` command inside your project's root directory, __projects__ will generate a _manual page_ from the __Projectfiles__ you created. The previously listed __Projectfile__ will result the following _manual page_ assuming that your project is called _example_ (the project name is picked from it's containing directory's name):
 
 ```
 ================================================================================
