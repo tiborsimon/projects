@@ -48,9 +48,8 @@ doc-width: 80
 projects-path: ~/projects
 ```
 
-`projects-path` - _mandatory_, it's value will tell __projects__ where it can find your projects' repositories
-
-`doc-width` - _optional_, width of the generated __manual pages__. If not defined, it will be set to 80.
+- `projects-path` - _mandatory_ - It's value will tell __projects__ where it can find your projects' repositories
+- `doc-width` - _optional_ - Width of the generated __manual pages__. If not defined, it will be set to 80.
 
 
 # Usage
