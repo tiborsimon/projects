@@ -30,101 +30,123 @@ help_text = '''\
             i n t u i t i v e   p r o j e c t   m a n a g e m e n t
 ===============================================================================
 
- <projects> is an easy to use project navigator with a Makefile-like scripting
- engine. You write Projectfiles instead of Makefiles where you can document
- your project and you can create an interface for your users.
-
- It works on every UNIX system with Python (2.7+ 3.x) installed. It's main
- purpose is to provide a simpler scripting interface with a built in
- documentation system. It's main target is any open source projects that want
- to be more user friendly from the first use. <projects> designed to minimize
- the typing.
+ projects is an easy to use project navigator and a Makefile-like scripting
+ engine. You can define your commands and inline documentations in
+ Projectfiles. It works on every UNIX system with Python 2.7+ or 3.x installed.
+ It's main purpose is to provide a simpler scripting interface with a built in
+ manual page generation system.
 
  <projects> is not a replacement for Makefile or CMake it is an optional
  wrapper for them.
 
+
  Features:
-     - quick project navigation
-     - Projectfile based recursive scripting system
-     - instant help menu generation
+    - quick project navigation with minimal typing
+    - Projectfile based recursive scripting system
+    - command concatenation and recursive separation
+    - automatic manual page generation
+
+
+ Configuration
+
+    When projects starts up for the first time, it creates it's configuration
+    file (only if it isn't exist already) inside your home directory: ~/.prc
+
+    By default it contains the following options in YAML format:
+
+    ╔═══════════════════════════════════════════════════════════════════════╗
+    ║ $ cat ~/.prc                                                          ║
+    ║ doc-width: 80                                                         ║
+    ║ projects-path: ~/projects                                             ║
+    ╚═══════════════════════════════════════════════════════════════════════╝
+
+    projects-path  [mandatory]
+
+        It's value will tell projects where it can find your projects'
+        repositories
+
+    doc-width  [optional]
+
+        Width of the generated manual pages. If not defined, it will be set
+        to 80.
+
 
  Usage:
-     p
-     p p
-     p <command>
-     p (-h|--help)
-     p (-v|--version)
-     p (-i|--init)
-     p (-w|--walk)
-     p (-l|--list) <command>
-     p (-md|--markdown) [<file_name>]
+    p
+    p p
+    p <command>
+    p (-h|--help)
+    p (-v|--version)
+    p (-i|--init)
+    p (-w|--walk)
+    p (-l|--list) <command>
+    p (-md|--markdown) [<file_name>]
 
 
  p
 
-     This command is the main trigger for projects. It behaves differently
-     depending on your current working directory.
+    This command is the main trigger for projects. It behaves differently
+    depending on your current working directory.
 
-     OUTSIDE your projects directory, it opens the project selector screen,
-     where you can select your project by typing the projects name or by using
-     the arrows keys.
+    OUTSIDE your projects directory, it opens the project selector screen,
+    where you can select your project by typing the projects name or by using
+    the arrows keys.
 
-     INSIDE any of your projects (inside the repository root directory) this
-     command will show the manual generated from the Projectfiles.
+    INSIDE any of your projects (inside the repository root directory) this
+    command will show the manual generated from the Projectfiles.
 
 
  p p
 
-     This command behaves the same as the previous "p" command but it will
-     always display the project selector screen. This could be handy if you
-     want to switch projects quickly.
+    This command behaves the same as the previous "p" command but it will
+    always display the project selector screen. This could be handy if you
+    want to switch projects quickly.
 
-     This is the only prohibited command name that you cannot use for your
-     commands.
+    This is the only prohibited command name that you cannot use for your
+    commands.
 
 
  p <command>
 
-     This is the command for executing commands defined in the Projectfiles. By
-     convention all defined command should start with an alphanumeric character.
-     The commands started with a dash reserved for <projects> itself.
+    This is the command for executing commands defined in the Projectfiles. By
+    convention all defined command should start with an alphanumeric character.
+    The commands started with a dash reserved for <projects> itself.
 
-     The <command> keyword can be anything except the already taken keywords:
-
-        p, -h, --help, -v, --version, -i, --init, -w, --walk, -l, --list
+    The <command> keyword can be anything except the already taken keywords:
+    p, -h, --help, -v, --version, -i, --init, -w, --walk, -l, --list
 
 
  p (-h|--help)
 
-     Brings up this help screen.
+    Brings up this help screen.
 
 
  p (-v|--version)
 
-     Prints out the current <projects> version.
+    Prints out the current <projects> version.
 
 
  p (-i|--init)
 
-     Generates a template Projectfile into the current directory.
+    Generates a template Projectfile into the current directory.
 
 
  p (-w|--walk)
 
-     Lists out all directories in your project in the walk order <projects>
-     will follow. It marks the directories that contain a Projectfile.
+    Lists out all directories in your project in the walk order <projects>
+    will follow. It marks the directories that contain a Projectfile.
 
 
  p (-l|--list) <command>
 
-     Lists out the processed command bodies for the given command.
+    Lists out the processed command bodies for the given command.
 
 
  p (-md|--markdown) [<file_name>]
 
-     Generates a Markdown file from your processed Projectfiles. You can
-     optionally specify a name for teh generated file. The default name is
-     README.md.
+    Generates a Markdown file from your processed Projectfiles. You can
+    optionally specify a name for teh generated file. The default name is
+    README.md.
 
 
 
@@ -144,7 +166,7 @@ help_text = '''\
  be executed with the "p <command>". Projectfiles provide a powerful and self
  explanatory way to interact with your project.
 
- You can create an example Projectfile with the "p [-i|--init]" command. The
+ You can create an example Projectfile with the "p (-i|--init)" command. The
  generated Projectfile will demonstrate all provided functionality except the
  recursive command concatenation since it will generate only one Projectfile.
 
@@ -163,9 +185,10 @@ help_text = '''\
     - command description
     - recursive separator
 
- There is a strict order where you can place each features. Between each
- feature arbitrary number of empty lines are allowed. The order is the
- following:
+ Feature order:
+    There is a strict order where you can place each features. Between each
+    feature arbitrary number of empty lines are allowed. The order is the
+    following:
 
     1. version
     2. main description
@@ -304,9 +327,111 @@ help_text = '''\
     space). <projects> will execute all given commands line by line.
 
 
- Projectfile examples
+Template Projectfile
 
-    Simple example
+    The following Projectfile can be generated with the `p (-i|--init)` command:
+
+    ╔═══════════════════════════════════════════════════════════════════════╗
+    ║ from v1.0.0                                                           ║
+    ║                                                                       ║
+    ║ """                                                                   ║
+    ║ This is a template Projectfile you have created with the              ║
+    ║ 'p (-i|--init])' command. You can use the provided commands 'hello'   ║
+    ║ and 'answer' or it's shorter alternatives 'h' and 'ans' or 'a'. ie.:  ║
+    ║ p <command>                                                           ║
+    ║                                                                       ║
+    ║ You can start a new paragraph in the descriptions by inserting an     ║
+    ║ empty line like this.                                                 ║
+    ║                                                                       ║
+    ║ Descriptions are useful as they provide a searchable automatically    ║
+    ║ generated manual for your project for free. You can invoke this manual║
+    ║ with the "p" command if you are inside your project directory.        ║
+    ║ """                                                                   ║
+    ║                                                                       ║
+    ║ magic = 42  # variables goes to the global variable space             ║
+    ║                                                                       ║
+    ║ hello|h: [a]                                                          ║
+    ║     """                                                               ║
+    ║     This command will great you.                                      ║
+    ║                                                                       ║
+    ║     There is a shorter alternative "h" for the command. It is         ║
+    ║     depending on the "a" command which is the alternative of the      ║
+    ║     "answer" command.                                                 ║
+    ║                                                                       ║
+    ║     If you execute a command with dependencies, it's dependencies     ║
+    ║     will be executed first in the defined order.                      ║
+    ║     """                                                               ║
+    ║     echo "Hi! This is my very own Projectfile."                       ║
+    ║                                                                       ║
+    ║ answer|ans|a:                                                         ║
+    ║     """                                                               ║
+    ║     This command will give you the answer for every question.         ║
+    ║                                                                       ║
+    ║     You can use the long "answer" keyword as well as the shorter      ║
+    ║     "ans" or "a" to execute this command.                             ║
+    ║                                                                       ║
+    ║     Inside the Projectfile, you can also refer to a command in another║
+    ║     command's dependency list by any of it's alternatives.            ║
+    ║     """                                                               ║
+    ║     echo "The answer for everything is $magic!"                       ║
+    ║     # you can also use the ${{magic}} form                              ║
+    ║                                                                       ║
+    ╚═══════════════════════════════════════════════════════════════════════╝
+
+    If you use the "p" command inside your project's root directory,projects
+    will generate a manual page from the Projectfiles you created. The
+    previously listed Projectfile will result the following manual page
+    assuming that your project is called "example"
+    (the project name is picked from it's containing directory's name):
+
+    ╔═══════════════════════════════════════════════════════════════════════╗
+    ║ ===================================================================== ║
+    ║                             E X A M P L E                             ║
+    ║ ===================================================================== ║
+    ║                                                                       ║
+    ║ This is a template Projectfile you have created with the              ║
+    ║ "p (-i|--init])" command. You can use the provided commands 'hello'   ║
+    ║ and 'answer' or it's shorter alternatives 'h' and 'ans' or 'a'. ie.:  ║
+    ║ p <command>                                                           ║
+    ║                                                                       ║
+    ║ You can start a new paragraph in the descriptions by inserting an     ║
+    ║ empty line like this.                                                 ║
+    ║                                                                       ║
+    ║ Descriptions are useful as they provide a searchable automatically    ║
+    ║ generated manual for your project for free. You can invoke this manual║
+    ║ with the "p" command if you are inside your project directory.        ║
+    ║                                                                       ║
+    ║                                                                       ║
+    ║ answer|ans|a:                                                         ║
+    ║                                                                       ║
+    ║     This command will give you the answer for every question.         ║
+    ║                                                                       ║
+    ║     You can use the long "answer" keyword as well as the shorter      ║
+    ║     "ans" or "a" to execute this command.                             ║
+    ║                                                                       ║
+    ║     Inside the Projectfile, you can also refer to a command in        ║
+    ║     another command's dependency list by any of it's alternatives.    ║
+    ║                                                                       ║
+    ║                                                                       ║
+    ║ hello|h: [a]                                                          ║
+    ║                                                                       ║
+    ║     This command will great you.                                      ║
+    ║                                                                       ║
+    ║     There is a shorter alternative "h" for the command. It is         ║
+    ║     depending on the "a" command which is the alternative of the      ║
+    ║     "answer" command.                                                 ║
+    ║                                                                       ║
+    ║     If you execute a command with dependencies, it's dependencies     ║
+    ║     will be executed first in the defined order.                      ║
+    ║                                                                       ║
+    ╚═══════════════════════════════════════════════════════════════════════╝
+
+    This manual is displayed in a pager, so you can exit with the "q" key.
+
+
+ Advanced Projectfile examples
+
+    Command concatenation
 
     If you have multiple Projectfiles in your project and there are command
     headers that are defined in more than one Projectfile, the command bodies
@@ -590,7 +715,7 @@ def main(args):
 
     except config.ConfigError as e:
         error = e.args[0]
-        message = '\n Config error!\n {}'.format(error)
+        message = 'Config error!\n{}'.format(error)
         print(colored(message, 'red'))
         sys.exit(-1)
 
