@@ -2,7 +2,7 @@ from setuptools import setup
 from main import __printable_version__
 
 
-etup(name='projects',
+setup(name='projects',
       version=__printable_version__,
       description='The intuitive project manager',
       long_description="projects is an easy to use project navigation tool and a Makefile-like scripting engine. It's main purpose is to provide a simpler scripting interface with a built in man page generator. You can define your commands with inline documentation in Projectfiles. You can have one Projectfile in every directory inside your project, projects will process them recursively.",
