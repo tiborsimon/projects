@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='projects',
-    version='1.0.2',
+    version='1.0.3',
     description='The intuitive project manager',
     long_description=("projects is an easy to use project navigation tool "
                       "and a Makefile-like scripting engine. It's main purpose "
@@ -19,9 +19,6 @@ setup(
     keywords='project management command line terminal projects tool utility script scripting engine manual man',
     packages=find_packages(),
     scripts=['bin/p'],
-    entry_points={'console_scripts': [
-          'p = main:main',
-    ]},
     install_requires=[
           'mock>=2.0.0',
           'urwid',
