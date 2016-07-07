@@ -271,21 +271,21 @@ If a command is redefined in another __Projectfile__, the command descriptions w
 The following __Projectfile__ can be generated with the `p (-i|--init)` command:
 
 ```
-from v{}
+from v1.0.0
 
 """
-This is a template Projectfile you have created with the 'p [-i|--init]' command.
+This is a template Projectfile you have created with the 'p (-i|--init])' command.
 You can use the provided commands 'hello' and 'answer' or it's shorter alternatives
 'h' and 'ans' or 'a'. ie.: p <command>
 
 You can start a new paragraph in the descriptions by inserting an empty line like this.
 
 Descriptions are useful as they provide a searchable automatically generated manual
-for your project for free. You can invoke this manual with the "p" command inside if
-you are inside your project directory.
+for your project for free. You can invoke this manual with the "p" command if you are 
+inside your project directory.
 """
 
-magic = 42
+magic = 42  # variables goes to the global variable space
 
 hello|h: [a]
     """
@@ -297,7 +297,7 @@ hello|h: [a]
     If you execute a command with dependencies, it's dependencies will be executed first
     in the defined order.
     """
-    echo "This is the my very own Projectfile."
+    echo "Hi! This is my very own Projectfile."
 
 answer|ans|a:
     """
@@ -309,7 +309,7 @@ answer|ans|a:
     Inside the Projectfile, you can also refer to a command in another command's
     dependency list by any of it's alternatives.
     """
-    echo "The answer for everything is $magic!"
+    echo "The answer for everything is $magic!" # you can also use the ${magic} form
 ```
 
 
