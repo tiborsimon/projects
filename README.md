@@ -8,7 +8,7 @@
 [![PyPI](https://img.shields.io/pypi/dm/projects.svg?maxAge=2592000)](https://pypi.python.org/pypi?name=projects&version=0.1.1&:action=display)
 [![Status](https://img.shields.io/badge/status-under_development-yellow.svg)]()
 
-__projects__ is an easy to use project navigator with a Makefile-like scripting engine. You write _Projectfiles_ instead of Makefiles where you can document your project and you can create an interface for your users.
+__projects__ is an easy to use _project navigator_ and a Makefile-like _scripting engine_. You can define your commands and inline documentations in _Projectfiles_.
 
 It works on every UNIX system with Python (2.7+ 3.x) installed. It's main purpose is to provide a simpler scripting interface with a built in documentation system. It's main target is any open source projects that want to be more user friendly from the first use. __projects__ designed to minimize the typing.
 
@@ -49,6 +49,9 @@ p (-l|--list) <command>
 p (-md|--markdown) [<file_name>]
 ```
 
+
+### Main command
+
 ```
 p
 ```
@@ -60,6 +63,8 @@ _OUTSIDE_ your projects directory, it opens the project selector screen, where y
 _INSIDE_ any of your projects (inside the repository root directory) this command will show the manual generated from the _Projectfiles_.
 
 
+### Direct project selector command
+
 ```
 p p
 ```
@@ -68,6 +73,7 @@ This command behaves the same as the previous `p` command but it will always dis
 
 This is the only prohibited command name that you cannot use for your commands.
 
+### Execute defined command
 
 ```
 p <command>
@@ -80,12 +86,15 @@ The `<command>` keyword can be anything except the already taken keywords:
 `p`, `-h`, `--help`, `-v`, `--version`, `-i`, `--init`, `-w`, `--walk`, `-l`, `--list`
 
 
+### Help screen
+
 ```
 p (-h|--help)
 ```
 
 Brings up this help screen.
 
+### Version information
 
 ```
 p (-v|--version)
@@ -93,6 +102,7 @@ p (-v|--version)
 
 Prints out the current __projects__ version.
 
+### Template Projectfile
 
 ```
 p (-i|--init)
@@ -100,6 +110,7 @@ p (-i|--init)
 
 Generates a template _Projectfile_ into the current directory.
 
+### Projectfile walk order listing
 
 ```
 p (-w|--walk)
@@ -107,6 +118,7 @@ p (-w|--walk)
 
 Lists out all directories in your project in the walk order __projects__ will follow. It marks the directories that contain a _Projectfile_.
 
+### Processed command script listing
 
 ```
 p (-l|--list) <command>
@@ -114,6 +126,7 @@ p (-l|--list) <command>
 
 Lists out the processed command bodies for the given command.
 
+### Markdown generation
 
 ```
 p (-md|--markdown) [<file_name>]
