@@ -7,7 +7,7 @@ try:
 except ImportError:
     from unittest import mock
 
-import main
+from projects import main
 
 
 class DetermineIfCallHappenedFromProject(TestCase):
