@@ -3,7 +3,7 @@
 
 from unittest import TestCase
 
-from projects import project_selector
+from projects.gui import project_selector
 
 
 class Filtering(TestCase):

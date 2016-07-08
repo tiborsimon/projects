@@ -14,7 +14,7 @@ try:
 except ImportError:
     builtin_module = 'builtins'
 
-from projects.doc_generator import generate_doc, generate_markdown
+from projects.gui.doc_generator import generate_doc, generate_markdown
 
 
 class DocGeneratorTests(TestCase):

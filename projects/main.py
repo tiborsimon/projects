@@ -2,17 +2,19 @@
 # -*- coding: utf-8 -*-
 
 import os
-import sys
-from projects import config
-from projects import paths
-from projects import projectfile
-import gui
-import subprocess
-from termcolor import colored
 import pydoc
-from projects import doc_generator
+import subprocess
+import sys
 
 from pkg_resources import get_distribution
+from termcolor import colored
+
+from projects import config
+from projects import gui
+from projects import paths
+from projects import projectfile
+from projects.gui import doc_generator
+
 __version__ = get_distribution('projects').version
 
 help_text = '''\

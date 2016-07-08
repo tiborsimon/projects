@@ -1,7 +1,9 @@
-import urwid
 import pydoc
-from projects.project_selector import ProjectSelector
+
+import urwid
+
 from projects import doc_generator
+from projects.gui.project_selector import ProjectSelector
 
 
 def select_project(project_list, path_callback):
