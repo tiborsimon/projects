@@ -17,6 +17,12 @@ setup(name='projects',
       entry_points={'console_scripts': [
             'p = main:main',
       ]},
+      install_requires=[
+            'mock>=2.0.0',
+            'urwid',
+            'pyyaml',
+            'termcolor'
+      ],
       include_package_data=True,
       zip_safe=False,
       classifiers=[
