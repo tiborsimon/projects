@@ -3,7 +3,7 @@
 [![Gitter](https://img.shields.io/gitter/room/tiborsimon/projects.svg?maxAge=2592000)](https://gitter.im/tiborsimon/projects?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/tiborsimon/projects.svg?branch=master)](https://travis-ci.org/tiborsimon/projects)
 [![Coveralls](https://img.shields.io/coveralls/tiborsimon/projects.svg?maxAge=2592000)](https://coveralls.io/github/tiborsimon/projects)
-[![PyPI version](https://img.shields.io/pypi/v/projects.svg?maxAge=2592000)](https://pypi.python.org/pypi?name=projects&:action=display)
+[![PyPI version](https://img.shields.io/pypi/v/projects.svg?maxAge=2592)](https://pypi.python.org/pypi?name=projects&:action=display)
 [![license](https://img.shields.io/github/license/tiborsimon/projects.svg?maxAge=2592000)](https://github.com/tiborsimon/projects#license)
 [![PyPI](https://img.shields.io/pypi/dm/projects.svg?maxAge=2592000)](https://pypi.python.org/pypi?name=projects&:action=display)
 
