@@ -2,7 +2,7 @@ import pydoc
 
 import urwid
 
-from projects import doc_generator
+from projects.gui import doc_generator
 from projects.gui.project_selector import ProjectSelector
 
 
@@ -60,24 +60,3 @@ def show_project_details(data, width):
     doc = doc_generator.generate_doc(data, width)
     pydoc.pager(doc)
 
-
-if __name__ == '__main__':
-    print('starting gui')
-    l = [
-        'imre',
-        'bela',
-        'gizike',
-        'adorjan',
-        'hello',
-        'laskdjflkasj',
-        'dkjfgiuenkjnc',
-        'asdfarg',
-        'asoiulsihf',
-        'asdfhekrjher',
-        'tseoijteo',
-        'oeitjgoj',
-        'oierjogijef',
-        'oeisrofisf',
-        'oeiroijiuhsdkj'
-    ]
-    select_project(l)

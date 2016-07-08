@@ -10,7 +10,7 @@ from pkg_resources import get_distribution
 from termcolor import colored
 
 from projects import config
-from projects import gui
+from projects.gui import gui
 from projects import paths
 from projects import projectfile
 from projects.gui import doc_generator
