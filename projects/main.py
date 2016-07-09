@@ -59,7 +59,7 @@ help_text = '''\
 
     ╔═══════════════════════════════════════════════════════════════════════╗
     ║ $ cat ~/.prc                                                          ║
-    ║ doc-width: 80                                                         ║
+    ║ max-doc-width: 80                                                         ║
     ║ projects-path: ~/projects                                             ║
     ╚═══════════════════════════════════════════════════════════════════════╝
 
@@ -68,10 +68,10 @@ help_text = '''\
         It's value will tell projects where it can find your projects'
         repositories
 
-    doc-width  [optional]
+    max-doc-width  [optional]
 
-        Width of the generated manual pages. If not defined, it will be set
-        to 80.
+        The maximum width of the generated manual pages. If not defined, it
+        will be set to 80. <projects> will adapt to narrower terminals.
 
 
  Usage:
@@ -228,7 +228,7 @@ help_text = '''\
 
     After the version you can define a global description of the whole project.
     You can write long lines, <projects> will wrap them according to the
-    defined "doc-width" key in the ~/.prc configuration file. Single line
+    defined "max-doc-width" key in the ~/.prc configuration file. Single line
     breaks won't break the lines in the generated manual. You have to use an
     empty line in order to add a line break.
 
@@ -621,7 +621,7 @@ def execute(args, data, conf):
             else:
                 pass
     else:
-        gui.show_project_details(data, conf['doc-width'])
+        gui.show_project_details(data, conf['max-doc-width'])
 
 
 def main(args):

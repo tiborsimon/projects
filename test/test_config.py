@@ -210,11 +210,11 @@ class Getter(TestCase):
     @mock.patch.object(config, '_validate', autospec=True)
     def test__missing_optional_key__gets_replaced_with_the_default_value(self, mock_validate, mock_load):
         dummy_config = dict(config._default_config)
-        del dummy_config['doc-width']
+        del dummy_config['max-doc-width']
         mock_load.return_value = dummy_config
         expected = 80
         result = config.get()
-        self.assertEqual(expected, result['doc-width'])
+        self.assertEqual(expected, result['max-doc-width'])
 
 
     @mock.patch.object(config, '_load_config', autospec=True)

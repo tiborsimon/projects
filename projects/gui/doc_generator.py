@@ -1,7 +1,15 @@
 import textwrap
+import subprocess
 
 
 def generate_doc(data, width):
+    try:
+        columns = int(subprocess.check_output(['tput', 'cols'], stderr=subprocess.PIPE))
+        if columns < width:
+            width = columns
+    except:
+        pass
+
     doc = '=' * width + '\n'
     name = data['name'].upper()
     name = '  '.join(name)

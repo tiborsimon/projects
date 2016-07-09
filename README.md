@@ -44,12 +44,12 @@ By default it contains the following options in YAML format:
 
 ```
 $ cat ~/.prc
-doc-width: 80
+max-doc-width: 80
 projects-path: ~/projects
 ```
 
 - `projects-path` - _mandatory_ - It's value will tell __projects__ where it can find your projects' repositories
-- `doc-width` - _optional_ - Width of the generated __manual pages__. If not defined, it will be set to 80.
+- `max-doc-width` - _optional_ - The maximum width of the __generated manual__ pages. If not defined, it will be set to 80. __projects__ will adapt to narrower terminals.
 
 
 # Usage
@@ -191,11 +191,11 @@ There is a strict order where you can place each features. Between each feature 
 _mandatory_
 
 ```
-v1.0.5
+v1.0.6
 ...
 ```
 
-This feature will define the earliest version that is compatible with the used __Projectfile__ format. All __projects__ versions greater or equal to the defined one will be compatible with the format, but earlier versions may have problems with future features. The first release version is v1.0.5.
+This feature will define the earliest version that is compatible with the used __Projectfile__ format. All __projects__ versions greater or equal to the defined one will be compatible with the format, but earlier versions may have problems with future features. The first release version is v1.0.6.
 
 If there are more __Projectfiles__ in your project and the defined versions are different, the smallest version will be used to maximize the functionality.
 
@@ -212,7 +212,7 @@ Description for the whole project.
 ...
 ```
 
-After the version you can define a global description of the whole project. You can write long lines, __projects__ will wrap them according to the defined `doc-width` key in the __~/.prc__ configuration file. Single line breaks won't break the lines in the generated manual. You have to use an empty line in order to add a line break.
+After the version you can define a global description of the whole project. You can write long lines, __projects__ will wrap them according to the defined `max-doc-width` key in the __~/.prc__ configuration file. Single line breaks won't break the lines in the generated manual. You have to use an empty line in order to add a line break.
 
 If you have multiple __Projectfiles__ created, the main descriptions will be concatenated with empty lines according to the walk order.
 
@@ -303,7 +303,7 @@ The command body defines what commands __projects__ needs to execute if you invo
 The following __Projectfile__ can be generated with the `p (-i|--init)` command:
 
 ```
-from v1.0.5
+from v1.0.6
 
 """
 This is a template Projectfile you have created with the 'p (-i|--init])' command.
@@ -399,7 +399,7 @@ If you have multiple __Projectfiles__ in your project and there are command head
 ```
 ╔═══════════════════════════════════╦═══════════════════════════════════╗
 ║ $ cat ./Projectfile               ║ $ cat ./dir/Projectfile           ║
-║ from v1.0.5                       ║ from v1.0.5                       ║
+║ from v1.0.6                       ║ from v1.0.6                       ║
 ║ my_command:                       ║ my_command:                       ║
 ║   echo "This is the root."        ║   echo "This is a subdir."        ║
 ╠═══════════════════════════════════╩═══════════════════════════════════╣
@@ -444,14 +444,14 @@ The following example will demonstrate this behavior:
 ```
 ╔═══════════════════════════════════╦═══════════════════════════════════╗
 ║ $ cat ./Projectfile               ║ $ cat ./A/Projectfile             ║
-║ from v1.0.5                       ║ from v1.0.5                       ║
+║ from v1.0.6                       ║ from v1.0.6                       ║
 ║ my_command:                       ║ my_command:                       ║
 ║   echo "pre root"                 ║   echo "pre A"                    ║
 ║   ===                             ║   ===                             ║
 ║   echo "post root"                ║   echo "post A"                   ║
 ╠═══════════════════════════════════╬═══════════════════════════════════╣
 ║ $ cat ./A/B/Projectfile           ║ $ cat ./C/Projectfile             ║
-║ from v1.0.5                       ║ from v1.0.5                       ║
+║ from v1.0.6                       ║ from v1.0.6                       ║
 ║ my_command:                       ║ my_command:                       ║
 ║   echo "listing inside A/B"       ║   echo "pre C"                    ║
 ║   ls -1                           ║   ===                             ║

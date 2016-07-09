@@ -80,7 +80,7 @@ _INVALID_VALUE_ERROR = 'Invalid value for key "{{}}" in config file ({}).'.forma
 
 _default_config = {
     'projects-path': '~/projects',
-    'doc-width': 80
+    'max-doc-width': 80
 }
 
 _mandatory_keys = [
@@ -88,7 +88,7 @@ _mandatory_keys = [
 ]
 
 _optional_keys = [
-    'doc-width'
+    'max-doc-width'
 ]
 
 
