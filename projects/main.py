@@ -643,7 +643,7 @@ def main(args):
                             f.write(projectfile_content)
                         print('Projectfile created. Use the "p" command to invoke the manual.')
                 else:
-                    print('\n You are not inside any of your projects. Use the "p" command to navigate into one.')
+                    print('You are not inside any of your projects. Use the "p" command to navigate into one.')
                 return
 
             elif args[0] in ['-h', '--help']:
@@ -711,6 +711,8 @@ def main(args):
         else:
             if not os.listdir(conf['projects-path']):
                 print("Your projects directory is empty. Nothing to do..")
+                with open(os.path.join(os.path.expanduser('~'), '.p-path'), 'w+') as f:
+                    f.write(conf['projects-path'])
                 return
 
         if paths.inside_project(conf['projects-path']):
