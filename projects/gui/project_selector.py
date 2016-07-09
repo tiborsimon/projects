@@ -1,6 +1,65 @@
 import re
 
 
+class ProjectSelector(object):
+    def __init__(self, data, normal, highlighted, selected):
+        self.data = data
+        self.keys = ''
+        self.focus = 0
+        self.last_selection_result = _filter_data(self.keys, self.data)
+        self.normal = normal
+        self.highlighted = highlighted
+        self.selected = selected
+
+    def add_key(self, key):
+        temp = self.keys
+        temp += key
+        result = _filter_data(temp, self.data)
+        match_occurred = False
+        for item in result:
+            for part in item:
+                if part['highlight']:
+                    match_occurred = True
+                    break
+        if match_occurred:
+            self.focus = 0
+            self.last_selection_result = result
+            self.keys = temp
+
+    def remove_key(self):
+        if len(self.keys) == 0:
+            pass
+        elif len(self.keys) == 1:
+            self.keys = ''
+        else:
+            self.keys = self.keys[:-1]
+        self.focus = 0
+        self.last_selection_result = _filter_data(self.keys, self.data)
+
+    def up(self):
+        if self.focus > 0:
+            self.focus -= 1
+
+    def down(self):
+        if self.focus < len(self.data)-1:
+            self.focus += 1
+
+    def select(self):
+        ret = ''
+        for part in self.last_selection_result[self.focus]:
+            ret += part['string']
+        return ret
+
+    def render(self):
+        return _render_string(
+            self.last_selection_result,
+            self.focus,
+            self.normal,
+            self.highlighted,
+            self.selected
+        )
+
+
 def _get_pattern_list(keys):
     ret = []
     for i in reversed(range(1, len(keys)+1)):
@@ -18,19 +77,19 @@ def _get_pattern_list(keys):
     return ret
 
 
-def weight_for_item(item):
+def _weight_for_item(item):
     return item['selection'][0][0]
 
 
-def weight_item(item):
+def _weight_item(item):
     if item['selection']:
-        item['weight'] = weight_for_item(item)
+        item['weight'] = _weight_for_item(item)
     else:
         item['weight'] = 100000000000
 
 
-def sort_structure(data):
-    weight_it(data)
+def _sort_structure(data):
+    _weight_it(data)
     data.sort(key=lambda k: k['string'])
     data.sort(key=lambda k: k['weight'])
     for item in data:
@@ -38,12 +97,12 @@ def sort_structure(data):
     return data
 
 
-def weight_it(data):
+def _weight_it(data):
     for item in data:
-        weight_item(item)
+        _weight_item(item)
 
 
-def merge_neighbour_selections(data):
+def _merge_neighbour_selections(data):
     for node in data:
         merged = []
         last = ()
@@ -69,7 +128,7 @@ def merge_neighbour_selections(data):
         node['selection'] = tuple(merged)
 
 
-def generate_data_structure_for_search_string(patterns, search_string):
+def _generate_data_structure_for_search_string(patterns, search_string):
     ret = []
     for line in search_string:
         for pattern in patterns:
@@ -88,11 +147,11 @@ def generate_data_structure_for_search_string(patterns, search_string):
                 'string': line,
                 'selection': ()
             })
-    merge_neighbour_selections(ret)
+    _merge_neighbour_selections(ret)
     return ret
 
 
-def transform_data(data):
+def _transform_data(data):
     ret = []
     for item in data:
         node = []
@@ -132,15 +191,15 @@ def transform_data(data):
     return ret
 
 
-def filter_data(keys, data):
+def _filter_data(keys, data):
     pattern = _get_pattern_list(keys)
-    data = generate_data_structure_for_search_string(pattern, data)
-    sorted_data = sort_structure(data)
-    final_data = transform_data(sorted_data)
+    data = _generate_data_structure_for_search_string(pattern, data)
+    sorted_data = _sort_structure(data)
+    final_data = _transform_data(sorted_data)
     return final_data
 
 
-def render_string(data, index, normal, highlighted, selected):
+def _render_string(data, index, normal, highlighted, selected):
     ret = []
     for i in range(len(data)):
         item = data[i]
@@ -158,65 +217,6 @@ def render_string(data, index, normal, highlighted, selected):
             ret.append((selected, ' ]'))
         ret.append((normal, '\n'))
     return ret
-
-
-class ProjectSelector(object):
-    def __init__(self, data, normal, highlighted, selected):
-        self.data = data
-        self.keys = ''
-        self.focus = 0
-        self.last_selection_result = filter_data(self.keys, self.data)
-        self.normal = normal
-        self.highlighted = highlighted
-        self.selected = selected
-
-    def add_key(self, key):
-        temp = self.keys
-        temp += key
-        result = filter_data(temp, self.data)
-        match_occurred = False
-        for item in result:
-            for part in item:
-                if part['highlight']:
-                    match_occurred = True
-                    break
-        if match_occurred:
-            self.focus = 0
-            self.last_selection_result = result
-            self.keys = temp
-
-    def remove_key(self):
-        if len(self.keys) == 0:
-            pass
-        elif len(self.keys) == 1:
-            self.keys = ''
-        else:
-            self.keys = self.keys[:-1]
-        self.focus = 0
-        self.last_selection_result = filter_data(self.keys, self.data)
-
-    def up(self):
-        if self.focus > 0:
-            self.focus -= 1
-
-    def down(self):
-        if self.focus < len(self.data)-1:
-            self.focus += 1
-
-    def select(self):
-        ret = ''
-        for part in self.last_selection_result[self.focus]:
-            ret += part['string']
-        return ret
-
-    def render(self):
-        return render_string(
-            self.last_selection_result,
-            self.focus,
-            self.normal,
-            self.highlighted,
-            self.selected
-        )
 
 
 

@@ -20,7 +20,7 @@ class Filtering(TestCase):
                 }
             ]
         ]
-        result = project_selector.filter_data('d', data)
+        result = project_selector._filter_data('d', data)
         self.assertEqual(expected, result)
 
     def test__result_for_one_line_with_one_match(self):
@@ -43,7 +43,7 @@ class Filtering(TestCase):
                 }
             ]
         ]
-        result = project_selector.filter_data('c', data)
+        result = project_selector._filter_data('c', data)
         self.assertEqual(expected, result)
 
     def test__result_for_one_line_with_two_matches(self):
@@ -66,7 +66,7 @@ class Filtering(TestCase):
                 }
             ]
         ]
-        result = project_selector.filter_data('cd', data)
+        result = project_selector._filter_data('cd', data)
         self.assertEqual(expected, result)
 
     def test__sorting_works_for_two_items(self):
@@ -92,7 +92,7 @@ class Filtering(TestCase):
                 }
             ]
         ]
-        result = project_selector.filter_data('a', data)
+        result = project_selector._filter_data('a', data)
         self.assertEqual(expected, result)
 
     def test__equal_weight_sorted_by_alphabet(self):
@@ -133,7 +133,7 @@ class Filtering(TestCase):
                 }
             ]
         ]
-        result = project_selector.filter_data('a', data)
+        result = project_selector._filter_data('a', data)
         self.assertEqual(expected, result)
 
     def test__fallback_to_lower_level_match(self):
@@ -160,7 +160,7 @@ class Filtering(TestCase):
                 }
             ]
         ]
-        result = project_selector.filter_data('ac', data)
+        result = project_selector._filter_data('ac', data)
         self.assertEqual(expected, result)
 
 
@@ -206,7 +206,7 @@ class ItemWeighting(TestCase):
             'selection': ()
         }
         expected = 100000000000
-        project_selector.weight_item(item)
+        project_selector._weight_item(item)
         self.assertEqual(expected, item['weight'])
 
     def test__single_in_the_first_character__returns_zero(self):
@@ -215,7 +215,7 @@ class ItemWeighting(TestCase):
             'selection': ((0,1),)
         }
         expected = 0
-        project_selector.weight_item(item)
+        project_selector._weight_item(item)
         self.assertEqual(expected, item['weight'])
 
     def test__single_match_in_the_second_position(self):
@@ -224,7 +224,7 @@ class ItemWeighting(TestCase):
             'selection': ((1, 2),)
         }
         expected = 1
-        project_selector.weight_item(item)
+        project_selector._weight_item(item)
         self.assertEqual(expected, item['weight'])
 
     def test__single_match_in_the_tenth_position(self):
@@ -233,7 +233,7 @@ class ItemWeighting(TestCase):
             'selection': ((9, 10),)
         }
         expected = 9
-        project_selector.weight_item(item)
+        project_selector._weight_item(item)
         self.assertEqual(expected, item['weight'])
 
 
@@ -253,7 +253,7 @@ class Transformation(TestCase):
                 }
             ]
         ]
-        result = project_selector.transform_data(data)
+        result = project_selector._transform_data(data)
         self.assertEqual(expected, result)
 
     def test__transformation_with_single_selection_in_the_front(self):
@@ -277,7 +277,7 @@ class Transformation(TestCase):
                 }
             ]
         ]
-        result = project_selector.transform_data(data)
+        result = project_selector._transform_data(data)
         self.assertEqual(expected, result)
 
     def test__transformation_with_single_selection_in_the_middle(self):
@@ -305,7 +305,7 @@ class Transformation(TestCase):
                 }
             ]
         ]
-        result = project_selector.transform_data(data)
+        result = project_selector._transform_data(data)
         self.assertEqual(expected, result)
 
     def test__transformation_with_single_selection_in_the_end(self):
@@ -329,7 +329,7 @@ class Transformation(TestCase):
                 }
             ]
         ]
-        result = project_selector.transform_data(data)
+        result = project_selector._transform_data(data)
         self.assertEqual(expected, result)
 
     def test__transformation_with_full_word_selected(self):
@@ -349,7 +349,7 @@ class Transformation(TestCase):
                 }
             ]
         ]
-        result = project_selector.transform_data(data)
+        result = project_selector._transform_data(data)
         self.assertEqual(expected, result)
 
     def test__transformation_with_two_selections(self):
@@ -386,7 +386,7 @@ class Transformation(TestCase):
                 }
             ]
         ]
-        result = project_selector.transform_data(data)
+        result = project_selector._transform_data(data)
         self.assertEqual(expected, result)
 
 
@@ -404,7 +404,7 @@ class SelectionMerge(TestCase):
                 'selection': ()
             }
         ]
-        project_selector.merge_neighbour_selections(data)
+        project_selector._merge_neighbour_selections(data)
         self.assertEqual(expected, data)
 
     def test__single_selection_no_merge_needed(self):
@@ -424,7 +424,7 @@ class SelectionMerge(TestCase):
                 )
             }
         ]
-        project_selector.merge_neighbour_selections(data)
+        project_selector._merge_neighbour_selections(data)
         self.assertEqual(expected, data)
 
     def test__two_no_mergable_selections(self):
@@ -446,7 +446,7 @@ class SelectionMerge(TestCase):
                 )
             }
         ]
-        project_selector.merge_neighbour_selections(data)
+        project_selector._merge_neighbour_selections(data)
         self.assertEqual(expected, data)
 
     def test__structure_with_selections_next_to_each_other_will_merged(self):
@@ -467,7 +467,7 @@ class SelectionMerge(TestCase):
                 )
             }
         ]
-        project_selector.merge_neighbour_selections(data)
+        project_selector._merge_neighbour_selections(data)
         self.assertEqual(expected, data)
 
     def test__item_before_the_merge(self):
@@ -490,7 +490,7 @@ class SelectionMerge(TestCase):
                 )
             }
         ]
-        project_selector.merge_neighbour_selections(data)
+        project_selector._merge_neighbour_selections(data)
         self.assertEqual(expected, data)
 
     def test__item_after_the_merge(self):
@@ -513,7 +513,7 @@ class SelectionMerge(TestCase):
                 )
             }
         ]
-        project_selector.merge_neighbour_selections(data)
+        project_selector._merge_neighbour_selections(data)
         self.assertEqual(expected, data)
 
     def test__multiple_merges(self):
@@ -539,7 +539,7 @@ class SelectionMerge(TestCase):
                 )
             }
         ]
-        project_selector.merge_neighbour_selections(data)
+        project_selector._merge_neighbour_selections(data)
         self.assertEqual(expected, data)
 
     def test__chaining_merges(self):
@@ -563,7 +563,7 @@ class SelectionMerge(TestCase):
                 )
             }
         ]
-        project_selector.merge_neighbour_selections(data)
+        project_selector._merge_neighbour_selections(data)
         self.assertEqual(expected, data)
 
     def test__multiple_nodes_can_processed_no_yes(self):
@@ -592,7 +592,7 @@ class SelectionMerge(TestCase):
                 )
             }
         ]
-        project_selector.merge_neighbour_selections(data)
+        project_selector._merge_neighbour_selections(data)
         self.assertEqual(expected, data)
 
     def test__multiple_nodes_can_processed_yes_no(self):
@@ -622,7 +622,7 @@ class SelectionMerge(TestCase):
                 'selection': ()
             }
         ]
-        project_selector.merge_neighbour_selections(data)
+        project_selector._merge_neighbour_selections(data)
         self.assertEqual(expected, data)
 
     def test__multiple_nodes_can_processed_yes_yes(self):
@@ -657,7 +657,7 @@ class SelectionMerge(TestCase):
                 )
             }
         ]
-        project_selector.merge_neighbour_selections(data)
+        project_selector._merge_neighbour_selections(data)
         self.assertEqual(expected, data)
 
     def test__multiple_nodes_can_processed_no_no(self):
@@ -682,5 +682,5 @@ class SelectionMerge(TestCase):
                 'selection': ()
             }
         ]
-        project_selector.merge_neighbour_selections(data)
+        project_selector._merge_neighbour_selections(data)
         self.assertEqual(expected, data)

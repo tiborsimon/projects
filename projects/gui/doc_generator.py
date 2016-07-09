@@ -10,7 +10,7 @@ def generate_doc(data, width):
 
     doc += '=' * width + '\n\n'
     if 'description' in data:
-        doc += wrap_lines(data['description'], width, indent=1) + '\n\n'
+        doc += _wrap_lines(data['description'], width, indent=1) + '\n\n'
     command_names = [cm for cm in data['commands']]
     for command_name in sorted(command_names):
         command = data['commands'][command_name]
@@ -27,12 +27,12 @@ def generate_doc(data, width):
             doc += ']'
         doc += '\n\n'
         if 'description' in command:
-            doc += wrap_lines(command['description'], width, indent=4)
+            doc += _wrap_lines(command['description'], width, indent=4)
         doc += '\n\n'
     return doc
 
 
-def wrap_lines(raw, width, indent=0):
+def _wrap_lines(raw, width, indent=0):
     ret = ''
     for p in [p.strip() for p in raw.split('\n') if p != '']:
         p_ret = ''

@@ -10,10 +10,9 @@ from pkg_resources import get_distribution
 from termcolor import colored
 
 from projects import config
-from projects.gui import gui
+from projects import gui
 from projects import paths
 from projects import projectfile
-from projects.gui import doc_generator
 
 __version__ = get_distribution('projects').version
 
@@ -670,7 +669,7 @@ def main(args):
                 project_root = paths.get_project_root(conf['projects-path'], os.getcwd())
                 data = projectfile.get_data_for_root(project_root['path'])
                 data['name'] = project_root['name']
-                md_content = doc_generator.generate_markdown(data)
+                md_content = gui.generate_markdown(data)
                 with open(os.path.join(project_root['path'], 'README.md'), 'w+') as f:
                     f.write(md_content)
                 print("README.md file was generated into your project's root.")
@@ -696,10 +695,22 @@ def main(args):
                 project_root = paths.get_project_root(conf['projects-path'], os.getcwd())
                 data = projectfile.get_data_for_root(project_root['path'])
                 data['name'] = project_root['name']
-                md_content = doc_generator.generate_markdown(data)
+                md_content = gui.generate_markdown(data)
                 with open(os.path.join(project_root['path'], name), 'w+') as f:
                     f.write(md_content)
                 print("A markdown file named \"{}\" was generated into your project's root.".format(name))
+                return
+
+        if not os.path.isdir(conf['projects-path']):
+            os.mkdir(conf['projects-path'])
+            print("Projects root was created: {}".format(conf['projects-path']))
+            print("You can put your projects here.")
+            with open(os.path.join(os.path.expanduser('~'), '.p-path'), 'w+') as f:
+                f.write(conf['projects-path'])
+            return
+        else:
+            if not os.listdir(conf['projects-path']):
+                print("Your projects directory is empty. Nothing to do..")
                 return
 
         if paths.inside_project(conf['projects-path']):

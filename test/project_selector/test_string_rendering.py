@@ -23,7 +23,7 @@ class Rendering(TestCase):
         expected = [
             (selected, '[ '), (normal, 'abc'), (selected, ' ]'), (normal, '\n')
         ]
-        result = project_selector.render_string(data, index, normal, highlighted, selected)
+        result = project_selector._render_string(data, index, normal, highlighted, selected)
         self.assertEqual(expected, result)
 
     def test__single_item_with_selection(self):
@@ -46,7 +46,7 @@ class Rendering(TestCase):
         expected = [
             (selected, '[ '), (normal, 'ab'), (highlighted, 'c'), (selected, ' ]'), (normal, '\n')
         ]
-        result = project_selector.render_string(data, index, normal, highlighted, selected)
+        result = project_selector._render_string(data, index, normal, highlighted, selected)
         self.assertEqual(expected, result)
 
     def test__two_items_no_selection(self):
@@ -72,7 +72,7 @@ class Rendering(TestCase):
             (selected, '[ '), (normal, 'a'), (selected, ' ]'), (normal, '\n'),
             (normal, '  '), (normal, 'b'), (normal, '\n')
         ]
-        result = project_selector.render_string(data, index, normal, highlighted, selected)
+        result = project_selector._render_string(data, index, normal, highlighted, selected)
         self.assertEqual(expected, result)
 
     def test__two_items_no_selection_index_moved(self):
@@ -98,7 +98,7 @@ class Rendering(TestCase):
             (normal, '  '), (normal, 'a'), (normal, '\n'),
             (selected, '[ '), (normal, 'b'), (selected, ' ]'), (normal, '\n')
         ]
-        result = project_selector.render_string(data, index, normal, highlighted, selected)
+        result = project_selector._render_string(data, index, normal, highlighted, selected)
         self.assertEqual(expected, result)
 
     def test__two_items_no_selection_index_moved_with_selection(self):
@@ -128,5 +128,5 @@ class Rendering(TestCase):
             (normal, '  '), (normal, 'a'), (normal, '\n'),
             (selected, '[ '), (normal, 'b'), (highlighted, 'c'), (selected, ' ]'), (normal, '\n')
         ]
-        result = project_selector.render_string(data, index, normal, highlighted, selected)
+        result = project_selector._render_string(data, index, normal, highlighted, selected)
         self.assertEqual(expected, result)

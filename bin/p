@@ -8,29 +8,30 @@ RESET=$(tput sgr0)
 
 # checking   if there is an active alias for the p command to source it
 if ! alias | grep --quiet "alias p='. p'"; then
-    echo ''
-    echo " [${YELLOW} !!!! ${RESET}] - Alias for the ${BOLD}p${RESET} command was not found. ${BOLD}Projects${RESET} will not be able to work properly!"
+    echo "Welcome to ${BOLD}projects${RESET}!"
+    echo "It seems that this is one of the first time you run the ${BOLD}p${RESET} command."
+    echo "There are some configurations to do before you can use the full feature set."
 
-    # looking for the shell interpreter
     if echo $SHELL | grep --quiet "/bash"; then
+        SH=bash
         RC_FILE=.bashrc
-        echo " [${CYAN} info ${RESET}] - ${BOLD}bash${RESET} detected."
     elif echo $SHELL | grep --quiet "/sh"; then
+        SH=sh
         RC_FILE=.shrc
-        echo " [${CYAN} info ${RESET}] - ${BOLD}bash${RESET} detected."
     elif echo $SHELL | grep --quiet "/zsh"; then
+        SH=zsh
         RC_FILE=.zshrc
-        echo " [${CYAN} info ${RESET}] - ${BOLD}bash${RESET} detected."
     fi
 
-    # patching the rc file if needed
-    if grep --quiet "alias p='. p'" $RC_FILE; then
-        echo " [${CYAN} info ${RESET}] - Alias exist in your ~/$RC_FILE file, but you need to source it! (source ~/$RC_FILE)"
-    else
+    grep --quiet "alias p='. p'" $RC_FILE
+    if [ "$?" !=  "0" ]; then
+        echo "Since you are using ${BOLD}$SH${RESET} an alias has appended to your ${BOLD}$RC_FILE${RESET}."
         echo '' >> ~/$RC_FILE
         echo "alias p='. p'" >> ~/$RC_FILE
-        echo " [${GREEN} done ${RESET}] - An alias appended to your ~/$RC_FILE file. You need to source it. (source ~/$RC_FILE)"
     fi
+
+    echo "You only need to source the modified file: ${YELLOW}source ~/$RC_FILE${RESET}"
+
 else
     PATH_FILE=~/.p-path
     python -m projects $(pwd) $@
