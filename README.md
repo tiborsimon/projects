@@ -20,6 +20,8 @@ __projects__ is not a replacement for Makefile or CMake it is an optional wrappe
 - __command concatenation__ and __recursive separation__
 - automatic __manual page__ generation
 
+![gif demo](https://raw.githubusercontent.com/tiborsimon/projects/master/docs/projects-demo.gif "projects gif demo")
+
 ## Installation
 
 There are two possible way to install __projects__.
