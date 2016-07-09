@@ -163,6 +163,48 @@ class Filtering(TestCase):
         result = project_selector._filter_data('ac', data)
         self.assertEqual(expected, result)
 
+    def test__fallback_to_lower_level_match_2(self):
+        data = [
+            'simple-input-parser',
+            'site'
+        ]
+        expected = [
+            [
+                {
+                    'string': 'site',
+                    'highlight': True
+                }
+            ],
+            [
+                {
+                    'string': 'si',
+                    'highlight': True
+                },
+                {
+                    'string': 'mple-inpu',
+                    'highlight': False
+                },
+                {
+                    'string': 't',
+                    'highlight': True
+                },
+                {
+                    'string': '-pars',
+                    'highlight': False
+                },
+                {
+                    'string': 'e',
+                    'highlight': True
+                },
+                {
+                    'string': 'r',
+                    'highlight': False
+                }
+            ]
+        ]
+        result = project_selector._filter_data('site', data)
+        self.assertEqual(expected, result)
+
 
 class SearchPatternGeneration(TestCase):
     def test__pattern_generation_1(self):

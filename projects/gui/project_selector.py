@@ -78,7 +78,9 @@ def _get_pattern_list(keys):
 
 
 def _weight_for_item(item):
-    return item['selection'][0][0]
+    weight = item['selection'][0][0]
+    weight += len(item['selection']) - 1
+    return weight
 
 
 def _weight_item(item):

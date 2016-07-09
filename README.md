@@ -191,11 +191,11 @@ There is a strict order where you can place each features. Between each feature 
 _mandatory_
 
 ```
-v1.0.7
+v1.0.8
 ...
 ```
 
-This feature will define the earliest version that is compatible with the used __Projectfile__ format. All __projects__ versions greater or equal to the defined one will be compatible with the format, but earlier versions may have problems with future features. The first release version is v1.0.7.
+This feature will define the earliest version that is compatible with the used __Projectfile__ format. All __projects__ versions greater or equal to the defined one will be compatible with the format, but earlier versions may have problems with future features. The first release version is v1.0.8.
 
 If there are more __Projectfiles__ in your project and the defined versions are different, the smallest version will be used to maximize the functionality.
 
@@ -303,7 +303,7 @@ The command body defines what commands __projects__ needs to execute if you invo
 The following __Projectfile__ can be generated with the `p (-i|--init)` command:
 
 ```
-from v1.0.7
+from v1.0.8
 
 """
 This is a template Projectfile you have created with the 'p (-i|--init])' command.
@@ -399,7 +399,7 @@ If you have multiple __Projectfiles__ in your project and there are command head
 ```
 ╔═══════════════════════════════════╦═══════════════════════════════════╗
 ║ $ cat ./Projectfile               ║ $ cat ./dir/Projectfile           ║
-║ from v1.0.7                       ║ from v1.0.7                       ║
+║ from v1.0.8                       ║ from v1.0.8                       ║
 ║ my_command:                       ║ my_command:                       ║
 ║   echo "This is the root."        ║   echo "This is a subdir."        ║
 ╠═══════════════════════════════════╩═══════════════════════════════════╣
@@ -444,14 +444,14 @@ The following example will demonstrate this behavior:
 ```
 ╔═══════════════════════════════════╦═══════════════════════════════════╗
 ║ $ cat ./Projectfile               ║ $ cat ./A/Projectfile             ║
-║ from v1.0.7                       ║ from v1.0.7                       ║
+║ from v1.0.8                       ║ from v1.0.8                       ║
 ║ my_command:                       ║ my_command:                       ║
 ║   echo "pre root"                 ║   echo "pre A"                    ║
 ║   ===                             ║   ===                             ║
 ║   echo "post root"                ║   echo "post A"                   ║
 ╠═══════════════════════════════════╬═══════════════════════════════════╣
 ║ $ cat ./A/B/Projectfile           ║ $ cat ./C/Projectfile             ║
-║ from v1.0.7                       ║ from v1.0.7                       ║
+║ from v1.0.8                       ║ from v1.0.8                       ║
 ║ my_command:                       ║ my_command:                       ║
 ║   echo "listing inside A/B"       ║   echo "pre C"                    ║
 ║   ls -1                           ║   ===                             ║

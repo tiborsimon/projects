@@ -641,7 +641,7 @@ def main(args):
                 with open(os.path.join(os.path.expanduser('~'), '.p-path'), 'w+') as f:
                     f.write(conf['projects-path'])
                 return
-            
+
         args = args[2:]
         if len(args) == 1:
             if args[0] in ['-v', '--version']:
