@@ -627,6 +627,21 @@ def execute(args, data, conf):
 def main(args):
     try:
         conf = config.get()
+
+        if not os.path.isdir(conf['projects-path']):
+            os.mkdir(conf['projects-path'])
+            print("Projects root was created: {}".format(conf['projects-path']))
+            print("You can put your projects here.")
+            with open(os.path.join(os.path.expanduser('~'), '.p-path'), 'w+') as f:
+                f.write(conf['projects-path'])
+            return
+        else:
+            if not os.listdir(conf['projects-path']):
+                print("Your projects directory is empty. Nothing to do..")
+                with open(os.path.join(os.path.expanduser('~'), '.p-path'), 'w+') as f:
+                    f.write(conf['projects-path'])
+                return
+            
         args = args[2:]
         if len(args) == 1:
             if args[0] in ['-v', '--version']:
@@ -699,20 +714,6 @@ def main(args):
                 with open(os.path.join(project_root['path'], name), 'w+') as f:
                     f.write(md_content)
                 print("A markdown file named \"{}\" was generated into your project's root.".format(name))
-                return
-
-        if not os.path.isdir(conf['projects-path']):
-            os.mkdir(conf['projects-path'])
-            print("Projects root was created: {}".format(conf['projects-path']))
-            print("You can put your projects here.")
-            with open(os.path.join(os.path.expanduser('~'), '.p-path'), 'w+') as f:
-                f.write(conf['projects-path'])
-            return
-        else:
-            if not os.listdir(conf['projects-path']):
-                print("Your projects directory is empty. Nothing to do..")
-                with open(os.path.join(os.path.expanduser('~'), '.p-path'), 'w+') as f:
-                    f.write(conf['projects-path'])
                 return
 
         if paths.inside_project(conf['projects-path']):
