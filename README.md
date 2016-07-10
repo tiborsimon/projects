@@ -7,7 +7,7 @@
 [![license](https://img.shields.io/github/license/tiborsimon/projects.svg?maxAge=2592000)](https://github.com/tiborsimon/projects#license)
 [![PyPI](https://img.shields.io/pypi/dm/projects.svg?maxAge=2592000)](https://pypi.python.org/pypi?name=projects&:action=display)
 
-__projects__ is an easy to use project navigation tool and a _Makefile-like_ scripting engine. It's main purpose is to provide a simpler scripting interface with a built in man page generator. You can define your commands with inline documentation in __Projectfiles__. You can have one __Projectfile__ in every directory inside your project, __projects__ will process them recursively.
+__projects__ is an easy to use project navigation tool and a _Makefile-like_ scripting engine. Its main purpose is to provide a simpler scripting interface with a built in man page generator. You can define your commands with inline documentation in __Projectfiles__. You can have one __Projectfile__ in every directory inside your project, __projects__ will process them recursively.
 
 __projects__ works on every UNIX system with Python 2.7+ or 3.x installed.
 
