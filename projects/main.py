@@ -5,6 +5,7 @@ import os
 import pydoc
 import subprocess
 import sys
+import signal
 
 from pkg_resources import get_distribution
 from termcolor import colored
@@ -599,32 +600,63 @@ def process_command(command_name, data):
     if 'dependencies' in command:
         for dep in command['dependencies']:
             process_command(dep, data)
-    concatenated_commands = ' && '.join(command['script'])
-    err, out = execute_call(concatenated_commands)
-    if out:
-        print(out.strip())
-    if err:
-        print(colored(err.strip(), 'red'))
+    echoed_commands = []
+    for line in command['script']:
+        if '&&' in line:
+            line = line.split('&&')
+            line = [l.strip() for l in line]
+        else:
+            line = [line.strip()]
+        for l in line:
+            if l.startswith('echo'):
+                echoed_commands.append('printf "\033[1;32m> " && {0} && printf "\033[0m"'.format(l))
+            elif l.startswith('cd'):
+                p = l.split('cd')
+                p = p[1].strip()
+                echoed_commands.append('printf "\033[0;34m@ {0}\033[0m\n" && {1}'.format(p, l))
+            else:
+                echoed_commands.append('printf "\033[1;33m$ {0}\033[0m\n" && {0}'.format(l))
+    concatenated_commands = ' && '.join(echoed_commands)
+    execute_call(concatenated_commands)
 
+def execute_call(command):
+    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
-def execute_call(line):
-    process = subprocess.Popen(line, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = process.communicate()
-    return err, out
+    while True:
+        nextline = process.stdout.readline()
+        if nextline == '' and process.poll() is not None:
+            break
+        sys.stdout.write(nextline)
+        sys.stdout.flush()
+
+    output, error = process.communicate()
+    exit_code = process.returncode
+
+    if exit_code != 0:
+        sys.stderr.write('\r\033[1;31m[ERROR {}]\033[0;31m Error during execution!\033[0m\n'.format(exit_code))
 
 
 def execute(args, data, conf):
     if args:
         for command_name in args:
             if command_name in data['commands']:
-                process_command(command_name, data)
+                try:
+                    process_command(command_name, data)
+                except (KeyboardInterrupt):
+                    sigterm_handle(None, None)
             else:
                 pass
     else:
         gui.show_project_details(data, conf['max-doc-width'])
 
 
+def sigterm_handle(signal, frame):
+    sys.stderr.write('\r\033[0;31mUser interrupt..\033[0m\n')
+    sys.exit(1)
+
+
 def main(args):
+    signal.signal(signal.SIGTSTP, sigterm_handle)
     try:
         conf = config.get()
 
