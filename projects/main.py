@@ -651,7 +651,7 @@ def execute(args, data, conf):
 
 
 def sigterm_handle(signal, frame):
-    sys.stderr.write('\r\033[0;31mUser interrupt..\033[0m\n')
+    sys.stderr.write('\r\r\033[1;31m[!]\033[0;31m User interrupt..\033[0m\n')
     sys.exit(1)
 
 
