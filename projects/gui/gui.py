@@ -58,5 +58,12 @@ def select_project(project_list, path_callback):
 
 def show_project_details(data, width):
     doc = doc_generator.generate_doc(data, width)
-    pydoc.pager(doc)
+    doc = doc.format(
+        head='\033[0;33m',
+        project='\033[1;36m',
+        command='\033[1;33m',
+        reset='\033[0m'
+    )
+    pydoc.pipepager(doc, cmd='less -R')
+    # pydoc.pager(doc)
 

@@ -42,21 +42,21 @@ class DocGeneratorTests(TestCase):
             }
         }
         expected = '''\
-================================================================================
-                              P  R  O  J  E  C  T
-================================================================================
+{head}================================================================================{reset}
+{project}                              P  R  O  J  E  C  T{reset}
+{head}================================================================================{reset}
 
- This is the main description..
-
-
-another-command|c|d:
-
-    This is the command description..
+This is the main description..
 
 
-some-command|a|b: [another-command]
+{command}another-command|c|d:{reset}
 
-    This is the command description..
+  This is the command description..
+
+
+{command}some-command|a|b: [another-command]{reset}
+
+  This is the command description..
 
 
 '''

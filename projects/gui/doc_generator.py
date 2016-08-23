@@ -10,21 +10,21 @@ def generate_doc(data, width):
     except:
         pass
 
-    doc = '=' * width + '\n'
+    doc = '{head}' + '=' * width + '{reset}'  + '\n'
     name = data['name'].upper()
     name = '  '.join(name)
-    name = name.center(width).rstrip() + '\n'
+    name = '{project}' + name.center(width).rstrip() + '{reset}' + '\n'
     doc += name
 
-    doc += '=' * width + '\n\n'
+    doc += '{head}' + '=' * width + '{reset}' + '\n\n'
     if 'description' in data:
-        doc += _wrap_lines(data['description'], width, indent=1) + '\n\n'
+        doc += _wrap_lines(data['description'], width) + '\n\n'
     command_names = [cm for cm in data['commands']]
     for command_name in sorted(command_names):
         command = data['commands'][command_name]
         if 'alias' in command:
             continue
-        doc += command_name
+        doc += '{command}' + command_name
         if 'alternatives' in command:
             doc += '|'
             doc += '|'.join(command['alternatives'])
@@ -33,9 +33,9 @@ def generate_doc(data, width):
             doc += ' ['
             doc += ', '.join(command['dependencies'])
             doc += ']'
-        doc += '\n\n'
+        doc += '{reset}\n\n'
         if 'description' in command:
-            doc += _wrap_lines(command['description'], width, indent=4)
+            doc += _wrap_lines(command['description'], width, indent=2)
         doc += '\n\n'
     return doc
 
