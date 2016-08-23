@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='projects',
-    version='1.0.8',
+    version='1.0.9',
     description='The intuitive project manager',
     long_description=("projects is an easy to use project navigation tool "
                       "and a Makefile-like scripting engine. It's main purpose "
