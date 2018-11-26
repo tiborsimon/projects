@@ -1,4 +1,4 @@
-#PROJECTS - the intuitive project manager
+# PROJECTS - the intuitive project manager
 
 [![Gitter](https://img.shields.io/gitter/room/tiborsimon/projects.svg?maxAge=2592000)](https://gitter.im/tiborsimon/projects?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/tiborsimon/projects.svg?branch=master)](https://travis-ci.org/tiborsimon/projects)
